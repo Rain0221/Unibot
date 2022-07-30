@@ -1,7 +1,7 @@
 apiurl = 'https://sekai.jzlsx.cn/api'
 # 游戏api请求地址
 predicturl = 'https://xxxxxxxx/predict.json'
-# 预测线地址
+# 预测线地址，有需要可找33申请：https://3-3.dev/pjsk-predict
 proxy = '127.0.0.1:7890'
 proxies = {
     'http': 'http://' + proxy,
