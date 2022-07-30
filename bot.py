@@ -898,7 +898,7 @@ async def _(app: CQHTTP, source: GroupRequest):
             else:
                 await app.sendGroupMessage(source.group_id, f'[CQ:at,qq=1103479519]{source.user_id}申请加群\n{source.comment}\n，无法判定')
 
-@unibot.receiver('GroupMemberBan')  # 群人数增加事件
+@unibot.receiver('GroupMemberBan')  # 群成员被禁言
 async def _(app: CQHTTP, source: GroupMemberBan):
     if source.user_id == source.self_id:
         await app.leave(source.group_id)
