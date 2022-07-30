@@ -31,7 +31,7 @@ bot依赖的别名/绑定数据库、游戏API实现、本地资源库、自动�
 
 如你的项目需要资源库可使用 [assets.sekai.unijzlsx.com](http://assets.sekai.unijzlsx.com/) 或 [Sekai Viewer](https://sekai.best/asset_viewer)、[pjsek.ai](https://pjsek.ai/assets) 的资源库，api 可使用 [sekai.jzlsx.cn/api](https://sekai.jzlsx.cn/api)，使用方法请参考对应功能的代码。
 
-masterDB 可使用 [Sekai-World/sekai-master-db-diff](https://github.com/Sekai-World/sekai-master-db-diff)，带玩家游玩数据、难度偏差值的乐曲信息来自 [pjsekai/database/musics](https://gitlab.com/pjsekai/database/musics)
+masterDB 可使用 [Sekai-World/sekai-master-db-diff](https://github.com/Sekai-World/sekai-master-db-diff)，带玩家游玩数据、难度偏差值的乐曲信息来自 [pjsekai/database/musics](https://gitlab.com/pjsekai/database/musics)，自动更新可参考`autotask.py`
 
 ## 支持与贡献
 
