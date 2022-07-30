@@ -22,7 +22,6 @@
 - [x] 猜曲/猜谱面/猜卡面游戏
 - [x] 抽卡
 - [x] 随机卡图
-- [x] 生成5000兆风格文字图
 
 ## 关于本项目
 
@@ -53,6 +52,7 @@ masterDB（项目内放在`masterdata`文件夹下） 可使用 [Sekai-World/sek
 - [chinosk114514/homo114514](https://github.com/chinosk114514/homo114514): 恶臭数字论证器
 - [SkywalkerSpace/emoji2pic-python](https://github.com/SkywalkerSpace/emoji2pic-python): Apple emoji and text to picture
 - [fuqiuai/wordCloud](https://github.com/fuqiuai/wordCloud): 用python进行文本分词并生成词云
+- [pcrbot/5000choyen](https://github.com/pcrbot/5000choyen): 适用hoshino的5000兆円欲しい! style图片生成器插件
 
 ## 其他
 
