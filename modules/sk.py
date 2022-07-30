@@ -239,7 +239,3 @@ def setprivate(qqnum, isprivate):
     conn.commit()
     conn.close()
     return True
-
-if __name__ == '__main__':
-    #print(bindid(1103479519, '5119940835442694'))
-    bindid(17348717338327891565, '5119940835442694')
