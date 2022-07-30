@@ -40,6 +40,7 @@ masterDB 可使用 [Sekai-World/sekai-master-db-diff](https://github.com/Sekai-W
 有意见或者建议也欢迎提交 [Issues](https://github.com/watagashi-uni/Unibot/issues) 和 [Pull requests](https://github.com/watagashi-uni/Unibot/pulls)。
 
 ## 特别感谢
+
 - [Mrs4s/go-cqhttp](https://github.com/Mrs4s/go-cqhttp): 基于 [Mirai](https://github.com/mamoe/mirai) 以及 [MiraiGo](https://github.com/Mrs4s/MiraiGo) 的 [OneBot](https://github.com/howmanybots/onebot/blob/master/README.md) Golang 原生实现 
 - [Lxns-Network/nakuru-project](https://github.com/Lxns-Network/nakuru-project)：一款为 go-cqhttp 的正向 WebSocket 设计的 Python SDK
 - [chinosk114514/QQ-official-guild-bot](https://github.com/chinosk114514/QQ-official-guild-bot): QQ官方频道机器人SDK
@@ -47,3 +48,7 @@ masterDB 可使用 [Sekai-World/sekai-master-db-diff](https://github.com/Sekai-W
 - [chinosk114514/homo114514](https://github.com/chinosk114514/homo114514): 恶臭数字论证器
 - [SkywalkerSpace/emoji2pic-python](https://github.com/SkywalkerSpace/emoji2pic-python): Apple emoji and text to picture
 - [fuqiuai/wordCloud](https://github.com/fuqiuai/wordCloud): 用python进行文本分词并生成词云
+
+## 其他
+
+词云、成分查询器、emoji2pic 等不是我自己做的功能使用源协议开源，不受AGPL协议限制。
