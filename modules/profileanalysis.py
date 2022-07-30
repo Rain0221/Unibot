@@ -752,23 +752,3 @@ def pjskb30(userid, private=False):
                                                        '※定数每次统计时可能会改变', '#000000', font)
     img.save(fr'piccache\{userid}b30.png')
 
-
-
-
-
-if __name__ == '__main__':
-    honor = {'seq': 2, 'profileHonorType': 'normal', 'honorId': 1868, 'honorLevel': 1, 'bondsHonorViewType': 'none', 'bondsHonorWordId': 0}
-    # honor = {'seq': 1, 'profileHonorType': 'normal', 'honorId': 66, 'honorLevel': 4, 'bondsHonorViewType': 'none', 'bondsHonorWordId': 0}
-    # honor = {'seq': 1, 'profileHonorType': 'bonds', 'honorId': 1091002, 'honorLevel': 2, 'bondsHonorViewType': 'none', 'bondsHonorWordId': 1091001}
-    img = generatehonor(honor, False)
-    img.show()
-    # bondsbackground(17, 18, False)
-    # profile = userprofile()
-    # profile.getprofile('5119940835442694')
-    # print(profile.full_perfect)
-    # print(profile.full_combo)
-    # print(profile.clear)
-    # print(profile.masterscore)
-    # print(rk(None, '3'))
-    # print(daibu('5119940835442694'))
-    # pjskb30('5119940835442694')
