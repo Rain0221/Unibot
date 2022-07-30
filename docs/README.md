@@ -8,6 +8,9 @@ actions:
   - text: 功能列表
     link: /usage/
     type: primary
+  - text: Github
+    link: https://github.com/watagashi-uni/Unibot
+    type: secondary
 features:
 - title: 分数查询
   details: 可在查询当前账号分数排名，临近档线分数及预测分数
