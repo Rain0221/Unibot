@@ -31,9 +31,11 @@ bot依赖的别名/绑定数据库、游戏API实现、本地资源库、自动�
 
 其中推特推送单独开源并配有部署文档：[watagashi-uni/twitterpush](https://github.com/watagashi-uni/twitterpush)
 
-如你的项目需要资源库可使用 [assets.sekai.unijzlsx.com](http://assets.sekai.unijzlsx.com/) 或 [Sekai Viewer](https://sekai.best/asset_viewer)、[pjsek.ai](https://pjsek.ai/assets) 的资源库，api 可使用 [sekai.jzlsx.cn/api](https://sekai.jzlsx.cn/api)，使用方法请参考对应功能的代码。
+### 关于 游戏 API、masterDB 和 游戏资源库
 
-masterDB（项目内放在`masterdata`文件夹下） 可使用 [Sekai-World/sekai-master-db-diff](https://github.com/Sekai-World/sekai-master-db-diff)，带玩家游玩数据、难度偏差值的乐曲信息（项目内放在`masterdata\realtime`文件夹下）来自 [pjsekai/database/musics](https://gitlab.com/pjsekai/database/musics)，自动更新可参考`autotask.py`
+本项目直接调用本地资源，如你的项目需要资源库可使用 [assets.sekai.unijzlsx.com](http://assets.sekai.unijzlsx.com/) 或 [Sekai Viewer](https://sekai.best/asset_viewer)、[pjsek.ai](https://pjsek.ai/assets) 的资源库，api 可使用 [sekai.jzlsx.cn/api](https://sekai.jzlsx.cn/api)，使用方法请参考对应功能的代码。稍作修改便可实现相应功能。
+
+masterDB（项目内放在`masterdata`文件夹下） 可使用 [Sekai-World/sekai-master-db-diff](https://github.com/Sekai-World/sekai-master-db-diff)，可自行编写自动更新模块。带玩家游玩数据、难度偏差值的乐曲信息（项目内放在`masterdata\realtime`文件夹下）来自 [pjsekai/database/musics](https://gitlab.com/pjsekai/database/musics)，自动更新可参考`autotask.py`
 
 ## 支持与贡献
 
