@@ -27,7 +27,7 @@
 ## 关于本项目
 bot依赖的别名/绑定数据库、游戏API实现、本地资源库、自动更新masterDB、自动下载资源解包等模块由于各种原因没有并开源，所以无法自行部署。你可以尝试使用[分布式客户端](https://bot.unijzlsx.com/distributed/)搭建一个Unibot，或者稍微修改一下其中一些功能，移植一些模块到你自己的机器人。
 
-如果想接入 Bot 的别名数据库，之后会更新别名查询歌曲 id ，歌曲 id 查询别名的 API 文档
+之后会更新别名查询歌曲 id ，歌曲 id 查询别名的 API 文档
 
 其中推特推送单独开源并配有部署文档：[watagashi-uni/twitterpush](https://github.com/watagashi-uni/twitterpush)
 
