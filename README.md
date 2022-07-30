@@ -56,4 +56,4 @@ masterDB（项目内放在`masterdata`文件夹下） 可使用 [Sekai-World/sek
 
 ## 其他
 
-词云、成分查询器、emoji2pic、5000兆图片生成等不是我自己做的功能使用源协议开源，不受AGPL协议限制。
+词云、成分查询器、emoji2pic 等不是我自己做的功能使用源协议开源，不受AGPL协议限制。
