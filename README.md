@@ -31,7 +31,7 @@ bot依赖的别名/绑定数据库、游戏API实现、本地资源库、自动�
 
 其中推特推送单独开源并配有部署文档：[watagashi-uni/twitterpush](https://github.com/watagashi-uni/twitterpush)
 
-### 关于 游戏 API、masterDB 和 游戏资源库
+### 关于游戏 API、masterDB 和 游戏资源库
 
 本项目直接调用本地资源，如你的项目需要资源库可使用 [assets.sekai.unijzlsx.com](http://assets.sekai.unijzlsx.com/) 或 [Sekai Viewer](https://sekai.best/asset_viewer)、[pjsek.ai](https://pjsek.ai/assets) 的资源库，api 可使用 [sekai.jzlsx.cn/api](https://sekai.jzlsx.cn/api)，使用方法请参考对应功能的代码。稍作修改便可实现相应功能。
 
