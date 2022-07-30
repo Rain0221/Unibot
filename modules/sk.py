@@ -202,8 +202,9 @@ def getqqbind(qqnum):
     c = conn.cursor()
     cursor = c.execute(f'SELECT * from bind where qqnum="{qqnum}"')
     for row in cursor:
+        conn.close()
         return row
-    conn.close()
+
 
 def bindid(qqnum, userid):
     if not verifyid(userid):
