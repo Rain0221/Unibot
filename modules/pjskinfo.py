@@ -47,7 +47,7 @@ def aliastomusicid(alias):
         return {'musicid': 0, 'match': 0, 'name': '', 'translate': ''}
     conn = sqlite3.connect('pjsk.db')
     c = conn.cursor()
-    cursor = c.execute(f"SELECT * from pjskalias where alias='{alias}'")
+    cursor = c.execute(f"SELECT * from pjskalias where alias='{alias}' COLLATE NOCASE")
     for row in cursor:
         conn.close()
         with open('masterdata/musics.json', 'r', encoding='utf-8') as f:
