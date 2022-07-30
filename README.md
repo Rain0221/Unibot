@@ -31,6 +31,8 @@
 
 如你的项目需要资源库可使用 [assets.sekai.unijzlsx.com](http://assets.sekai.unijzlsx.com/) 或 [Sekai Viewer](https://sekai.best/asset_viewer)、[pjsek.ai](https://pjsek.ai/assets) 的资源库，api 可使用 [sekai.jzlsx.cn/api](https://sekai.jzlsx.cn/api)，使用方法请参考对应功能的代码。
 
+masterDB 可使用 [Sekai-World/sekai-master-db-diff](https://github.com/Sekai-World/sekai-master-db-diff)
+
 ## 支持与贡献
 
 觉得好用可以给这个项目点个 Star 。
