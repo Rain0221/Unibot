@@ -4,7 +4,7 @@
   "main": "index.js",
   "repository": "https://github.com/watagashi-uni/Unibot.git",
   "author": "綿菓子ウニ <unijzlsx@gmail.com>",
-  "license": "MIT",
+  "license": "AGPL-3.0",
   "devDependencies": {
     "vuepress": "^2.0.0-beta.49"
   },
