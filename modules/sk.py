@@ -138,12 +138,18 @@ def sk(targetid=None, targetrank=None, secret=False):
         return '查不到数据捏，可能这期活动没打'
     try:
         TeamId = ranking['rankings'][0]['userCheerfulCarnival']['cheerfulCarnivalTeamId']
-        with open('masterdata/cheerfulCarnivalTeams.json') as f:
+        with open('masterdata/cheerfulCarnivalTeams.json', 'r', encoding='utf-8') as f:
             Teams = json.load(f)
-            for i in Teams:
-                if i['id'] != TeamId:
-                    continue
-                teamname = '队伍为' + i['teamName'] + "，"
+        with open('yamls/translate.yaml', encoding='utf-8') as f:
+            trans = yaml.load(f, Loader=yaml.FullLoader)
+        try:
+            translate = f"({trans['cheerfulCarnivalTeams'][TeamId]})"
+        except KeyError:
+            translate = ''
+        for i in Teams:
+            if i['id'] == TeamId:
+                teamname = '队伍为' + i['teamName'] + translate + "，"
+                break
     except KeyError:
         teamname = ''
     if not secret:
