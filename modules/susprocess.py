@@ -6,7 +6,7 @@ import re
 先去 https://suspatcher.unijzlsx.com/ 抓取谱面，
 该网站抓取的sus去掉了所有air，skills，fever，fever chance键
 
-接着将谱面文件放到相应文件夹下，运行该脚本删除可视节点
+接着将谱面文件放到相应文件夹下，运行该脚本将可视节点转换为不可视节点
 
 最后将谱面文件用 https://sus2img.paltee.net/ 转换为图片
 
