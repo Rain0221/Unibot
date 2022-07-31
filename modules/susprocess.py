@@ -1,7 +1,7 @@
 import re
 
 '''
-作用：生成无可视长条节点的sus谱面文件
+作用：生成无可视长条节点，filck(中二特有)的sus谱面文件
 
 先去 https://suspatcher.unijzlsx.com/ 抓取谱面，
 该网站抓取的sus去掉了所有air，skills，fever，fever chance键
@@ -20,8 +20,8 @@ def removevisual(dir):
     newsus = ''
     for line in lines:
         pattern = re.compile(r'(?<=#\d\d\d)3')
-        if len(pattern.findall(line)) == 1:
-            print(line)
+        pattern2 = re.compile(r'(?<=#\d\d\d)1')
+        if len(pattern.findall(line)) == 1:  # 去掉长条节点
             after = line[line.find(':')+1:]
             newafter = ''
             for i in range(0, int(len(after)/2)):
@@ -30,7 +30,15 @@ def removevisual(dir):
                 else:
                     newafter += after[2*i:2*i+2]
             line = line[:line.find(':')+1] + newafter
-            print(line)
+        if len(pattern2.findall(line)) == 1:  # 去掉flick
+            after = line[line.find(':')+1:]
+            newafter = ''
+            for i in range(0, int(len(after)/2)):
+                if after[2*i] == '3':
+                    newafter += '00'
+                else:
+                    newafter += after[2*i:2*i+2]
+            line = line[:line.find(':')+1] + newafter
         newsus += line + '\n'
     # print(out)
     with open(dir, 'w', encoding='utf-8') as f:
