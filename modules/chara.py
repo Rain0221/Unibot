@@ -1,4 +1,4 @@
-import datetime
+import json
 import os
 import random
 import sqlite3
@@ -7,7 +7,7 @@ import time
 from PIL import Image
 
 from modules.gacha import getcharaname
-from modules.pjskinfo import logtohtml, writelog
+from modules.pjskinfo import writelog
 
 
 def charainfo(alias, qunnum=''):
@@ -18,11 +18,11 @@ def charainfo(alias, qunnum=''):
         return "找不到你说的角色哦"
     conn = sqlite3.connect('pjsk.db')
     c = conn.cursor()
-    cursor = c.execute(f'SELECT * from qunalias where charaid={resp[0]} AND qunnum="{qunnum}"')
+    cursor = c.execute(f"SELECT * from qunalias where charaid={resp[0]} AND qunnum='{qunnum}'")
     for row in cursor:
         qunalias = qunalias + row[1] + "，"
 
-    cursor = c.execute(f'SELECT * from charaalias where charaid={resp[0]}')
+    cursor = c.execute(f"SELECT * from charaalias where charaid={resp[0]}")
     for row in cursor:
         allalias = allalias + row[0] + "，"
 
@@ -35,7 +35,7 @@ def charadel(alias, qqnum=None):
         return "找不到你说的角色哦，如删除仅本群可用昵称请使用grcharadel"
     conn = sqlite3.connect('pjsk.db')
     c = conn.cursor()
-    c.execute(f'DELETE from charaalias where alias="{alias}"')
+    c.execute(f"DELETE from charaalias where alias='{alias}'")
     conn.commit()
     conn.close()
     timeArray = time.localtime(time.time())
@@ -47,13 +47,13 @@ def grcharadel(alias, qunnum=''):
     charaid = 0
     conn = sqlite3.connect('pjsk.db')
     c = conn.cursor()
-    cursor = c.execute(f'SELECT * from qunalias where alias="{alias}" AND qunnum="{qunnum}"')
+    cursor = c.execute(f"SELECT * from qunalias where alias='{alias}' AND qunnum='{qunnum}'")
     for row in cursor:
         charaid = row[2]
     if charaid == 0:
         conn.close()
         return "找不到你说的角色哦，如删除全群可用昵称请使用charadel"
-    c.execute(f'DELETE from qunalias where alias="{alias}" AND qunnum="{qunnum}"')
+    c.execute(f"DELETE from qunalias where alias='{alias}' AND qunnum='{qunnum}'")
     conn.commit()
     conn.close()
     return "删除成功！"
@@ -64,11 +64,11 @@ def aliastocharaid(alias, qunnum=''):
     name = ''
     conn = sqlite3.connect('pjsk.db')
     c = conn.cursor()
-    cursor = c.execute(f'SELECT * from qunalias where alias="{alias}" AND qunnum="{qunnum}"')
+    cursor = c.execute(f"SELECT * from qunalias where alias='{alias}' AND qunnum='{qunnum}'")
     for row in cursor:
         charaid = row[2]
     if charaid == 0:
-        cursor = c.execute(f'SELECT * from charaalias where alias="{alias}"')
+        cursor = c.execute(f"SELECT * from charaalias where alias='{alias}'")
         for row in cursor:
             charaid = row[1]
     if charaid != 0:
@@ -83,13 +83,13 @@ def charaset(newalias, oldalias, qqnum=None):
     charaid = resp[0]
     conn = sqlite3.connect('pjsk.db')
     c = conn.cursor()
-    cursor = c.execute(f'SELECT * from charaalias where alias="{newalias}"')
+    cursor = c.execute(f"SELECT * from charaalias where alias='{newalias}'")
     # 看一下新的昵称在不在 在就更新 不在就增加
     alreadyin = False
     for raw in cursor:
         alreadyin = True
     if alreadyin:
-        c.execute(f'UPDATE charaalias SET charaid={charaid} WHERE alias= "{newalias}"')
+        c.execute(f"UPDATE charaalias SET charaid={charaid} WHERE alias= '{newalias}'")
     else:
         sql_add = 'insert into charaalias(ALIAS,CHARAID) values(?, ?)'
         c.execute(sql_add, (newalias, charaid))
@@ -108,13 +108,13 @@ def grcharaset(newalias, oldalias, qunnum):
     charaid = resp[0]
     conn = sqlite3.connect('pjsk.db')
     c = conn.cursor()
-    cursor = c.execute(f'SELECT * from qunalias where alias="{newalias}" AND qunnum="{qunnum}"')
+    cursor = c.execute(f"SELECT * from qunalias where alias='{newalias}' AND qunnum='{qunnum}'")
     # 看一下新的昵称在不在 在就更新 不在就增加
     alreadyin = False
     for raw in cursor:
         alreadyin = True
     if alreadyin:
-        c.execute(f'UPDATE qunalias SET charaid={charaid} WHERE alias="{newalias}" AND qunnum="{qunnum}"')
+        c.execute(f"UPDATE qunalias SET charaid={charaid} WHERE alias='{newalias}' AND qunnum='{qunnum}'")
     else:
         sql_add = 'insert into qunalias(QUNNUM,ALIAS,CHARAID) values(?, ?, ?)'
         c.execute(sql_add, (str(qunnum), newalias, charaid))
@@ -123,15 +123,23 @@ def grcharaset(newalias, oldalias, qunnum):
     return f"设置成功！(仅本群可用)\n{newalias}->{resp[1]}"
 
 def get_card(charaid):
+    with open('masterdata/cards.json', 'r', encoding='utf-8') as f:
+        allcards = json.load(f)
+    cardsdata = []
+    for i in allcards:
+        if i['characterId'] == charaid:
+            cardsdata.append({
+                'prefix': i['prefix'],
+                'assetbundleName': i['assetbundleName'],
+                'releaseAt': i['releaseAt'],
+            })
+    rannum = random.randint(0, len(cardsdata) - 1)
+    while cardsdata[rannum]['releaseAt'] > int(time.time() * 1000):
+        print(cardsdata[rannum]['prefix'], '重抽')
+        rannum = random.randint(0, len(cardsdata) - 1)
     if random.randint(0, 1) == 1:
         path = 'data/assets/sekai/assetbundle/resources/startapp/character/member'
-        target = []
-        files = os.listdir(path)
-        files_dir = [f for f in files if os.path.isdir(os.path.join(path, f))]
-        for i in files_dir:
-            if i[:6] == 'res0' + charaid.zfill(2):
-                target.append(i)
-        path = path + "/" + target[random.randint(0, len(target) - 1)]
+        path = path + "/" + cardsdata[rannum]['assetbundleName']
         files = os.listdir(path)
         files_file = [f for f in files if os.path.isfile(os.path.join(path, f))]
         if 'card_after_training.png' in files_file:
@@ -147,13 +155,7 @@ def get_card(charaid):
             im.save(path[:-3] + 'jpg', quality=95)
     else:
         path = 'data/assets/sekai/assetbundle/resources/startapp/character/member_cutout_trm'
-        target = []
-        files = os.listdir(path)
-        files_dir = [f for f in files if os.path.isdir(os.path.join(path, f))]
-        for i in files_dir:
-            if i[:6] == 'res0' + charaid.zfill(2):
-                target.append(i)
-        path = path + "/" + target[random.randint(0, len(target) - 1)]
+        path = path + "/" + cardsdata[rannum]['assetbundleName']
         files = os.listdir(path)
         files_file = [f for f in files if os.path.isfile(os.path.join(path, f))]
         if 'after_training.png' in files_file:

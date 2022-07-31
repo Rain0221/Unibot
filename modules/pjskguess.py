@@ -73,12 +73,12 @@ def cutjacket(musicid, qunnum, size=140, isbw=False):
 def getrandomcard():
     with open('masterdata/cards.json', 'r', encoding='utf-8') as f:
         cardsdata = json.load(f)
-    rannum = random.randint(0, len(cardsdata))
+    rannum = random.randint(0, len(cardsdata) - 1)
     while (cardsdata[rannum]['releaseAt'] > int(time.time() * 1000)
            or cardsdata[rannum]['cardRarityType'] == 'rarity_1'
            or cardsdata[rannum]['cardRarityType'] == 'rarity_2'):
         print('重抽')
-        rannum = random.randint(0, len(cardsdata))
+        rannum = random.randint(0, len(cardsdata) - 1)
     return cardsdata[rannum]['characterId'], cardsdata[rannum]['assetbundleName'], cardsdata[rannum]['prefix'], cardsdata[rannum]['cardRarityType']
 
 
