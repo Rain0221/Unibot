@@ -216,7 +216,10 @@ def getchart(musicid, difficulty):
                         bgpic.save(f'charts/sdvxInCharts/{musicid}/{difficulty}.png')
                         return f'charts/sdvxInCharts/{musicid}/{difficulty}.png'
                     else:  # 没下载到
-                        return None
+                        if os.path.exists(f'charts/sus/{musicid}/{difficulty}.png'):  # 本地有缓存
+                            return f'charts/sus/{musicid}/{difficulty}.png'
+                        else:
+                            return None
     else:  # 其他难度
         if os.path.exists(f'charts/SekaiViewer/{musicid}/{difficulty}.png'):  # 本地有缓存
             return f'charts/SekaiViewer/{musicid}/{difficulty}.png'
@@ -350,8 +353,11 @@ def aliastochart(full, sdvx=False):
                 bpmtext = bpmtext + ' - ' + str(bpms['bpm']).replace('.0', '')
             if 'SekaiViewer' in dir:
                 text = text + '\nBPM: ' + bpmtext[3:] + '\n谱面图片来自Sekai Viewer'
-            else:
+            elif 'sdvxInCharts' in dir:
                 text = text + '\nBPM: ' + bpmtext[3:] + '\n谱面图片来自プロセカ譜面保管所'
+            else:
+                text = text + '\nBPM: ' + bpmtext[3:] + '\n目前两个PJSK谱面预览来源均未更新，' \
+                                                        '暂时使用来自CHUNITHM谱面转换器生成的图片（长条没有斜率显示，边缘多出一条轨道）'
             return text, dir  # 有图 return俩
         else:
             return text  # 无图 return歌曲信息
