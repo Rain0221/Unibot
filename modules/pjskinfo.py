@@ -49,7 +49,6 @@ def aliastomusicid(alias):
     c = conn.cursor()
     cursor = c.execute(f"SELECT * from pjskalias where alias='{alias}' COLLATE NOCASE")
     for row in cursor:
-        conn.close()
         with open('masterdata/musics.json', 'r', encoding='utf-8') as f:
             data = json.load(f)
         name = ''
@@ -59,11 +58,14 @@ def aliastomusicid(alias):
             name = musics['title']
             break
         with open('yamls/translate.yaml', encoding='utf-8') as f:
-            trans = yaml.load(f, Loader=yaml.FullLoader)
+            trans = yaml.load(f, Loader=yaml.FullLoader)['musics']
         try:
             translate = trans[row[1]]
+            if translate == name:
+                translate = ''
         except KeyError:
             translate = ''
+        conn.close()
         return {'musicid': row[1], 'match': 1, 'name': name, 'translate': translate}
     conn.close()
     return matchname(alias)
@@ -74,7 +76,7 @@ def matchname(alias):
     with open('masterdata/musics.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
     with open('yamls/translate.yaml', encoding='utf-8') as f:
-        trans = yaml.load(f, Loader=yaml.FullLoader)
+        trans = yaml.load(f, Loader=yaml.FullLoader)['musics']
 
     for musics in data:
         name = musics['title']
@@ -94,6 +96,8 @@ def matchname(alias):
             pass
     try:
         match['translate'] = trans[match['musicid']]
+        if match['translate'] == match['name']:
+            match['translate'] = ''
     except KeyError:
         match['translate'] = ''
     return match

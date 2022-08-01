@@ -4,9 +4,10 @@ import json
 import os
 import time
 
+import yaml
 import requests
 from apscheduler.schedulers.blocking import BlockingScheduler
-
+from zhconv import convert
 from modules.config import proxies
 
 
@@ -65,11 +66,43 @@ def cleancache(path='piccache/'):
                 else:
                     print(f"跳过{file} (缓存{nowtime - filectime})")
 
+def updatetranslate(raw, value):
+    with open('yamls/translate.yaml', encoding='utf-8') as f:
+        translation = yaml.load(f, Loader=yaml.FullLoader)
+    if translation[value] is None:
+        translation[value] = {}
+    try:
+        request = requests.get(f'https://raw.githubusercontent.com/Sekai-World/sekai-i18n/main/zh-TW/{raw}.json',
+                               proxies=proxies)
+        data = request.json()
+    except:
+        print(raw + '翻译下载失败')
+        return
+
+    for i in data:
+        try:
+            translation[value][int(i)]
+        except KeyError:
+            zhhan = convert(data[i], 'zh-cn')
+            translation[value][int(i)] = zhhan
+            print('更新翻译', value, i, zhhan)
+    with open('yamls/translate.yaml', 'w', encoding='utf-8') as f:
+        yaml.dump(translation, f, allow_unicode=True)
+
+
+def updatealltrans():
+    time_printer('检查新增翻译')
+    updatetranslate('music_titles', 'musics')
+    updatetranslate('event_name', 'events')
+    updatetranslate('card_prefix', 'card_prefix')
+    updatetranslate('cheerful_carnival_teams', 'cheerfulCarnivalTeams')
 
 if __name__ == '__main__':
     cleancache()
     detectplaydata()
+    updatealltrans()
     scheduler = BlockingScheduler()
     scheduler.add_job(detectplaydata, 'interval', seconds=300, id='playinfocheck')
     scheduler.add_job(cleancache, 'interval', seconds=300, id='cleancache')
+    scheduler.add_job(updatealltrans, 'interval', hours=2, id='updatealltrans')
     scheduler.start()

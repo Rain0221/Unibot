@@ -22,3 +22,4 @@ html2text~=2020.1.16
 xmltodict~=0.13.0
 mutagen~=1.45.1
 pydub~=0.25.1
+zhconv~=1.4.3
