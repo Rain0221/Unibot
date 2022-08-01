@@ -5,6 +5,10 @@ sidebar: false
 
 歌曲昵称/角色昵称的设置日志
 
+### 2022年8月
+
+[昵称设置日志](https://logs.unijzlsx.com/202208.html)
+
 ### 2022年7月
 
 [昵称设置日志](https://logs.unijzlsx.com/202207.html)

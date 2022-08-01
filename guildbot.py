@@ -317,7 +317,7 @@ def get_at_message(chain: bot_api.structs.Message):
             chain.content = chain.content.replace('来点', '')
             resp = aliastocharaid(chain.content, chain.guild_id)
             if resp[0] != 0:
-                cardurl = get_card(str(resp[0]))
+                cardurl = get_card(resp[0])
                 if 'cutout' not in cardurl:
                     cardurl = cardurl.replace('png', 'jpg')
                 bot.api_send_message(chain.channel_id, chain.id, '',

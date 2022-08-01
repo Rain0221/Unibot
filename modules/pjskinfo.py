@@ -339,12 +339,12 @@ def pjskset(newalias, oldalias, qqnum=None):
     musicid = resp['musicid']
     conn = sqlite3.connect('pjsk.db')
     c = conn.cursor()
-    cursor = c.execute(f"SELECT * from pjskalias where alias='{newalias}'")
+    cursor = c.execute(f"SELECT * from pjskalias where alias='{newalias}' COLLATE NOCASE")
     alreadyin = False
     for raw in cursor:
         alreadyin = True
     if alreadyin:
-        c.execute(f"UPDATE pjskalias SET musicid='{musicid}' WHERE alias = '{newalias}'")
+        c.execute(f"UPDATE pjskalias SET musicid='{musicid}' WHERE alias = '{newalias}' COLLATE NOCASE")
     else:
         sql_add = 'insert into pjskalias(ALIAS,MUSICID) values(?, ?)'
         c.execute(sql_add, (newalias, musicid))
@@ -373,7 +373,7 @@ def pjskdel(alias, qqnum=None):
         return "找不到你要设置的歌曲，请使用正确格式：pjskdel昵称"
     conn = sqlite3.connect('pjsk.db')
     c = conn.cursor()
-    c.execute(f"DELETE from pjskalias where alias='{alias}'")
+    c.execute(f"DELETE from pjskalias where alias='{alias}' COLLATE NOCASE")
     conn.commit()
     conn.close()
     timeArray = time.localtime(time.time())
@@ -396,7 +396,7 @@ def pjskalias(alias, musicid=None):
         returnstr = ''
     conn = sqlite3.connect('pjsk.db')
     c = conn.cursor()
-    cursor = c.execute(f'SELECT * from pjskalias where musicid={musicid}')
+    cursor = c.execute(f'SELECT * from pjskalias where musicid={musicid} COLLATE NOCASE')
     for raw in cursor:
         returnstr = returnstr + raw[0] + "，"
     conn.close()
@@ -416,7 +416,7 @@ def pjskalias2(alias, musicid=None):
         returnstr = ''
     conn = sqlite3.connect('pjsk.db')
     c = conn.cursor()
-    cursor = c.execute(f'SELECT * from pjskalias where musicid={musicid}')
+    cursor = c.execute(f'SELECT * from pjskalias where musicid={musicid} COLLATE NOCASE')
     count = 0
     data = []
     for raw in cursor:
