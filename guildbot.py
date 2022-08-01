@@ -3,7 +3,7 @@ import time
 import traceback
 
 import requests
-
+from json import JSONDecodeError
 import bot_api
 from bot_api.utils import yaml_util
 from modules.api import gacha
@@ -551,7 +551,7 @@ def get_at_message(chain: bot_api.structs.Message):
                                              f"<@!{chain.author.id}> 您猜错了，答案不是{resp[1]}哦")
         except KeyError:
             pass
-    except requests.exceptions.ConnectionError:
+    except (requests.exceptions.ConnectionError, JSONDecodeError):
         bot.api_send_message(chain.channel_id, chain.id, r'查不到数据捏，好像是bot网不好')
     except Exception as a:
         traceback.print_exc()

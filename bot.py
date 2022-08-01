@@ -6,6 +6,7 @@ import re
 import asyncio
 import traceback
 from datetime import datetime
+from json import JSONDecodeError
 
 import requests
 import yaml
@@ -845,7 +846,7 @@ async def _(app: CQHTTP, source: GroupMessage):
             except KeyError:
                 pass
 
-    except requests.exceptions.ConnectionError:
+    except (requests.exceptions.ConnectionError, JSONDecodeError):
         await app.sendGroupMessage(source.group_id, r'查不到数据捏，好像是bot网不好')
     except Exception as a:
         traceback.print_exc()
