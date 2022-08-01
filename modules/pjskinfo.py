@@ -87,11 +87,20 @@ def matchname(alias):
             match['name'] = musics['title']
         try:
             translate = trans[musics['id']]
-            similar = string_similar(alias.lower(), translate.lower())
-            if similar > match['match']:
-                match['match'] = similar
-                match['musicid'] = musics['id']
-                match['name'] = musics['title']
+            if '/' in translate:
+                alltrans = translate.split('/')
+                for i in alltrans:
+                    similar = string_similar(alias.lower(), i.lower())
+                    if similar > match['match']:
+                        match['match'] = similar
+                        match['musicid'] = musics['id']
+                        match['name'] = musics['title']
+            else:
+                similar = string_similar(alias.lower(), translate.lower())
+                if similar > match['match']:
+                    match['match'] = similar
+                    match['musicid'] = musics['id']
+                    match['name'] = musics['title']
         except KeyError:
             pass
     try:
