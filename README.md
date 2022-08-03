@@ -32,7 +32,7 @@ Unibot 后端目前已经实现游戏 API 请求、自动更新 masterDB、自�
 
 ### 关于游戏 API、masterDB 和 游戏资源库
 
-本项目直接调用本地资源，如你的项目需要资源库可使用 [assets.unipjsk.com](http://assets.unipjsk.com/) 或 [Sekai Viewer](https://sekai.best/asset_viewer)、[pjsek.ai](https://pjsek.ai/assets) 的资源库，api 可使用 [api.unipjsk.com/api](https://api.unipjsk.com/api)，使用方法请参考[Unibot API 使用文档](https://docs.unipjsk.com/API)
+本项目直接调用本地资源，如你的项目需要资源库可使用 [assets.unipjsk.com](http://assets.unipjsk.com/) 或 [Sekai Viewer](https://sekai.best/asset_viewer)、[pjsek.ai](https://pjsek.ai/assets) 的资源库，api 可使用 [api.unipjsk.com/api](https://api.unipjsk.com/api)，使用方法请参考 [Unibot API 使用文档](https://docs.unipjsk.com/API)
 
 masterDB（项目内放在`masterdata`文件夹下） 可使用 [Sekai-World/sekai-master-db-diff](https://github.com/Sekai-World/sekai-master-db-diff)，可自行编写自动更新模块。带玩家游玩数据、难度偏差值的乐曲信息（项目内放在`masterdata\realtime`文件夹下）来自 [pjsekai/database/musics](https://gitlab.com/pjsekai/database/musics)，自动更新可参考`autotask.py`
 
