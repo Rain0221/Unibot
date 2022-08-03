@@ -4,11 +4,11 @@
 # Unibot
 一款基于 [go-cqhttp](https://github.com/Mrs4s/go-cqhttp) 与 [nakuru-project](https://github.com/Lxns-Network/nakuru-project/) 的多功能 QQ 群 PJSK 机器人
 
-[使用文档](https://bot.unijzlsx.com/) · [交流群](https://qm.qq.com/cgi-bin/qm/qr?k=Osy7KwWvvLWYTjBFJH3MQwkAqgAIV7rT&jump_from=webapi) · [交流频道](https://qun.qq.com/qqweb/qunpro/share?_wv=3&_wwv=128&appChannel=share&inviteCode=7Pe26&appChannel=share&businessType=9&from=181074&biz=ka&shareSource=5)
+[使用文档](https://docs.unipjsk.com/) · [交流群](https://qm.qq.com/cgi-bin/qm/qr?k=Osy7KwWvvLWYTjBFJH3MQwkAqgAIV7rT&jump_from=webapi) · [交流频道](https://qun.qq.com/qqweb/qunpro/share?_wv=3&_wwv=128&appChannel=share&inviteCode=7Pe26&appChannel=share&businessType=9&from=181074&biz=ka&shareSource=5)
 </div>
 
 ## 已实现功能
-具体可参考[使用文档](https://bot.unijzlsx.com/)
+具体可参考[使用文档](https://docs.unipjsk.com/)
 - [x] 歌曲信息查询
 - [x] 谱面预览查询
 - [x] 别名系统
@@ -34,7 +34,7 @@ Unibot 后端目前已经实现游戏 API 请求、自动更新 masterDB、自�
 
 ### 关于游戏 API、masterDB 和 游戏资源库
 
-本项目直接调用本地资源，如你的项目需要资源库可使用 [assets.sekai.unijzlsx.com](http://assets.sekai.unijzlsx.com/) 或 [Sekai Viewer](https://sekai.best/asset_viewer)、[pjsek.ai](https://pjsek.ai/assets) 的资源库，api 可使用 [sekai.jzlsx.cn/api](https://sekai.jzlsx.cn/api)，使用方法请参考对应功能的代码。稍作修改便可实现相应功能。
+本项目直接调用本地资源，如你的项目需要资源库可使用 [assets.unipjsk.com](http://assets.unipjsk.com/) 或 [Sekai Viewer](https://sekai.best/asset_viewer)、[pjsek.ai](https://pjsek.ai/assets) 的资源库，api 可使用 [api.unipjsk.com/api](https://api.unipjsk.com/api)，使用方法请参考对应功能的代码。稍作修改便可实现相应功能。
 
 masterDB（项目内放在`masterdata`文件夹下） 可使用 [Sekai-World/sekai-master-db-diff](https://github.com/Sekai-World/sekai-master-db-diff)，可自行编写自动更新模块。带玩家游玩数据、难度偏差值的乐曲信息（项目内放在`masterdata\realtime`文件夹下）来自 [pjsekai/database/musics](https://gitlab.com/pjsekai/database/musics)，自动更新可参考`autotask.py`
 
