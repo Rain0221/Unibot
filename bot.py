@@ -139,8 +139,8 @@ async def _(app: CQHTTP, source: GroupMessage):
                 await app.sendGroupMessage(source.group_id, '没有找到你要的歌曲哦')
                 return
             else:
-                await app.sendGroupMessage(source.group_id, f"{resp['name']}\n匹配度:{round(resp['match'], 4)}\n")
-                await app.sendGroupMessage(source.group_id, f"https://assets.sekai.unijzlsx.com/?dir=startapp"
+                await app.sendGroupMessage(source.group_id, f"{resp['name']}\n匹配度:{round(resp['match'], 4)}\n（需添加sus后缀名）")
+                await app.sendGroupMessage(source.group_id, f"https://assets.unipjsk.com/?dir=startapp"
                                                             fr"\music\music_score\{str(resp['musicid']).zfill(4)}_01")
         if source.raw_message[:7] == 'pjskset' and 'to' in source.raw_message:
             source.raw_message = source.raw_message[7:]
