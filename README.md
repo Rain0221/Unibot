@@ -28,13 +28,11 @@
 
 Unibot 后端目前已经实现游戏 API 请求、自动更新 masterDB、自动下载资源解包到本地资源库，但出于对各种可能出现的问题的考量不会开源以上模块。Bot 的别名数据和绑定数据都在一个数据库内，出于对用户隐私的考量，该部分也不会公开。所以目前该 Bot 无法自行部署。但是你可以尝试使用[分布式客户端](https://docs.unipjsk.com/distributed/)搭建一个Unibot，或者稍微修改一下其中一些功能，移植一些模块到你自己的机器人。
 
-之后会更新别名查询歌曲 id ，歌曲 id 查询别名的 API 文档
-
 其中推特推送单独开源并配有部署文档：[watagashi-uni/twitterpush](https://github.com/watagashi-uni/twitterpush)
 
 ### 关于游戏 API、masterDB 和 游戏资源库
 
-本项目直接调用本地资源，如你的项目需要资源库可使用 [assets.unipjsk.com](http://assets.unipjsk.com/) 或 [Sekai Viewer](https://sekai.best/asset_viewer)、[pjsek.ai](https://pjsek.ai/assets) 的资源库，api 可使用 [api.unipjsk.com/api](https://api.unipjsk.com/api)，使用方法请参考对应功能的代码。稍作修改便可实现相应功能。
+本项目直接调用本地资源，如你的项目需要资源库可使用 [assets.unipjsk.com](http://assets.unipjsk.com/) 或 [Sekai Viewer](https://sekai.best/asset_viewer)、[pjsek.ai](https://pjsek.ai/assets) 的资源库，api 可使用 [api.unipjsk.com/api](https://api.unipjsk.com/api)，使用方法请参考[Unibot API 使用文档](https://docs.unipjsk.com/API)
 
 masterDB（项目内放在`masterdata`文件夹下） 可使用 [Sekai-World/sekai-master-db-diff](https://github.com/Sekai-World/sekai-master-db-diff)，可自行编写自动更新模块。带玩家游玩数据、难度偏差值的乐曲信息（项目内放在`masterdata\realtime`文件夹下）来自 [pjsekai/database/musics](https://gitlab.com/pjsekai/database/musics)，自动更新可参考`autotask.py`
 
