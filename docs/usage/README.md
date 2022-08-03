@@ -7,13 +7,13 @@
 ::: warning 注意
 该bot没有开放任何私聊功能
 
-猜曲，猜卡面，看卡图，模拟抽卡功能请使用官方平台的频道bot游玩。由于风控严重不再接受新群邀请
+猜曲，猜卡面，看卡图，模拟抽卡功能请使用官方平台的频道bot游玩
+
+不再接受新群邀请，如需要可使用[分布式客户端](/distributed/)自行部署
 :::
 
 ::: tip 关于频道版
 bot频道版已上线，[点击进入](https://qun.qq.com/qqweb/qunpro/share?_wv=3&_wwv=128&appChannel=share&inviteCode=7Pe26&appChannel=share&businessType=9&from=181074&biz=ka&shareSource=5)Unibot频道使用，[使用文档](/guild/)
-
-频道版运行于腾讯官方提供的机器人平台
 :::
 
 ## 查询pjsk歌曲信息
