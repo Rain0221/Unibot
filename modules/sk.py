@@ -206,7 +206,7 @@ def sk(targetid=None, targetrank=None, secret=False):
 def getqqbind(qqnum):
     conn = sqlite3.connect('pjsk.db')
     c = conn.cursor()
-    cursor = c.execute(f'SELECT * from bind where qqnum="{qqnum}"')
+    cursor = c.execute(f'SELECT * from bind where qqnum=?', (qqnum,))
     for row in cursor:
         conn.close()
         return row
@@ -217,12 +217,12 @@ def bindid(qqnum, userid):
         return '你这ID有问题啊'
     conn = sqlite3.connect('pjsk.db')
     c = conn.cursor()
-    cursor = c.execute(f'SELECT * from bind where qqnum="{qqnum}"')
+    cursor = c.execute(f'SELECT * from bind where qqnum=?', (qqnum,))
     alreadyin = False
     for raw in cursor:
         alreadyin = True
     if alreadyin:
-        c.execute(f'UPDATE bind SET userid="{userid}" WHERE qqnum="{qqnum}"')
+        c.execute(f'UPDATE bind SET userid=? WHERE qqnum=?', (userid, qqnum))
     else:
         sql_add = 'insert into bind(qqnum,userid,isprivate) values(?, ?, ?)'
         c.execute(sql_add, (str(qqnum), str(userid), 0))
@@ -233,12 +233,12 @@ def bindid(qqnum, userid):
 def setprivate(qqnum, isprivate):
     conn = sqlite3.connect('pjsk.db')
     c = conn.cursor()
-    cursor = c.execute(f'SELECT * from bind where qqnum="{qqnum}"')
+    cursor = c.execute(f'SELECT * from bind where qqnum=?', (qqnum,))
     alreadyin = False
     for raw in cursor:
         alreadyin = True
     if alreadyin:
-        c.execute(f'UPDATE bind SET isprivate={isprivate} WHERE qqnum="{qqnum}"')
+        c.execute(f'UPDATE bind SET isprivate=? WHERE qqnum=?', (isprivate, qqnum))
     else:
         conn.close()
         return False

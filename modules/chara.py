@@ -18,11 +18,11 @@ def charainfo(alias, qunnum=''):
         return "找不到你说的角色哦"
     conn = sqlite3.connect('pjsk.db')
     c = conn.cursor()
-    cursor = c.execute(f"SELECT * from qunalias where charaid={resp[0]} AND qunnum='{qunnum}'")
+    cursor = c.execute(f"SELECT * from qunalias where charaid=? AND qunnum=?", (resp[0], qunnum))
     for row in cursor:
         qunalias = qunalias + row[1] + "，"
 
-    cursor = c.execute(f"SELECT * from charaalias where charaid={resp[0]}")
+    cursor = c.execute(f"SELECT * from charaalias where charaid=?", (resp[0],))
     for row in cursor:
         allalias = allalias + row[0] + "，"
 
@@ -35,7 +35,7 @@ def charadel(alias, qqnum=None):
         return "找不到你说的角色哦，如删除仅本群可用昵称请使用grcharadel"
     conn = sqlite3.connect('pjsk.db')
     c = conn.cursor()
-    c.execute(f"DELETE from charaalias where alias='{alias}'")
+    c.execute(f"DELETE from charaalias where alias=?", (alias,))
     conn.commit()
     conn.close()
     timeArray = time.localtime(time.time())
@@ -47,13 +47,13 @@ def grcharadel(alias, qunnum=''):
     charaid = 0
     conn = sqlite3.connect('pjsk.db')
     c = conn.cursor()
-    cursor = c.execute(f"SELECT * from qunalias where alias='{alias}' AND qunnum='{qunnum}'")
+    cursor = c.execute(f"SELECT * from qunalias where alias=? AND qunnum=?", (alias, qunnum))
     for row in cursor:
         charaid = row[2]
     if charaid == 0:
         conn.close()
         return "找不到你说的角色哦，如删除全群可用昵称请使用charadel"
-    c.execute(f"DELETE from qunalias where alias='{alias}' AND qunnum='{qunnum}'")
+    c.execute(f"DELETE from qunalias where alias=? AND qunnum=?", (alias, qunnum))
     conn.commit()
     conn.close()
     return "删除成功！"
@@ -64,11 +64,11 @@ def aliastocharaid(alias, qunnum=''):
     name = ''
     conn = sqlite3.connect('pjsk.db')
     c = conn.cursor()
-    cursor = c.execute(f"SELECT * from qunalias where alias='{alias}' AND qunnum='{qunnum}'")
+    cursor = c.execute(f"SELECT * from qunalias where alias=? AND qunnum=?", (alias, qunnum))
     for row in cursor:
         charaid = row[2]
     if charaid == 0:
-        cursor = c.execute(f"SELECT * from charaalias where alias='{alias}'")
+        cursor = c.execute(f"SELECT * from charaalias where alias=?", (alias,))
         for row in cursor:
             charaid = row[1]
     if charaid != 0:
@@ -89,7 +89,7 @@ def charaset(newalias, oldalias, qqnum=None):
     for raw in cursor:
         alreadyin = True
     if alreadyin:
-        c.execute(f"UPDATE charaalias SET charaid={charaid} WHERE alias= '{newalias}'")
+        c.execute(f"UPDATE charaalias SET charaid=? WHERE alias= ?", (charaid, newalias))
     else:
         sql_add = 'insert into charaalias(ALIAS,CHARAID) values(?, ?)'
         c.execute(sql_add, (newalias, charaid))
@@ -108,13 +108,13 @@ def grcharaset(newalias, oldalias, qunnum):
     charaid = resp[0]
     conn = sqlite3.connect('pjsk.db')
     c = conn.cursor()
-    cursor = c.execute(f"SELECT * from qunalias where alias='{newalias}' AND qunnum='{qunnum}'")
+    cursor = c.execute(f"SELECT * from qunalias where alias=? AND qunnum=?", (newalias, qunnum))
     # 看一下新的昵称在不在 在就更新 不在就增加
     alreadyin = False
     for raw in cursor:
         alreadyin = True
     if alreadyin:
-        c.execute(f"UPDATE qunalias SET charaid={charaid} WHERE alias='{newalias}' AND qunnum='{qunnum}'")
+        c.execute(f"UPDATE qunalias SET charaid=? WHERE alias=? AND qunnum=?", (charaid, newalias, qunnum))
     else:
         sql_add = 'insert into qunalias(QUNNUM,ALIAS,CHARAID) values(?, ?, ?)'
         c.execute(sql_add, (str(qunnum), newalias, charaid))

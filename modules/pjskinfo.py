@@ -47,7 +47,7 @@ def aliastomusicid(alias):
         return {'musicid': 0, 'match': 0, 'name': '', 'translate': ''}
     conn = sqlite3.connect('pjsk.db')
     c = conn.cursor()
-    cursor = c.execute(f'SELECT * from pjskalias where alias="{alias}" COLLATE NOCASE')
+    cursor = c.execute(f'SELECT * from pjskalias where alias=? COLLATE NOCASE', (alias,))
     for row in cursor:
         with open('masterdata/musics.json', 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -352,12 +352,12 @@ def pjskset(newalias, oldalias, qqnum=None):
     musicid = resp['musicid']
     conn = sqlite3.connect('pjsk.db')
     c = conn.cursor()
-    cursor = c.execute(f"SELECT * from pjskalias where alias='{newalias}' COLLATE NOCASE")
+    cursor = c.execute(f"SELECT * from pjskalias where alias=? COLLATE NOCASE", (newalias,))
     alreadyin = False
     for raw in cursor:
         alreadyin = True
     if alreadyin:
-        c.execute(f"UPDATE pjskalias SET musicid='{musicid}' WHERE alias = '{newalias}' COLLATE NOCASE")
+        c.execute(f"UPDATE pjskalias SET musicid=? WHERE alias = ? COLLATE NOCASE", (musicid, newalias))
     else:
         sql_add = 'insert into pjskalias(ALIAS,MUSICID) values(?, ?)'
         c.execute(sql_add, (newalias, musicid))
@@ -409,7 +409,7 @@ def pjskalias(alias, musicid=None):
         returnstr = ''
     conn = sqlite3.connect('pjsk.db')
     c = conn.cursor()
-    cursor = c.execute(f'SELECT * from pjskalias where musicid={musicid} COLLATE NOCASE')
+    cursor = c.execute(f'SELECT * from pjskalias where musicid=? COLLATE NOCASE', (musicid,))
     for raw in cursor:
         returnstr = returnstr + raw[0] + "，"
     conn.close()
@@ -429,7 +429,7 @@ def pjskalias2(alias, musicid=None):
         returnstr = ''
     conn = sqlite3.connect('pjsk.db')
     c = conn.cursor()
-    cursor = c.execute(f'SELECT * from pjskalias where musicid={musicid} COLLATE NOCASE')
+    cursor = c.execute(f'SELECT * from pjskalias where musicid=? COLLATE NOCASE', (musicid,))
     count = 0
     data = []
     for raw in cursor:
