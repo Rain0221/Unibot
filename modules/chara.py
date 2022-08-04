@@ -83,7 +83,7 @@ def charaset(newalias, oldalias, qqnum=None):
     charaid = resp[0]
     conn = sqlite3.connect('pjsk.db')
     c = conn.cursor()
-    cursor = c.execute(f"SELECT * from charaalias where alias='{newalias}'")
+    cursor = c.execute(f"SELECT * from charaalias where alias=?", (newalias,))
     # 看一下新的昵称在不在 在就更新 不在就增加
     alreadyin = False
     for raw in cursor:

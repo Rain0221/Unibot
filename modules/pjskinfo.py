@@ -386,7 +386,7 @@ def pjskdel(alias, qqnum=None):
         return "找不到你要设置的歌曲，请使用正确格式：pjskdel昵称"
     conn = sqlite3.connect('pjsk.db')
     c = conn.cursor()
-    c.execute(f"DELETE from pjskalias where alias='{alias}' COLLATE NOCASE")
+    c.execute(f"DELETE from pjskalias where alias=? COLLATE NOCASE", (alias,))
     conn.commit()
     conn.close()
     timeArray = time.localtime(time.time())
