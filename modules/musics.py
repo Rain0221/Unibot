@@ -293,11 +293,17 @@ def downloadviewerchart(musicid, difficulty):
             row = int((i - 2) / 4)
             print(row)
             pic = Image.open(io.BytesIO(re.content))
-            pic = pic.resize((160 * row + 32, 1300))
-            pic.save(f'charts/SekaiViewer/{musicid}/{difficulty}.png')
+            r, g, b, mask = pic.split()
+            final = Image.new('RGB', pic.size, (255, 255, 255))
+            final.paste(pic, (0, 0), mask)
+            final = final.resize((160 * row + 32, 1300))
+            final.save(f'charts/SekaiViewer/{musicid}/{difficulty}.png')
         else:
-            with open(f'charts/SekaiViewer/{musicid}/{difficulty}.png', 'wb') as file:
-                file.write(re.content)
+            pic = Image.open(io.BytesIO(re.content))
+            r, g, b, mask = pic.split()
+            final = Image.new('RGB', pic.size, (255, 255, 255))
+            final.paste(pic, (0, 0), mask)
+            final.save(f'charts/SekaiViewer/{musicid}/{difficulty}.png')
         return True
     else:
         return False
