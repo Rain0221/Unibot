@@ -329,6 +329,19 @@ async def _(app: CQHTTP, source: GroupMessage):
                 Image.fromFileSystem(fr"piccache\{bind[1]}jindu.png")
             ])
             return
+        if source.raw_message == "pjsk进度ex":
+            bind = getqqbind(source.user_id)
+            if bind is None:
+                await app.sendGroupMessage(source.group_id, '查不到捏，可能是没绑定')
+                return
+            loop = asyncio.get_event_loop()
+            future = loop.run_in_executor(None, pjskjindu, bind[1], bind[2], 'expert')
+            await future
+            await app.sendGroupMessage(source.group_id, [
+                Plain(text=''),
+                Image.fromFileSystem(fr"piccache\{bind[1]}jindu.png")
+            ])
+            return
         if source.raw_message == "pjsk b30":
             bind = getqqbind(source.user_id)
             if bind is None:

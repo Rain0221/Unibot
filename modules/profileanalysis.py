@@ -37,8 +37,11 @@ class userprofile(object):
         self.characterId = 0
         self.highScore = 0
         self.masterscore = {}
+        self.expertscore = {}
         for i in range(26, 37):
             self.masterscore[i] = [0, 0, 0, 0]
+        for i in range(21, 32):
+            self.expertscore[i] = [0, 0, 0, 0]
 
     def getprofile(self, userid):
         resp = requests.get(f'{apiurl}/user/{userid}/profile')
@@ -64,10 +67,17 @@ class userprofile(object):
         for music in allmusic:
             result[music['id']] = [0, 0, 0, 0, 0]
             if music['publishedAt'] < now:
+                found = [0, 0]
                 for diff in musicDifficulties:
-                    if music['id'] == diff['musicId'] and diff['musicDifficulty'] == 'master':
+                    if music['id'] == diff['musicId'] and diff['musicDifficulty'] == 'expert':
+                        playLevel = diff['playLevel']
+                        self.expertscore[playLevel][3] = self.expertscore[playLevel][3] + 1
+                        found[0] = 1
+                    elif music['id'] == diff['musicId'] and diff['musicDifficulty'] == 'master':
                         playLevel = diff['playLevel']
                         self.masterscore[playLevel][3] = self.masterscore[playLevel][3] + 1
+                        found[1] = 1
+                    if found == [1, 1]:
                         break
         for music in data['userMusicResults']:
             musicId = music['musicId']
@@ -111,14 +121,28 @@ class userprofile(object):
                             playLevel = diff['playLevel']
                             break
                     if result[music][i] == 3:
-                        self.masterscore[playLevel][0] = self.masterscore[playLevel][0] + 1
-                        self.masterscore[playLevel][1] = self.masterscore[playLevel][1] + 1
-                        self.masterscore[playLevel][2] = self.masterscore[playLevel][2] + 1
+                        self.masterscore[playLevel][0] += 1
+                        self.masterscore[playLevel][1] += 1
+                        self.masterscore[playLevel][2] += 1
                     elif result[music][i] == 2:
-                        self.masterscore[playLevel][1] = self.masterscore[playLevel][1] + 1
-                        self.masterscore[playLevel][2] = self.masterscore[playLevel][2] + 1
+                        self.masterscore[playLevel][1] += 1
+                        self.masterscore[playLevel][2] += 1
                     elif result[music][i] == 1:
-                        self.masterscore[playLevel][2] = self.masterscore[playLevel][2] + 1
+                        self.masterscore[playLevel][2] += 1
+                elif i == 3:
+                    for diff in musicDifficulties:
+                        if music == diff['musicId'] and diff['musicDifficulty'] == 'expert':
+                            playLevel = diff['playLevel']
+                            break
+                    if result[music][i] == 3:
+                        self.expertscore[playLevel][0] += 1
+                        self.expertscore[playLevel][1] += 1
+                        self.expertscore[playLevel][2] += 1
+                    elif result[music][i] == 2:
+                        self.expertscore[playLevel][1] += 1
+                        self.expertscore[playLevel][2] += 1
+                    elif result[music][i] == 1:
+                        self.expertscore[playLevel][2] += 1
         for i in range(0, 5):
             self.userDecks[i] = data['userDecks'][0][f'member{i + 1}']
             for userCards in data['userCards']:
@@ -221,14 +245,17 @@ def rk(targetid=None, targetrank=None, secret=False, isdaibu=False):
     return text
 
 
-def pjskjindu(userid, private=False):
+def pjskjindu(userid, private=False, diff='master'):
     profile = userprofile()
     profile.getprofile(userid)
     if private:
         id = '保密'
     else:
         id = userid
-    img = Image.open(r'pics/bgmaster.png')
+    if diff == 'master':
+        img = Image.open(r'pics/bgmaster.png')
+    else:
+        img = Image.open(r'pics/bgexpert.png')
     with open('masterdata/cards.json', 'r', encoding='utf-8') as f:
         cards = json.load(f)
     try:
@@ -255,39 +282,44 @@ def pjskjindu(userid, private=False):
     font_style = ImageFont.truetype(r"fonts\FOT-RodinNTLGPro-DB.ttf", 26)
     draw.text((314, 138), str(profile.rank), fill=(255, 255, 255), font=font_style)
     font_style = ImageFont.truetype(r"fonts\SourceHanSansCN-Bold.otf", 35)
+    if diff == 'master':
+        levelmin = 26
+    else:
+        levelmin = 21
+        profile.masterscore = profile.expertscore
     for i in range(0, 6):
-        text_width = font_style.getsize(str(profile.masterscore[i + 26][0]))
+        text_width = font_style.getsize(str(profile.masterscore[i + levelmin][0]))
         text_coordinate = (int(183 - text_width[0] / 2), int(295 + 97 * i - text_width[1] / 2))
-        draw.text(text_coordinate, str(profile.masterscore[i + 26][0]), fill=(228, 159, 251), font=font_style)
+        draw.text(text_coordinate, str(profile.masterscore[i + levelmin][0]), fill=(228, 159, 251), font=font_style)
 
-        text_width = font_style.getsize(str(profile.masterscore[i + 26][1]))
+        text_width = font_style.getsize(str(profile.masterscore[i + levelmin][1]))
         text_coordinate = (int(183 + 78 - text_width[0] / 2), int(295 + 97 * i - text_width[1] / 2))
-        draw.text(text_coordinate, str(profile.masterscore[i + 26][1]), fill=(254, 143, 249), font=font_style)
+        draw.text(text_coordinate, str(profile.masterscore[i + levelmin][1]), fill=(254, 143, 249), font=font_style)
 
-        text_width = font_style.getsize(str(profile.masterscore[i + 26][2]))
+        text_width = font_style.getsize(str(profile.masterscore[i + levelmin][2]))
         text_coordinate = (int(183 + 2 * 78 - text_width[0] / 2), int(295 + 97 * i - text_width[1] / 2))
-        draw.text(text_coordinate, str(profile.masterscore[i + 26][2]), fill=(255, 227, 113), font=font_style)
+        draw.text(text_coordinate, str(profile.masterscore[i + levelmin][2]), fill=(255, 227, 113), font=font_style)
 
-        text_width = font_style.getsize(str(profile.masterscore[i + 26][3]))
+        text_width = font_style.getsize(str(profile.masterscore[i + levelmin][3]))
         text_coordinate = (int(183 + 3 * 78 - text_width[0] / 2), int(295 + 97 * i - text_width[1] / 2))
-        draw.text(text_coordinate, str(profile.masterscore[i + 26][3]), fill=(108, 237, 226), font=font_style)
+        draw.text(text_coordinate, str(profile.masterscore[i + levelmin][3]), fill=(108, 237, 226), font=font_style)
 
     for i in range(0, 5):
-        text_width = font_style.getsize(str(profile.masterscore[i + 32][0]))
+        text_width = font_style.getsize(str(profile.masterscore[i + levelmin + 6][0]))
         text_coordinate = (int(683 - text_width[0] / 2), int(300 + 96.4 * i - text_width[1] / 2))
-        draw.text(text_coordinate, str(profile.masterscore[i + 32][0]), fill=(228, 159, 251), font=font_style)
+        draw.text(text_coordinate, str(profile.masterscore[i + levelmin + 6][0]), fill=(228, 159, 251), font=font_style)
 
-        text_width = font_style.getsize(str(profile.masterscore[i + 32][1]))
+        text_width = font_style.getsize(str(profile.masterscore[i + levelmin + 6][1]))
         text_coordinate = (int(683 + 78 - text_width[0] / 2), int(300 + 96.4 * i - text_width[1] / 2))
-        draw.text(text_coordinate, str(profile.masterscore[i + 32][1]), fill=(254, 143, 249), font=font_style)
+        draw.text(text_coordinate, str(profile.masterscore[i + levelmin + 6][1]), fill=(254, 143, 249), font=font_style)
 
-        text_width = font_style.getsize(str(profile.masterscore[i + 32][2]))
+        text_width = font_style.getsize(str(profile.masterscore[i + levelmin + 6][2]))
         text_coordinate = (int(683 + 2 * 78 - text_width[0] / 2), int(300 + 96.4 * i - text_width[1] / 2))
-        draw.text(text_coordinate, str(profile.masterscore[i + 32][2]), fill=(255, 227, 113), font=font_style)
+        draw.text(text_coordinate, str(profile.masterscore[i + levelmin + 6][2]), fill=(255, 227, 113), font=font_style)
 
-        text_width = font_style.getsize(str(profile.masterscore[i + 32][3]))
+        text_width = font_style.getsize(str(profile.masterscore[i + levelmin + 6][3]))
         text_coordinate = (int(683 + 3 * 78 - text_width[0] / 2), int(300 + 96.4 * i - text_width[1] / 2))
-        draw.text(text_coordinate, str(profile.masterscore[i + 32][3]), fill=(108, 237, 226), font=font_style)
+        draw.text(text_coordinate, str(profile.masterscore[i + levelmin + 6][3]), fill=(108, 237, 226), font=font_style)
     img.save(fr'piccache\{userid}jindu.png')
 
 
