@@ -436,7 +436,7 @@ def pjskalias2(alias, musicid=None):
         count += 1
         data.append({'id': count, 'alias': raw[0]})
     conn.close()
-    return json.dumps(data)
+    return data
 
 def txt2html(txt):
     # 来自https://www.it610.com/article/1502111.htm

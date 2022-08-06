@@ -7,4 +7,8 @@ with open(r'masterdata/musics.json', 'r', encoding='utf-8') as f:
 i = 0
 for music in musics:
     i = i + 1
-    print(f"{i}/{len(musics)} {getchart(music['id'], 'master')}")
+    try:
+        print(f"{i}/{len(musics)} {getchart(music['id'], 'master')}")
+    except:
+        print("出错了")
+        print(f"{i}/{len(musics)} {getchart(music['id'], 'master')}")
