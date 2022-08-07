@@ -79,7 +79,7 @@ bot频道版已上线，[点击进入](https://qun.qq.com/qqweb/qunpro/share?_wv
 - Unibot频道: [点击进入](https://qun.qq.com/qqweb/qunpro/share?_wv=3&_wwv=128&appChannel=share&inviteCode=7Pe26&appChannel=share&businessType=9&from=181074&biz=ka&shareSource=5)
 ### 使用框架
 - 框架: [Mrs4s/go-cqhttp](https://github.com/Mrs4s/go-cqhttp)
-- SDK: [Lxns-Network/nakuru-project](https://github.com/Lxns-Network/nakuru-project)
+- SDK: [nonebot/aiocqhttp](https://github.com/nonebot/aiocqhttp)
 ### 数据来源
 - 预测线: [33Kit](https://3-3.dev/)
 - 玩家游玩，热度等信息: [Project Sekai Profile](https://profile.pjsekai.moe/)

@@ -52,7 +52,7 @@ masterDB（项目内放在`masterdata`文件夹下） 可使用 [Sekai-World/sek
 - [SkywalkerSpace/emoji2pic-python](https://github.com/SkywalkerSpace/emoji2pic-python): Apple emoji and text to picture
 - [fuqiuai/wordCloud](https://github.com/fuqiuai/wordCloud): 用python进行文本分词并生成词云
 - [pcrbot/5000choyen](https://github.com/pcrbot/5000choyen): 适用hoshino的5000兆円欲しい! style图片生成器插件
-- [aiocqhttp](https://github.com/nonebot/aiocqhttp): A Python SDK with async I/O for CQHTTP (OneBot).
+- [nonebot/aiocqhttp](https://github.com/nonebot/aiocqhttp): A Python SDK with async I/O for CQHTTP (OneBot).
 - 
 ## 许可 License
 
