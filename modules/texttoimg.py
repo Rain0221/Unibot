@@ -23,7 +23,7 @@ def ycmimg():
 
     instance = Emoji2Pic(text=c, font='fonts\SourceHanSansCN-Medium.otf', emoji_folder='AppleEmoji')
     img = instance.make_img()
-    img.save('piccache/ycm.jpg')
+    img.save('piccache/ycm.png')
 
 def texttoimg(text, width, savefilename):
     IMG_SIZE = (width, 40 + (text.count('\n') + 1) * 34)

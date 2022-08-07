@@ -325,7 +325,7 @@ def get_at_message(chain: bot_api.structs.Message):
             return
         if chain.content == '推车':
             ycmimg()
-            bot.api_send_message(chain.channel_id, chain.id, '', f"{piccacheurl}ycm.jpg")
+            bot.api_send_message(chain.channel_id, chain.id, '', f"{piccacheurl}ycm.png")
             return
         if chain.content[:2] == "生成":
             chain.content = chain.content[chain.content.find("生成") + len("生成"):].strip()

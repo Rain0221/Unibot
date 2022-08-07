@@ -476,7 +476,7 @@ def sync_handle_msg(event):
             return
         if event.message == '推车':
             ycmimg()
-            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\ycm.jpg")
+            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\ycm.png,cache=0]")
             return
         if event.message[:2] == "生成":
             if event.group_id in blacklist['ettm']:
