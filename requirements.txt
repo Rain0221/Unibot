@@ -23,3 +23,5 @@ xmltodict~=0.13.0
 mutagen~=1.45.1
 pydub~=0.25.1
 zhconv~=1.4.3
+aiocqhttp~=1.4.3
+aiohttp~=3.7.4.post0
