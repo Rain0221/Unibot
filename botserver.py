@@ -89,8 +89,7 @@ def sync_handle_msg(event):
                 pass
             ciyunlimit[event.group_id] = time.time()
             ciyun(event.group_id)
-            bot.sync.send_group_msg(self_id=event.self_id, group_id=event.group_id,
-                                    message=fr"[CQ:image,file=file:///{botdir}\piccache\{event.group_id}cy.png,cache=0]")
+            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{event.group_id}cy.png,cache=0]")
         if event.message == 'help':
             sendmsg(event, 'bot帮助文档：https://docs.unipjsk.com/')
             return
@@ -115,8 +114,7 @@ def sync_handle_msg(event):
                         text = text + f"{resp['name']}\n匹配度:{round(resp['match'], 4)}"
                     else:
                         text = text + f"{resp['name']} ({resp['translate']})\n匹配度:{round(resp['match'], 4)}"
-                bot.sync.send_group_msg(self_id=event.self_id, group_id=event.group_id,
-                                        message=text + fr"[CQ:image,file=file:///{botdir}\piccache\pjskinfo{resp['musicid']}.png,cache=0]")
+                sendmsg(event, text + fr"[CQ:image,file=file:///{botdir}\piccache\pjskinfo{resp['musicid']}.png,cache=0]")
             return
         if event.message[:7] == 'pjskset' and 'to' in event.message:
             event.message = event.message[7:]
@@ -165,8 +163,7 @@ def sync_handle_msg(event):
             return
         if event.message == "sk预测":
             texttoimg(skyc(), 500, 'skyc')
-            bot.sync.send_group_msg(self_id=event.self_id, group_id=event.group_id,
-                                    message='sk预测' + fr"[CQ:image,file=file:///{botdir}\piccache\skyc.png,cache=0]")
+            sendmsg(event, 'sk预测' + fr"[CQ:image,file=file:///{botdir}\piccache\skyc.png,cache=0]")
             return
         if event.message[:2] == "sk":
             if event.message == "sk":
@@ -235,7 +232,7 @@ def sync_handle_msg(event):
                 sendmsg(event, result)
             else:
                 userid = event.message.replace("逮捕", "")
-                if '<@!' in userid:
+                if '[CQ:at' in userid:
                     qq = re.sub(r'\D', "", userid)
                     bind = getqqbind(qq)
                     if bind is None:
@@ -264,8 +261,15 @@ def sync_handle_msg(event):
                 sendmsg(event, '查不到捏，可能是没绑定')
                 return
             pjskjindu(bind[1], bind[2])
-            bot.sync.send_group_msg(self_id=event.self_id, group_id=event.group_id,
-                                    message=fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}jindu.png,cache=0]")
+            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}jindu.png,cache=0]")
+            return
+        if event.message == "pjsk进度ex":
+            bind = getqqbind(event.user_id)
+            if bind is None:
+                sendmsg(event, '查不到捏，可能是没绑定')
+                return
+            pjskjindu(bind[1], bind[2], 'expert')
+            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}jindu.png,cache=0]")
             return
         if event.message == "pjsk b30":
             bind = getqqbind(event.user_id)
@@ -273,13 +277,11 @@ def sync_handle_msg(event):
                 sendmsg(event, '查不到捏，可能是没绑定')
                 return
             pjskb30(bind[1], bind[2])
-            bot.sync.send_group_msg(self_id=event.self_id, group_id=event.group_id,
-                                    message=fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}b30.png,cache=0]")
+            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}b30.png,cache=0]")
             return
         if event.message == "热度排行":
             hotrank()
-            bot.sync.send_group_msg(self_id=event.self_id, group_id=event.group_id,
-                                    message=fr"[CQ:image,file=file:///{botdir}\piccache\hotrank.png,cache=0]")
+            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\hotrank.png,cache=0]")
             return
         if "难度排行" in event.message:
             if event.message[:2] == 'fc':
@@ -296,11 +298,9 @@ def sync_handle_msg(event):
                 success = levelrank(int(para[0]), para[1], fcap)
             if success:
                 if len(para) == 1:
-                    bot.sync.send_group_msg(self_id=event.self_id, group_id=event.group_id,
-                                            message=fr"[CQ:image,file=file:///{botdir}\piccache\{para[0]}master{fcap}.png,cache=0]")
+                    sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{para[0]}master{fcap}.png,cache=0]")
                 else:
-                    bot.sync.send_group_msg(self_id=event.self_id, group_id=event.group_id,
-                                            message=fr"[CQ:image,file=file:///{botdir}\piccache\{para[0]}{para[1]}{fcap}.png,cache=0]")
+                    sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{para[0]}{para[1]}{fcap}.png,cache=0]")
             else:
                 sendmsg(event, '参数错误，指令：/难度排行 定数 难度，'
                                '难度支持的输入: easy, normal, hard, expert, master，如/难度排行 28 expert')
@@ -311,8 +311,7 @@ def sync_handle_msg(event):
                 sendmsg(event, '查不到捏，可能是没绑定')
                 return
             pjskprofile(bind[1], bind[2])
-            bot.sync.send_group_msg(self_id=event.self_id, group_id=event.group_id,
-                                    message=fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}profile.png,cache=0]")
+            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}profile.png,cache=0]")
             return
         if event.message[:7] == 'pjskbpm' or event.message[:3] == 'bpm':
             parm = event.message[event.message.find("bpm") + len("bpm"):].strip()
@@ -332,8 +331,7 @@ def sync_handle_msg(event):
             dir = aliastochart(event.message.replace("谱面预览2", ''), True)
             if dir is not None:  # 匹配到歌曲
                 if len(dir) == 2:  # 有图片
-                    bot.sync.send_group_msg(self_id=event.self_id, group_id=event.group_id,
-                                            message=dir[0] + fr"[CQ:image,file=file:///{botdir}\{dir[1]},cache=0]")
+                    sendmsg(event, dir[0] + fr"[CQ:image,file=file:///{botdir}\{dir[1]},cache=0]")
                 else:
                     sendmsg(event, dir + "\n暂无谱面图片 请等待更新"
                                          "\n（温馨提示：谱面预览2只能看master与expert）")
@@ -344,8 +342,7 @@ def sync_handle_msg(event):
             dir = aliastochart(event.message.replace("谱面预览", ''))
             if dir is not None:  # 匹配到歌曲
                 if len(dir) == 2:  # 有图片
-                    bot.sync.send_group_msg(self_id=event.self_id, group_id=event.group_id,
-                                            message=dir[0] + fr"[CQ:image,file=file:///{botdir}\{dir[1]},cache=0]")
+                    sendmsg(event, dir[0] + fr"[CQ:image,file=file:///{botdir}\{dir[1]},cache=0]")
                 else:
                     sendmsg(event, dir + "\n暂无谱面图片 请等待更新")
             else:  # 匹配不到歌曲
@@ -392,8 +389,7 @@ def sync_handle_msg(event):
             sendmsg(event, charainfo(event.message, event.group_id))
             return
         if event.message == '看33':
-            bot.sync.send_group_msg(self_id=event.self_id, group_id=event.group_id,
-                                    message=fr"[CQ:image,file=file:///{botdir}\pics/33{random.randint(0, 1)}.gif,cache=0]")
+            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\pics/33{random.randint(0, 1)}.gif,cache=0]")
             return
         if event.message[:1] == '看' or event.message[:2] == '来点':
             if event.user_id not in whitelist and event.group_id not in whitelist:
@@ -405,13 +401,11 @@ def sync_handle_msg(event):
                 cardurl = get_card(resp[0])
                 if 'cutout' not in cardurl:
                     cardurl = cardurl.replace('png', 'jpg')
-                bot.sync.send_group_msg(self_id=event.self_id, group_id=event.group_id,
-                                        message=fr"[CQ:image,file=file:///{botdir}\{cardurl},cache=0]")
+                sendmsg(event, fr"[CQ:image,file=file:///{botdir}\{cardurl},cache=0]")
             return
         if event.message == '推车':
             ycmimg()
-            bot.sync.send_group_msg(self_id=event.self_id, group_id=event.group_id,
-                                    message='' + fr"[CQ:image,file=file:///{botdir}\piccache\ycm.jpg")
+            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\ycm.jpg")
             return
         if event.message[:2] == "生成":
             event.message = event.message[event.message.find("生成") + len("生成"):].strip()
@@ -423,8 +417,7 @@ def sync_handle_msg(event):
                     sendmsg(event, '请求不对哦，/生成 这是红字 这是白字')
                     return
             genImage(para[0], para[1]).save(f"piccache/{now}.png,cache=0]")
-            bot.sync.send_group_msg(self_id=event.self_id, group_id=event.group_id,
-                                    message=fr"[CQ:image,file=file:///{botdir}\piccache\{now}.png,cache=0]")
+            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{now}.png,cache=0]")
             return
         if event.message[:4] == 'homo':
             if event.self_id not in mainbot:
@@ -433,8 +426,7 @@ def sync_handle_msg(event):
             #     return
             event.message = event.message[event.message.find("homo") + len("homo"):].strip()
             try:
-                bot.sync.send_group_msg(self_id=event.self_id, group_id=event.group_id,
-                                        message=event.message + '=' + generate_homo(event.message))
+                sendmsg(event, event.message + '=' + generate_homo(event.message))
             except ValueError:
                 return
             return
@@ -444,8 +436,7 @@ def sync_handle_msg(event):
             event.message = event.message[event.message.find("ccf") + len("ccf"):].strip()
             dd = dd_query.DDImageGenerate(event.message)
             image_path, vtb_following_count, total_following_count = dd.image_generate()
-            bot.sync.send_group_msg(self_id=event.self_id, group_id=event.group_id,
-                                    message=f"{dd.username} 总共关注了 {total_following_count} 位up主, 其中 {vtb_following_count} 位是vtb。\n"
+            sendmsg(event, f"{dd.username} 总共关注了 {total_following_count} 位up主, 其中 {vtb_following_count} 位是vtb。\n"
                                             f"注意: 由于b站限制, bot最多只能拉取到最近250个关注。因此可能存在数据统计不全的问题。"
                                             + fr"[CQ:image,file=file:///{image_path},cache=0]")
             return
@@ -468,8 +459,7 @@ def sync_handle_msg(event):
             twiid = event.message[2:-2]
             try:
                 id = newesttwi(twiid, True)
-                bot.sync.send_group_msg(self_id=event.self_id, group_id=event.group_id,
-                                        message=fr"[CQ:image,file=file:///{botdir}\piccache/{id}.png,cache=0]")
+                sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache/{id}.png,cache=0]")
             except:
                 sendmsg(event, '查不到捏，可能是你id有问题或者bot卡了')
             return
@@ -478,8 +468,7 @@ def sync_handle_msg(event):
                 return
             try:
                 id = newesttwi(event.message.replace('最新推特', '').replace(' ', ''))
-                bot.sync.send_group_msg(self_id=event.self_id, group_id=event.group_id,
-                                        message=fr"[CQ:image,file=file:///{botdir}\piccache/{id}.png,cache=0]")
+                sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache/{id}.png,cache=0]")
             except:
                 sendmsg(event, '查不到捏，可能是你id有问题或者bot卡了')
             return
