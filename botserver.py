@@ -444,6 +444,7 @@ def sync_handle_msg(event):
             event.message = event.message[event.message.find("白名单添加") + len("白名单添加"):].strip()
             requestwhitelist.append(int(event.message))
             sendmsg(event, '添加成功: ' + event.message)
+            return
         if event.message[:3] == "达成率":
             event.message = event.message[event.message.find("达成率") + len("达成率"):].strip()
             para = event.message.split(' ')
@@ -471,6 +472,9 @@ def sync_handle_msg(event):
                 sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache/{id}.png,cache=0]")
             except:
                 sendmsg(event, '查不到捏，可能是你id有问题或者bot卡了')
+            return
+        if event.message[:3] == '查物量':
+            sendmsg(event, notecount(int(event.message[3:])))
             return
         # if 'pjsk抽卡' in event.message or 'sekai抽卡' in event.message:
         #     gachaid = event.message[event.message.find("抽卡") + len("抽卡"):].strip()
@@ -503,7 +507,184 @@ def sync_handle_msg(event):
         #     else:
         #         sendmsg(event,fakegacha(int(gachaid), int(num), False))
         #     return
+            # 猜曲
+        if event.message[-2:] == '猜曲' and event.message[:4] == 'pjsk':
+            if event.user_id not in whitelist and event.group_id not in whitelist:
+                return
+            try:
+                isgoing = charaguess[event.group_id]['isgoing']
+                if isgoing:
+                    sendmsg(event, '已经开启猜卡面！')
+                    return
+            except KeyError:
+                pass
 
+            try:
+                isgoing = pjskguess[event.group_id]['isgoing']
+                if isgoing:
+                    sendmsg(event, '已经开启猜曲！')
+                    return
+                else:
+                    musicid = getrandomjacket()
+                    pjskguess[event.group_id] = {'isgoing': True, 'musicid': musicid,
+                                                  'starttime': int(time.time())}
+            except KeyError:
+                musicid = getrandomjacket()
+                pjskguess[event.group_id] = {'isgoing': True, 'musicid': musicid, 'starttime': int(time.time())}
+            if event.message == 'pjsk猜曲':
+                cutjacket(musicid, event.group_id, size=140, isbw=False)
+            elif event.message == 'pjsk阴间猜曲':
+                cutjacket(musicid, event.group_id, size=140, isbw=True)
+            elif event.message == 'pjsk非人类猜曲':
+                cutjacket(musicid, event.group_id, size=30, isbw=False)
+            sendmsg(event, 'PJSK曲绘竞猜 （随机裁切）\n艾特我+你的答案以参加猜曲（不要使用回复）\n\n你有50秒的时间回答\n可手动发送“结束猜曲”来结束猜曲'
+                    + fr"[CQ:image,file=file:///{botdir}\piccache/{event.group_id}.png,cache=0]")
+            return
+        if event.message == 'pjsk猜谱面':
+            if event.user_id not in whitelist and event.group_id not in whitelist:
+                return
+            try:
+                isgoing = charaguess[event.group_id]['isgoing']
+                if isgoing:
+                    sendmsg(event, '已经开启猜卡面！')
+                    return
+            except KeyError:
+                pass
+
+            try:
+                isgoing = pjskguess[event.group_id]['isgoing']
+                if isgoing:
+                    sendmsg(event, '已经开启猜曲！')
+                    return
+                else:
+                    musicid = getrandomchart()
+                    pjskguess[event.group_id] = {'isgoing': True, 'musicid': musicid,
+                                                  'starttime': int(time.time())}
+            except KeyError:
+                musicid = getrandomchart()
+                pjskguess[event.group_id] = {'isgoing': True, 'musicid': musicid, 'starttime': int(time.time())}
+            cutchartimg(musicid, event.group_id)
+            sendmsg(event, 'PJSK谱面竞猜（随机裁切）\n艾特我+你的答案以参加猜曲（不要使用回复）\n\n你有50秒的时间回答\n可手动发送“结束猜曲”来结束猜曲'
+                    + fr"[CQ:image,file=file:///{botdir}\piccache/{event.group_id}.png,cache=0]")
+            return
+        if event.message == 'pjsk猜卡面':
+            if event.user_id not in whitelist and event.group_id not in whitelist:
+                return
+            try:
+                isgoing = pjskguess[event.group_id]['isgoing']
+                if isgoing:
+                    sendmsg(event, '已经开启猜曲！')
+                    return
+            except KeyError:
+                pass
+            # getrandomcard() return characterId, assetbundleName, prefix, cardRarityType
+            try:
+                isgoing = charaguess[event.group_id]['isgoing']
+                if isgoing:
+                    sendmsg(event, '已经开启猜曲！')
+                    return
+                else:
+                    cardinfo = getrandomcard()
+                    charaguess[event.group_id] = {'isgoing': True, 'charaid': cardinfo[0],
+                                                   'assetbundleName': cardinfo[1], 'prefix': cardinfo[2],
+                                                   'starttime': int(time.time())}
+            except KeyError:
+                cardinfo = getrandomcard()
+                charaguess[event.group_id] = {'isgoing': True, 'charaid': cardinfo[0],
+                                               'assetbundleName': cardinfo[1],
+                                               'prefix': cardinfo[2], 'starttime': int(time.time())}
+
+            charaguess[event.group_id]['istrained'] = cutcard(cardinfo[1], cardinfo[3], event.group_id)
+            sendmsg(event, 'PJSK猜卡面\n你有30秒的时间回答\n艾特我+你的答案（只猜角色）以参加猜曲（不要使用回复）\n发送「结束猜卡面」可退出猜卡面模式'
+                    + fr"[CQ:image,file=file:///{botdir}\piccache/{event.group_id}.png,cache=0]")
+            print(charaguess)
+            return
+        if event.message == '结束猜曲':
+            try:
+                isgoing = pjskguess[event.group_id]['isgoing']
+                if isgoing:
+                    dir = f"data/assets/sekai/assetbundle/resources/startapp/music/jacket/" \
+                          f"jacket_s_{str(pjskguess[event.group_id]['musicid']).zfill(3)}/" \
+                          f"jacket_s_{str(pjskguess[event.group_id]['musicid']).zfill(3)}.png"
+                    text = '正确答案：' + idtoname(pjskguess[event.group_id]['musicid'])
+                    pjskguess[event.group_id]['isgoing'] = False
+                    sendmsg(event, text + fr"[CQ:image,file=file:///{botdir}\{dir},cache=0]")
+            except KeyError:
+                pass
+            return
+        if event.message == '结束猜卡面':
+            try:
+                isgoing = charaguess[event.group_id]['isgoing']
+                if isgoing:
+                    if charaguess[event.group_id]['istrained']:
+                        dir = 'data/assets/sekai/assetbundle/resources/startapp/' \
+                              f"character/member/{charaguess[event.group_id]['assetbundleName']}/card_after_training.jpg"
+                    else:
+                        dir = 'data/assets/sekai/assetbundle/resources/startapp/' \
+                              f"character/member/{charaguess[event.group_id]['assetbundleName']}/card_normal.jpg"
+                    text = f"正确答案：{charaguess[event.group_id]['prefix']} - {getcharaname(charaguess[event.group_id]['charaid'])}"
+                    charaguess[event.group_id]['isgoing'] = False
+
+                    sendmsg(event, text + fr"[CQ:image,file=file:///{botdir}\{dir},cache=0]")
+            except KeyError:
+                pass
+            return
+        # 判断艾特自己
+        if f'[CQ:at,qq={event.self_id}]' in event.message:
+            # 判断有没有猜曲
+            try:
+                isgoing = pjskguess[event.group_id]['isgoing']
+                if isgoing:
+                    answer = event.message[event.message.find("]") + len("]"):].strip()
+                    resp = aliastomusicid(answer)
+                    if resp['musicid'] == 0:
+                        sendmsg(event, '没有找到你说的歌曲哦')
+                        return
+                    else:
+                        if resp['musicid'] == pjskguess[event.group_id]['musicid']:
+                            text = f'[CQ:at,qq={event.user_id}] 您猜对了'
+                            if int(time.time()) > pjskguess[event.group_id]['starttime'] + 45:
+                                text = text + '，回答已超时'
+                            dir = f"data/assets/sekai/assetbundle/resources/startapp/music/jacket/" \
+                                  f"jacket_s_{str(pjskguess[event.group_id]['musicid']).zfill(3)}/" \
+                                  f"jacket_s_{str(pjskguess[event.group_id]['musicid']).zfill(3)}.png"
+                            text = text + '\n正确答案：' + idtoname(pjskguess[event.group_id]['musicid'])
+                            pjskguess[event.group_id]['isgoing'] = False
+                            sendmsg(event, text + fr"[CQ:image,file=file:///{botdir}\{dir},cache=0]")
+                        else:
+                            sendmsg(event, f"[CQ:at,qq={event.user_id}] 您猜错了，答案不是{idtoname(resp['musicid'])}哦")
+            except KeyError:
+                pass
+
+            # 判断有没有猜卡面
+            try:
+                isgoing = charaguess[event.group_id]['isgoing']
+                if isgoing:
+                    # {'isgoing', 'charaid', 'assetbundleName', 'prefix', 'starttime'}
+                    answer = event.message[event.message.find("]") + len("]"):].strip()
+                    resp = aliastocharaid(answer)
+                    if resp[0] == 0:
+                        sendmsg(event, '没有找到你说的角色哦')
+                        return
+                    else:
+                        if resp[0] == charaguess[event.group_id]['charaid']:
+                            text = f'[CQ:at,qq={event.user_id}] 您猜对了'
+                            if int(time.time()) > charaguess[event.group_id]['starttime'] + 45:
+                                text = text + '，回答已超时'
+                            if charaguess[event.group_id]['istrained']:
+                                dir = 'data/assets/sekai/assetbundle/resources/startapp/' \
+                                      f"character/member/{charaguess[event.group_id]['assetbundleName']}/card_after_training.jpg"
+                            else:
+                                dir = 'data/assets/sekai/assetbundle/resources/startapp/' \
+                                      f"character/member/{charaguess[event.group_id]['assetbundleName']}/card_normal.jpg"
+                            text = text + f"\n正确答案：{charaguess[event.group_id]['prefix']} - {resp[1]}"
+                            charaguess[event.group_id]['isgoing'] = False
+                            sendmsg(event, text + fr"[CQ:image,file=file:///{botdir}\{dir},cache=0]")
+                        else:
+                            sendmsg(event, f"[CQ:at,qq={event.user_id}] 您猜错了，答案不是{resp[1]}哦")
+
+            except KeyError:
+                pass
     except (requests.exceptions.ConnectionError, JSONDecodeError):
         sendmsg(event, '查不到数据捏，好像是bot网不好')
     except Exception as a:

@@ -36,10 +36,8 @@ def cutchartimg(musicid, qunnum):
     img1 = img.crop((0, 0, 110, 650))
     img2 = img.crop((0, 650, 110, 1300))
     final = Image.new('RGB', (220, 640), (255, 255, 255))
-    r, g, b, mask = img2.split()
-    final.paste(img2, (0, -10), mask)
-    r, g, b, mask = img1.split()
-    final.paste(img1, (110, 0), mask)
+    final.paste(img2, (0, -10))
+    final.paste(img1, (110, 0))
     final.save(f'piccache/{qunnum}.png')
 
 
