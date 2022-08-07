@@ -2,7 +2,7 @@
   <img width="256" src="./docs/.vuepress/public/logo.png" alt="logo">
 
 # Unibot
-一款基于 [go-cqhttp](https://github.com/Mrs4s/go-cqhttp) 与 [nakuru-project](https://github.com/Lxns-Network/nakuru-project/) 的多功能 QQ 群 PJSK 机器人
+一款基于 [go-cqhttp](https://github.com/Mrs4s/go-cqhttp) 与 [aiocqhttp](https://github.com/nonebot/aiocqhttp) 的多功能 QQ 群 PJSK 机器人
 
 [使用文档](https://docs.unipjsk.com/) · [交流群](https://qm.qq.com/cgi-bin/qm/qr?k=Osy7KwWvvLWYTjBFJH3MQwkAqgAIV7rT&jump_from=webapi) · [交流频道](https://qun.qq.com/qqweb/qunpro/share?_wv=3&_wwv=128&appChannel=share&inviteCode=7Pe26&appChannel=share&businessType=9&from=181074&biz=ka&shareSource=5)
 </div>
@@ -52,7 +52,8 @@ masterDB（项目内放在`masterdata`文件夹下） 可使用 [Sekai-World/sek
 - [SkywalkerSpace/emoji2pic-python](https://github.com/SkywalkerSpace/emoji2pic-python): Apple emoji and text to picture
 - [fuqiuai/wordCloud](https://github.com/fuqiuai/wordCloud): 用python进行文本分词并生成词云
 - [pcrbot/5000choyen](https://github.com/pcrbot/5000choyen): 适用hoshino的5000兆円欲しい! style图片生成器插件
-
+- [aiocqhttp](https://github.com/nonebot/aiocqhttp): A Python SDK with async I/O for CQHTTP (OneBot).
+- 
 ## 许可 License
 
 AGPL-3.0 license
