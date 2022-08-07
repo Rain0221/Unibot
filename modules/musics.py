@@ -410,6 +410,25 @@ def tasseiritsu(para):
     return f'达成率{grade}\n{round(ritsu * 100, 4)}%/100%'
 
 
+def findbpm(targetbpm):
+    bpm = {}
+    text = ''
+    with open(r'masterdata/realtime/musics.json', 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    for music in data:
+        bpm[music['id']] = parse_bpm(music['id'])[1]
+    for musicid in bpm:
+        for i in bpm[musicid]:
+            if i['bpm'] == targetbpm:
+                bpmtext = ''
+                for bpms in bpm[musicid]:
+                    bpmtext += ' - ' + str(bpms['bpm']).replace('.0', '')
+                text += f"{idtoname(musicid)}: {bpmtext[3:]}\n"
+                break
+    if text == '':
+        return '没有找到'
+    return text
+
 if __name__ == '__main__':
     # downloadviewerchart(49, 'master')
     print(tasseiritsu([1224, 0, 1, 0, 0]))

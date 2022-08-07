@@ -19,7 +19,7 @@ from modules.config import whitelist, wordcloud, block, msggroup
 from modules.cyo5000 import genImage
 from modules.gacha import getcharaname, getallcurrentgacha, getcurrentgacha, fakegacha
 from modules.homo import generate_homo
-from modules.musics import hotrank, levelrank, parse_bpm, aliastochart, idtoname, notecount, tasseiritsu
+from modules.musics import hotrank, levelrank, parse_bpm, aliastochart, idtoname, notecount, tasseiritsu, findbpm
 from modules.pjskguess import getrandomjacket, cutjacket, getrandomchart, cutchartimg, getrandomcard, cutcard
 from modules.pjskinfo import aliastomusicid, drawpjskinfo, pjskset, pjskdel, pjskalias
 from modules.profileanalysis import daibu, rk, pjskjindu, pjskprofile, pjskb30
@@ -550,6 +550,9 @@ def sync_handle_msg(event):
             return
         if event.message[:3] == '查物量':
             sendmsg(event, notecount(int(event.message[3:])))
+            return
+        if event.message[:4] == '查bpm':
+            sendmsg(event, findbpm(int(event.message[4:])))
             return
         if 'pjsk抽卡' in event.message or 'sekai抽卡' in event.message:
             if event.user_id not in whitelist and event.group_id not in whitelist:
