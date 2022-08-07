@@ -419,7 +419,7 @@ def findbpm(targetbpm):
         bpm[music['id']] = parse_bpm(music['id'])[1]
     for musicid in bpm:
         for i in bpm[musicid]:
-            if i['bpm'] == targetbpm:
+            if int(i['bpm']) == targetbpm:
                 bpmtext = ''
                 for bpms in bpm[musicid]:
                     bpmtext += ' - ' + str(bpms['bpm']).replace('.0', '')
