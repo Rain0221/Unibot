@@ -137,7 +137,30 @@ def sync_handle_msg(event):
         if event.message == "sekai真抽卡":
             if event.self_id not in mainbot:
                 return
-            result = gacha()
+            nowtime = f"{str(datetime.now().hour).zfill(2)}{str(datetime.now().minute).zfill(2)}"
+            lasttime = gachalimit['lasttime']
+            count = gachalimit['count']
+            if nowtime == lasttime and count >= 2:
+                sendmsg(event, f'技能冷却中，剩余cd:{60 - datetime.now().second}秒（一分钟内所有群只能抽两次）')
+                return
+            gachalimit['lasttime'] = nowtime
+            gachalimit['count'] = count + 1
+            sendmsg(event, '了解')
+            gachaid = event.message[event.message.find("sekai真抽卡") + len("sekai真抽卡"):].strip()
+            if gachaid == '':
+                result = gacha()
+            else:
+                currentgacha = getallcurrentgacha()
+                targetgacha = None
+                for gachas in currentgacha:
+                    if int(gachas['id']) == int(gachaid):
+                        targetgacha = gachas
+                        break
+                if targetgacha is None:
+                    sendmsg(event, '你指定的id现在无法完成无偿十连')
+                    return
+                else:
+                    result = gacha(targetgacha)
             sendmsg(event, result)
             return
         if event.message == "sk预测":
