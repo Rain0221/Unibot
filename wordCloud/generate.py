@@ -1,11 +1,14 @@
 # coding:utf-8
 
 from os import path
+
+import jieba
+
 from wordCloud import chnSegment, plotWordcloud
 
 
 def ciyun(qunnum):
-
+    jieba.load_userdict(path.join(path.dirname(__file__), 'userdict//userdict.txt'))  # 导入用户自定义词典
     # 读取文件
     d = path.dirname(__file__)
     #  text = open(path.join(d, 'doc//十九大报告全文.txt')).read()
