@@ -40,6 +40,7 @@ admin = [1103479519]
 mainbot = [1513705608]
 requestwhitelist = []  # 邀请加群白名单 随时设置 不保存到文件
 groupban = [467602419]
+botdebug = False
 botname = {
     1513705608: '一号机',
     3506606538: '三号机'
@@ -51,6 +52,7 @@ send = False
 @bot.on_message('group')
 async def handle_msg(event: Event):
     global blacklist
+    global botdebug
     if event.group_id in wordcloud:
         if 'CQ:' not in event.raw_message and '&#' not in event.raw_message:
             async with aiofiles.open(f'wordCloud/{event.group_id}.txt', 'a', encoding='utf-8') as f:
@@ -114,6 +116,12 @@ async def handle_msg(event: Event):
         else:
             await bot.send(event, '此命令需要群主或管理员权限')
         return
+    if event.raw_message == '开启debug' and event.user_id in admin:
+        botdebug = True
+        await bot.send(event, '开启成功')
+    if event.raw_message == '关闭debug' and event.user_id in admin:
+        botdebug = False
+        await bot.send(event, '关闭成功')
 
 
 @bot.on_message('group')
@@ -124,17 +132,18 @@ def sync_handle_msg(event):
     global gachalimit
     global blacklist
     global requestwhitelist
-    timeArray = time.localtime(time.time())
-    Time = time.strftime("[%Y-%m-%d %H:%M:%S]", timeArray)
-    try:
-        print(Time, botname[event.self_id] + '收到消息', event.group_id, event.user_id, event.message.replace('\n', ''))
-    except KeyError:
-        print(Time, '测试bot收到消息', event.group_id, event.user_id, event.message.replace('\n', ''))
+    if botdebug:
+        timeArray = time.localtime(time.time())
+        Time = time.strftime("[%Y-%m-%d %H:%M:%S]", timeArray)
+        try:
+            print(Time, botname[event.self_id] + '收到消息', event.group_id, event.user_id, event.message.replace('\n', ''))
+        except KeyError:
+            print(Time, '测试bot收到消息', event.group_id, event.user_id, event.message.replace('\n', ''))
     if event.group_id in groupban:
-        print('黑名单群已拦截')
+        # print('黑名单群已拦截')
         return
     if event.user_id in block:
-        print('黑名单成员已拦截')
+        # print('黑名单成员已拦截')
         return
     if event.message[0:1] == '/':
         event.message = event.message[1:]
@@ -489,7 +498,7 @@ def sync_handle_msg(event):
                 if len(para) < 2:
                     sendmsg(event, '请求不对哦，/生成 这是红字 这是白字')
                     return
-            genImage(para[0], para[1]).save(f"piccache/{now}.png,cache=0]")
+            genImage(para[0], para[1]).save(f"piccache/{now}.png")
             sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{now}.png,cache=0]")
             return
         if event.message[:4] == 'homo':
@@ -778,6 +787,12 @@ def sync_handle_msg(event):
 
 def sendmsg(event, msg):
     global send
+    timeArray = time.localtime(time.time())
+    Time = time.strftime("\n[%Y-%m-%d %H:%M:%S]", timeArray)
+    try:
+        print(Time, botname[event.self_id] + '收到命令', event.group_id, event.user_id, event.message.replace('\n', ''))
+    except KeyError:
+        print(Time, '测试bot收到命令', event.group_id, event.user_id, event.message.replace('\n', ''))
     print(botname[event.self_id] + '发送群消息', event.group_id, msg.replace('\n', ''))
     try:
         bot.sync.send_group_msg(self_id=event.self_id, group_id=event.group_id, message=msg)
