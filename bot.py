@@ -384,7 +384,7 @@ def sync_handle_msg(event):
             pjskprofile(bind[1], bind[2])
             sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}profile.png,cache=0]")
             return
-        if event.message[:7] == 'pjskbpm' or event.message[:3] == 'bpm':
+        if event.message[:7] == 'pjskbpm':
             parm = event.message[event.message.find("bpm") + len("bpm"):].strip()
             resp = aliastomusicid(parm)
             if resp['musicid'] == 0:
