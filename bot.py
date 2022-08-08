@@ -489,7 +489,7 @@ def sync_handle_msg(event):
                 if len(para) < 2:
                     sendmsg(event, '请求不对哦，/生成 这是红字 这是白字')
                     return
-            genImage(para[0], para[1]).save(f"piccache/{now}.png,cache=0]")
+            genImage(para[0], para[1]).save(f"piccache/{now}.png")
             sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{now}.png,cache=0]")
             return
         if event.message[:4] == 'homo':
