@@ -181,87 +181,93 @@ def parse_bpm(music_id):
 
 
 def getchart(musicid, difficulty):
-    if difficulty == 'master' or difficulty == 'expert':
-        if os.path.exists(f'charts/SekaiViewer/{musicid}/{difficulty}.png'):  # 本地有缓存
-            return f'charts/SekaiViewer/{musicid}/{difficulty}.png'
-        else:  # 本地无缓存
-            if downloadviewerchart(musicid, difficulty):  # sekai viewer下载成功
+    try:
+        if difficulty == 'master' or difficulty == 'expert':
+            if os.path.exists(f'charts/SekaiViewer/{musicid}/{difficulty}.png'):  # 本地有缓存
                 return f'charts/SekaiViewer/{musicid}/{difficulty}.png'
-            else:  # sekai viewer下载失败 尝试sdvx.in
-                if os.path.exists(f'charts/sdvxInCharts/{musicid}/{difficulty}.png'):  # sdvx.in本地有缓存
-                    return f'charts/sdvxInCharts/{musicid}/{difficulty}.png'
-                else:  # 无缓存，尝试下载
-                    timeid = idtotime(musicid)
-                    if difficulty == 'master':
-                        data = requests.get(f'https://sdvx.in/prsk/obj/data{str(timeid).zfill(3)}mst.png',
-                                            proxies=proxies)
-                    else:
-                        data = requests.get(f'https://sdvx.in/prsk/obj/data{str(timeid).zfill(3)}exp.png',
-                                            proxies=proxies)
-                    if data.status_code == 200:  # 下载到了
-                        bg = requests.get(f"https://sdvx.in/prsk/bg/{str(timeid).zfill(3)}bg.png",
-                                          proxies=proxies)
-                        bar = requests.get(f"https://sdvx.in/prsk/bg/{str(timeid).zfill(3)}bar.png",
-                                           proxies=proxies)
-                        bgpic = Image.open(io.BytesIO(bg.content))
-                        datapic = Image.open(io.BytesIO(data.content))
-                        barpic = Image.open(io.BytesIO(bar.content))
-                        r, g, b, mask = datapic.split()
-                        bgpic.paste(datapic, (0, 0), mask)
-                        r, g, b, mask = barpic.split()
-                        bgpic.paste(barpic, (0, 0), mask)
-                        dirs = f'charts/sdvxInCharts/{musicid}'
-                        if not os.path.exists(dirs):
-                            os.makedirs(dirs)
-                        bgpic.save(f'charts/sdvxInCharts/{musicid}/{difficulty}.png')
+            else:  # 本地无缓存
+                if downloadviewerchart(musicid, difficulty):  # sekai viewer下载成功
+                    return f'charts/SekaiViewer/{musicid}/{difficulty}.png'
+                else:  # sekai viewer下载失败 尝试sdvx.in
+                    if os.path.exists(f'charts/sdvxInCharts/{musicid}/{difficulty}.png'):  # sdvx.in本地有缓存
                         return f'charts/sdvxInCharts/{musicid}/{difficulty}.png'
-                    else:  # 没下载到
-                        if os.path.exists(f'charts/sus/{musicid}/{difficulty}.png'):  # 本地有缓存
-                            return f'charts/sus/{musicid}/{difficulty}.png'
+                    else:  # 无缓存，尝试下载
+                        timeid = idtotime(musicid)
+                        if difficulty == 'master':
+                            data = requests.get(f'https://sdvx.in/prsk/obj/data{str(timeid).zfill(3)}mst.png',
+                                                proxies=proxies)
                         else:
-                            return None
-    else:  # 其他难度
-        if os.path.exists(f'charts/SekaiViewer/{musicid}/{difficulty}.png'):  # 本地有缓存
-            return f'charts/SekaiViewer/{musicid}/{difficulty}.png'
-        else:  # 本地无缓存
-            if downloadviewerchart(musicid, difficulty):  # sekai viewer下载成功
+                            data = requests.get(f'https://sdvx.in/prsk/obj/data{str(timeid).zfill(3)}exp.png',
+                                                proxies=proxies)
+                        if data.status_code == 200:  # 下载到了
+                            bg = requests.get(f"https://sdvx.in/prsk/bg/{str(timeid).zfill(3)}bg.png",
+                                              proxies=proxies)
+                            bar = requests.get(f"https://sdvx.in/prsk/bg/{str(timeid).zfill(3)}bar.png",
+                                               proxies=proxies)
+                            bgpic = Image.open(io.BytesIO(bg.content))
+                            datapic = Image.open(io.BytesIO(data.content))
+                            barpic = Image.open(io.BytesIO(bar.content))
+                            r, g, b, mask = datapic.split()
+                            bgpic.paste(datapic, (0, 0), mask)
+                            r, g, b, mask = barpic.split()
+                            bgpic.paste(barpic, (0, 0), mask)
+                            dirs = f'charts/sdvxInCharts/{musicid}'
+                            if not os.path.exists(dirs):
+                                os.makedirs(dirs)
+                            bgpic.save(f'charts/sdvxInCharts/{musicid}/{difficulty}.png')
+                            return f'charts/sdvxInCharts/{musicid}/{difficulty}.png'
+                        else:  # 没下载到
+                            if os.path.exists(f'charts/sus/{musicid}/{difficulty}.png'):  # 本地有缓存
+                                return f'charts/sus/{musicid}/{difficulty}.png'
+                            else:
+                                return None
+        else:  # 其他难度
+            if os.path.exists(f'charts/SekaiViewer/{musicid}/{difficulty}.png'):  # 本地有缓存
                 return f'charts/SekaiViewer/{musicid}/{difficulty}.png'
-            else:  # sekai viewer下载失败
-                return None
+            else:  # 本地无缓存
+                if downloadviewerchart(musicid, difficulty):  # sekai viewer下载成功
+                    return f'charts/SekaiViewer/{musicid}/{difficulty}.png'
+                else:  # sekai viewer下载失败
+                    return None
+    except:
+        return None
 
 
 def getsdvxchart(musicid, difficulty):
-    if difficulty == 'master' or difficulty == 'expert':
-        if os.path.exists(f'charts/sdvxInCharts/{musicid}/{difficulty}.png'):  # sdvx.in本地有缓存
-            return f'charts/sdvxInCharts/{musicid}/{difficulty}.png'
-        else:  # 无缓存，尝试下载
-            timeid = idtotime(musicid)
-            if difficulty == 'master':
-                data = requests.get(f'https://sdvx.in/prsk/obj/data{str(timeid).zfill(3)}mst.png',
-                                    proxies=proxies)
-            else:
-                data = requests.get(f'https://sdvx.in/prsk/obj/data{str(timeid).zfill(3)}exp.png',
-                                    proxies=proxies)
-            if data.status_code == 200:  # 下载到了
-                bg = requests.get(f"https://sdvx.in/prsk/bg/{str(timeid).zfill(3)}bg.png",
-                                  proxies=proxies)
-                bar = requests.get(f"https://sdvx.in/prsk/bg/{str(timeid).zfill(3)}bar.png",
-                                   proxies=proxies)
-                bgpic = Image.open(io.BytesIO(bg.content))
-                datapic = Image.open(io.BytesIO(data.content))
-                barpic = Image.open(io.BytesIO(bar.content))
-                r, g, b, mask = datapic.split()
-                bgpic.paste(datapic, (0, 0), mask)
-                r, g, b, mask = barpic.split()
-                bgpic.paste(barpic, (0, 0), mask)
-                dirs = f'charts/sdvxInCharts/{musicid}'
-                if not os.path.exists(dirs):
-                    os.makedirs(dirs)
-                bgpic.save(f'charts/sdvxInCharts/{musicid}/{difficulty}.png')
+    try:
+        if difficulty == 'master' or difficulty == 'expert':
+            if os.path.exists(f'charts/sdvxInCharts/{musicid}/{difficulty}.png'):  # sdvx.in本地有缓存
                 return f'charts/sdvxInCharts/{musicid}/{difficulty}.png'
-            else:  # 没下载到
-                return None
-    else:  # 其他难度
+            else:  # 无缓存，尝试下载
+                timeid = idtotime(musicid)
+                if difficulty == 'master':
+                    data = requests.get(f'https://sdvx.in/prsk/obj/data{str(timeid).zfill(3)}mst.png',
+                                        proxies=proxies)
+                else:
+                    data = requests.get(f'https://sdvx.in/prsk/obj/data{str(timeid).zfill(3)}exp.png',
+                                        proxies=proxies)
+                if data.status_code == 200:  # 下载到了
+                    bg = requests.get(f"https://sdvx.in/prsk/bg/{str(timeid).zfill(3)}bg.png",
+                                      proxies=proxies)
+                    bar = requests.get(f"https://sdvx.in/prsk/bg/{str(timeid).zfill(3)}bar.png",
+                                       proxies=proxies)
+                    bgpic = Image.open(io.BytesIO(bg.content))
+                    datapic = Image.open(io.BytesIO(data.content))
+                    barpic = Image.open(io.BytesIO(bar.content))
+                    r, g, b, mask = datapic.split()
+                    bgpic.paste(datapic, (0, 0), mask)
+                    r, g, b, mask = barpic.split()
+                    bgpic.paste(barpic, (0, 0), mask)
+                    dirs = f'charts/sdvxInCharts/{musicid}'
+                    if not os.path.exists(dirs):
+                        os.makedirs(dirs)
+                    bgpic.save(f'charts/sdvxInCharts/{musicid}/{difficulty}.png')
+                    return f'charts/sdvxInCharts/{musicid}/{difficulty}.png'
+                else:  # 没下载到
+                    return None
+        else:  # 其他难度
+            return None
+    except:
         return None
 
 
@@ -276,36 +282,43 @@ def idtotime(musicid):
 
 
 def downloadviewerchart(musicid, difficulty):
-    re = requests.get(f'https://minio.dnaroma.eu/sekai-music-charts/{str(musicid).zfill(4)}/{difficulty}.png',
-                      proxies=proxies)
-    if re.status_code == 200:
-        dirs = rf'charts/SekaiViewer/{musicid}'
-        if not os.path.exists(dirs):
-            os.makedirs(dirs)
-        if difficulty == 'master':
-            svg = requests.get(f'https://minio.dnaroma.eu/sekai-music-charts/{str(musicid).zfill(4)}/{difficulty}.svg',
-                               proxies=proxies)
-            i = 0
-            while True:
-                i = i + 1
-                if svg.text.count(f'{str(i).zfill(3)}</text>') == 0:
-                    break
-            row = int((i - 2) / 4)
-            print(row)
-            pic = Image.open(io.BytesIO(re.content))
-            r, g, b, mask = pic.split()
-            final = Image.new('RGB', pic.size, (255, 255, 255))
-            final.paste(pic, (0, 0), mask)
-            final = final.resize((160 * row + 32, 1300))
-            final.save(f'charts/SekaiViewer/{musicid}/{difficulty}.png')
+    try:
+        try:
+            re = requests.get(f'https://minio.dnaroma.eu/sekai-music-charts/{str(musicid).zfill(4)}/{difficulty}.png',
+                              proxies=proxies)
+        except:
+            re = requests.get(f'https://minio.dnaroma.eu/sekai-music-charts/{str(musicid).zfill(4)}/{difficulty}.png',
+                              proxies=None)
+        if re.status_code == 200:
+            dirs = rf'charts/SekaiViewer/{musicid}'
+            if not os.path.exists(dirs):
+                os.makedirs(dirs)
+            if difficulty == 'master':
+                svg = requests.get(f'https://minio.dnaroma.eu/sekai-music-charts/{str(musicid).zfill(4)}/{difficulty}.svg',
+                                   proxies=proxies)
+                i = 0
+                while True:
+                    i = i + 1
+                    if svg.text.count(f'{str(i).zfill(3)}</text>') == 0:
+                        break
+                row = int((i - 2) / 4)
+                print(row)
+                pic = Image.open(io.BytesIO(re.content))
+                r, g, b, mask = pic.split()
+                final = Image.new('RGB', pic.size, (255, 255, 255))
+                final.paste(pic, (0, 0), mask)
+                final = final.resize((160 * row + 32, 1300))
+                final.save(f'charts/SekaiViewer/{musicid}/{difficulty}.png')
+            else:
+                pic = Image.open(io.BytesIO(re.content))
+                r, g, b, mask = pic.split()
+                final = Image.new('RGB', pic.size, (255, 255, 255))
+                final.paste(pic, (0, 0), mask)
+                final.save(f'charts/SekaiViewer/{musicid}/{difficulty}.png')
+            return True
         else:
-            pic = Image.open(io.BytesIO(re.content))
-            r, g, b, mask = pic.split()
-            final = Image.new('RGB', pic.size, (255, 255, 255))
-            final.paste(pic, (0, 0), mask)
-            final.save(f'charts/SekaiViewer/{musicid}/{difficulty}.png')
-        return True
-    else:
+            return False
+    except:
         return False
 
 
