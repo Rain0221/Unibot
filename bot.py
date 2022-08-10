@@ -865,7 +865,7 @@ async def handle_group_request(event: Event):
                                          message=f'{event.user_id}申请加群\n{event.comment}\n已自动通过')
             else:
                 await bot.send_group_msg(self_id=event.self_id, group_id=msggroup,
-                                         message=f'[CQ:at,qq=1103479519]{event.user_id}申请加群\n{event.comment}\n，无法判定')
+                                         message=f'{event.user_id}申请加群\n{event.comment}\n，无法判定')
 
 
 @bot.on_notice('group_ban')
