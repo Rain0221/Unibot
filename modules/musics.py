@@ -67,14 +67,11 @@ def levelrank(level, difficulty, fcap=0):
         musics = json.load(f)
     for i in data:
         if i['playLevel'] == level and i['musicDifficulty'] == difficulty:
-            target.append(i)
-    for i in range(0, len(target)):
-        try:
-            target[i]['playLevelAdjust']
-        except KeyError:
-            target[i]['playLevelAdjust'] = 0
-            target[i]['fullComboAdjust'] = 0
-            target[i]['fullPerfectAdjust'] = 0
+            try:
+                i['playLevelAdjust']
+                target.append(i)
+            except KeyError:
+                pass
     if fcap == 0:
         title = f'{difficulty.upper()} {level}难度排行（仅供参考）'
         target.sort(key=lambda x: x["playLevelAdjust"], reverse=True)
