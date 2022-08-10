@@ -39,4 +39,5 @@ def processidchart(musicid):
     removevisual(f'../charts/sus/{musicid}/expert.sus')
 
 if __name__ == '__main__':
-    processidchart(164)
+    processidchart(264)
+    processidchart(226)
