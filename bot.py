@@ -702,7 +702,7 @@ def sync_handle_msg(event):
             sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}jindu.png,cache=0]")
             return
         if event.message == "enpjsk进度ex":
-            bind = getqqbind(event.user_id)
+            bind = engetqqbind(event.user_id)
             if bind is None:
                 sendmsg(event, '查不到捏，可能是没绑定')
                 return
