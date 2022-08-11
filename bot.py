@@ -17,6 +17,8 @@ from modules.api import gacha
 from modules.chara import charaset, grcharaset, charadel, charainfo, grcharadel, aliastocharaid, get_card
 from modules.config import whitelist, wordcloud, block, msggroup
 from modules.cyo5000 import genImage
+from modules.enmodules import engetqqbind, ensk, enbindid, ensetprivate, enaliastomusicid, endrawpjskinfo, endaibu, \
+    enpjskjindu, enpjskb30, enpjskprofile
 from modules.gacha import getcharaname, getallcurrentgacha, getcurrentgacha, fakegacha
 from modules.homo import generate_homo
 from modules.musics import hotrank, levelrank, parse_bpm, aliastochart, idtoname, notecount, tasseiritsu, findbpm
@@ -600,7 +602,131 @@ def sync_handle_msg(event):
             else:
                 sendmsg(event, fakegacha(int(gachaid), int(num), False))
             return
-            # 猜曲
+
+        # 以下为国际服内容
+
+        if event.message[:4] == "ensk":
+            if event.message == "ensk":
+                bind = engetqqbind(event.user_id)
+                if bind is None:
+                    sendmsg(event, '你没有绑定id！')
+                    return
+                result = ensk(bind[1], None, bind[2])
+                sendmsg(event, result)
+            else:
+                userid = event.message.replace("sk", "")
+                userid = re.sub(r'\D', "", userid)
+                if userid == '':
+                    sendmsg(event, '你这id有问题啊')
+                    return
+                if int(userid) > 10000000:
+                    result = ensk(userid)
+                else:
+                    result = ensk(None, userid)
+                sendmsg(event, result)
+                return
+        if event.message[:6] == "enbind" or event.message[:4] == "en绑定":
+            userid = event.message.replace("enbind", "").replace("en绑定", "")
+            userid = re.sub(r'\D', "", userid)
+            sendmsg(event, enbindid(event.user_id, userid))
+            return
+        if event.message == "en不给看":
+            if ensetprivate(event.user_id, 1):
+                sendmsg(event, '不给看！')
+            else:
+                sendmsg(event, '你还没有绑定哦')
+            return
+        if event.message == "en给看":
+            if ensetprivate(event.user_id, 0):
+                sendmsg(event, '给看！')
+            else:
+                sendmsg(event, '你还没有绑定哦')
+            return
+        if event.message[:10] == 'enpjskinfo':
+            resp = enaliastomusicid(event.message[event.message.find("pjskinfo") + len("pjskinfo"):].strip())
+            if resp['musicid'] == 0:
+                sendmsg(event, '没有找到你要的歌曲哦')
+                return
+            else:
+                leak = endrawpjskinfo(resp['musicid'])
+                if resp['match'] < 0.8:
+                    text = '你要找的可能是：'
+                else:
+                    text = ""
+                if leak:
+                    text = text + f"匹配度:{round(resp['match'], 4)}\n⚠该内容为剧透内容"
+                else:
+                    if resp['translate'] == '':
+                        text = text + f"{resp['name']}\n匹配度:{round(resp['match'], 4)}"
+                    else:
+                        text = text + f"{resp['name']} ({resp['translate']})\n匹配度:{round(resp['match'], 4)}"
+                sendmsg(event,
+                        text + fr"[CQ:image,file=file:///{botdir}\piccache\enpjskinfo{resp['musicid']}.png,cache=0]")
+            return
+        if event.message[:4] == "en逮捕":
+            if event.message == "en逮捕":
+                bind = engetqqbind(event.user_id)
+                if bind is None:
+                    sendmsg(event, '查不到捏，可能是没绑定')
+                    return
+                result = endaibu(bind[1], bind[2])
+                sendmsg(event, result)
+            else:
+                userid = event.message.replace("逮捕", "")
+                if '[CQ:at' in userid:
+                    qq = re.sub(r'\D', "", userid)
+                    bind = engetqqbind(qq)
+                    if bind is None:
+                        sendmsg(event, '查不到捏，可能是没绑定')
+                        return
+                    elif bind[2] and qq != str(event.user_id):
+                        sendmsg(event, '查不到捏，可能是不给看')
+                        return
+                    else:
+                        result = endaibu(bind[1], bind[2])
+                        sendmsg(event, result)
+                        return
+                userid = re.sub(r'\D', "", userid)
+                if userid == '':
+                    sendmsg(event, '你这id有问题啊')
+                    return
+                result = endaibu(userid)
+                sendmsg(event, result)
+            return
+        if event.message == "enpjsk进度":
+            bind = engetqqbind(event.user_id)
+            if bind is None:
+                sendmsg(event, '查不到捏，可能是没绑定')
+                return
+            enpjskjindu(bind[1], bind[2])
+            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}jindu.png,cache=0]")
+            return
+        if event.message == "enpjsk进度ex":
+            bind = getqqbind(event.user_id)
+            if bind is None:
+                sendmsg(event, '查不到捏，可能是没绑定')
+                return
+            enpjskjindu(bind[1], bind[2], 'expert')
+            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}jindu.png,cache=0]")
+            return
+        if event.message == "enpjsk b30":
+            bind = engetqqbind(event.user_id)
+            if bind is None:
+                sendmsg(event, '查不到捏，可能是没绑定')
+                return
+            enpjskb30(bind[1], bind[2])
+            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}b30.png,cache=0]")
+            return
+        if event.message == "enpjskprofile":
+            bind = engetqqbind(event.user_id)
+            if bind is None:
+                sendmsg(event, '查不到捏，可能是没绑定')
+                return
+            enpjskprofile(bind[1], bind[2])
+            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}profile.png,cache=0]")
+            return
+
+        # 猜曲
         if event.message[-2:] == '猜曲' and event.message[:4] == 'pjsk':
             if event.user_id not in whitelist and event.group_id not in whitelist:
                 return
