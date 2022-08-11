@@ -10,6 +10,7 @@ import requests
 import yaml
 
 from modules.pjskinfo import musiclength
+from modules.sk import verifyid
 
 apiurl = 'http://127.0.0.1:5001/api'
 
@@ -141,6 +142,8 @@ def ensk(targetid=None, targetrank=None, secret=False):
     if event['status'] == 'counting':
         return '活动分数统计中，不要着急哦！'
     if targetid is not None:
+        if not verifyid(targetid):
+            return '你这ID有问题啊'
         resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetUserId={targetid}')
     else:
         resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={targetrank}')
@@ -1109,6 +1112,8 @@ def endrawpjskinfo(musicid):
     return leak
 
 def enbindid(qqnum, userid):
+    if not verifyid(userid):
+        return '你这ID有问题啊'
     conn = sqlite3.connect('pjsk.db')
     c = conn.cursor()
     cursor = c.execute(f'SELECT * from enbind where qqnum=?', (qqnum,))
