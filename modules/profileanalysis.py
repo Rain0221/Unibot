@@ -53,8 +53,11 @@ class userprofile(object):
         self.userid = userid
         self.word = data['userProfile']['word']
         self.rank = data['user']['userGamedata']['rank']
-        self.characterId = data['userChallengeLiveSoloResults'][0]['characterId']
-        self.highScore = data['userChallengeLiveSoloResults'][0]['highScore']
+        try:
+            self.characterId = data['userChallengeLiveSoloResults'][0]['characterId']
+            self.highScore = data['userChallengeLiveSoloResults'][0]['highScore']
+        except:
+            pass
         self.characterRank = data['userCharacters']
         self.userProfileHonors = data['userProfileHonors']
         # print(self.userProfileHonors)
@@ -425,12 +428,14 @@ def pjskprofile(userid, private=False):
                 break
     draw.text((952, 141), f'{profile.mvpCount}回', fill=(0, 0, 0), font=font_style)
     draw.text((1259, 141), f'{profile.superStarCount}回', fill=(0, 0, 0), font=font_style)
-
-    chara = Image.open(rf'chara\chr_ts_{profile.characterId}.png')
-    chara = chara.resize((70, 70))
-    r, g, b, mask = chara.split()
-    img.paste(chara, (952, 293), mask)
-    draw.text((1032, 315), str(profile.highScore), fill=(0, 0, 0), font=font_style)
+    try:
+        chara = Image.open(rf'chara\chr_ts_{profile.characterId}.png')
+        chara = chara.resize((70, 70))
+        r, g, b, mask = chara.split()
+        img.paste(chara, (952, 293), mask)
+        draw.text((1032, 315), str(profile.highScore), fill=(0, 0, 0), font=font_style)
+    except:
+        pass
 
     for i in profile.userProfileHonors:
         if i['seq'] == 1:
