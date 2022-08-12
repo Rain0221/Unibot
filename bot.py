@@ -361,32 +361,36 @@ def sync_handle_msg(event):
             pjskb30(bind[1], bind[2])
             sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}b30.png,cache=0]")
             return
-        if event.message == "热度排行":
-            hotrank()
-            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\hotrank.png,cache=0]")
-            return
-        if "难度排行" in event.message:
-            if event.message[:2] == 'fc':
-                fcap = 1
-            elif event.message[:2] == 'ap':
-                fcap = 2
-            else:
-                fcap = 0
-            event.message = event.message[event.message.find("难度排行") + len("难度排行"):].strip()
-            para = event.message.split(" ")
-            if len(para) == 1:
-                success = levelrank(int(event.message), 'master', fcap)
-            else:
-                success = levelrank(int(para[0]), para[1], fcap)
-            if success:
-                if len(para) == 1:
-                    sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{para[0]}master{fcap}.png,cache=0]")
+        try:
+            if event.message == "热度排行":
+                hotrank()
+                sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\hotrank.png,cache=0]")
+                return
+            if "难度排行" in event.message:
+                if event.message[:2] == 'fc':
+                    fcap = 1
+                elif event.message[:2] == 'ap':
+                    fcap = 2
                 else:
-                    sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{para[0]}{para[1]}{fcap}.png,cache=0]")
-            else:
-                sendmsg(event, '参数错误，指令：/难度排行 定数 难度，'
-                               '难度支持的输入: easy, normal, hard, expert, master，如/难度排行 28 expert')
-            return
+                    fcap = 0
+                event.message = event.message[event.message.find("难度排行") + len("难度排行"):].strip()
+                para = event.message.split(" ")
+                if len(para) == 1:
+                    success = levelrank(int(event.message), 'master', fcap)
+                else:
+                    success = levelrank(int(para[0]), para[1], fcap)
+                if success:
+                    if len(para) == 1:
+                        sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{para[0]}master{fcap}.png,cache=0]")
+                    else:
+                        sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{para[0]}{para[1]}{fcap}.png,cache=0]")
+                else:
+                    sendmsg(event, '参数错误，指令：/难度排行 定数 难度，'
+                                   '难度支持的输入: easy, normal, hard, expert, master，如/难度排行 28 expert')
+                return
+        except:
+            sendmsg(event, '参数错误，指令：/难度排行 定数 难度，'
+                           '难度支持的输入: easy, normal, hard, expert, master，如/难度排行 28 expert')
         if event.message == "pjskprofile" or event.message == "个人信息":
             bind = getqqbind(event.user_id)
             if bind is None:

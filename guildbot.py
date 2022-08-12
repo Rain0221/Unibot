@@ -200,35 +200,40 @@ def get_at_message(chain: bot_api.structs.Message):
             pjskb30(bind[1], bind[2])
             bot.api_send_message(chain.channel_id, chain.id, "pjsk b30", f"{piccacheurl}{bind[1]}b30.png")
             return
-        if chain.content == "热度排行":
-            hotrank()
-            bot.api_send_message(chain.channel_id, chain.id, "热度排行", f"{piccacheurl}hotrank.png")
-            return
-        if "难度排行" in chain.content:
-            if chain.content[:2] == 'fc':
-                fcap = 1
-            elif chain.content[:2] == 'ap':
-                fcap = 2
-            else:
-                fcap = 0
-            chain.content = chain.content[chain.content.find("难度排行") + len("难度排行"):].strip()
-            para = chain.content.split(" ")
-            if len(para) == 1:
-                success = levelrank(int(chain.content), 'master', fcap)
-            else:
-                success = levelrank(int(para[0]), para[1], fcap)
-            if success:
-                if len(para) == 1:
-                    bot.api_send_message(chain.channel_id, chain.id, '难度排行',
-                                         f"{piccacheurl}{para[0]}master{fcap}.png")
+        try:
+            if chain.content == "热度排行":
+                hotrank()
+                bot.api_send_message(chain.channel_id, chain.id, "热度排行", f"{piccacheurl}hotrank.png")
+                return
+            if "难度排行" in chain.content:
+                if chain.content[:2] == 'fc':
+                    fcap = 1
+                elif chain.content[:2] == 'ap':
+                    fcap = 2
                 else:
-                    bot.api_send_message(chain.channel_id, chain.id, '难度排行',
-                                         f"{piccacheurl}{para[0]}{para[1]}{fcap}.png")
-            else:
-                bot.api_send_message(chain.channel_id, chain.id,
-                                     '参数错误，指令：/难度排行 定数 难度，'
-                                     '难度支持的输入: easy, normal, hard, expert, master，如/难度排行 28 expert')
-            return
+                    fcap = 0
+                chain.content = chain.content[chain.content.find("难度排行") + len("难度排行"):].strip()
+                para = chain.content.split(" ")
+                if len(para) == 1:
+                    success = levelrank(int(chain.content), 'master', fcap)
+                else:
+                    success = levelrank(int(para[0]), para[1], fcap)
+                if success:
+                    if len(para) == 1:
+                        bot.api_send_message(chain.channel_id, chain.id, '难度排行',
+                                             f"{piccacheurl}{para[0]}master{fcap}.png")
+                    else:
+                        bot.api_send_message(chain.channel_id, chain.id, '难度排行',
+                                             f"{piccacheurl}{para[0]}{para[1]}{fcap}.png")
+                else:
+                    bot.api_send_message(chain.channel_id, chain.id,
+                                         '参数错误，指令：/难度排行 定数 难度，'
+                                         '难度支持的输入: easy, normal, hard, expert, master，如/难度排行 28 expert')
+                return
+        except:
+            bot.api_send_message(chain.channel_id, chain.id,
+                                 '参数错误，指令：/难度排行 定数 难度，'
+                                 '难度支持的输入: easy, normal, hard, expert, master，如/难度排行 28 expert')
         if chain.content == "pjskprofile" or chain.content == "个人信息":
             bind = getqqbind(chain.author.id)
             if bind is None:
