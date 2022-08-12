@@ -111,45 +111,48 @@ def sus2img(musicid, diffculty):
         os.makedirs(dirs)
     score_image.save(f'{dirs}/{diffculty}.png')
 
-# type 1
-note_info = {
-    1: 'normal',
-    2: 'crtcl',
-    3: 'long_among',
-    4: 'skill',
-}
-# type 5 1 flick up 2 long among unvisible 3 flick left 4 flick right 5,6 long start
-# type 3 1 long start 2 long end 3 long among 5 long among unvisible
-#####  read resource  #####
-note_normal = Image.open("pics/notes/notes_normal.png")
-note_crtcl = Image.open("pics/notes/notes_crtcl.png")
-note_long = Image.open("pics/notes/notes_long.png")
-note_long_among = Image.open("pics/notes/notes_long_among.png")
-note_long_among_crtcl = Image.open("pics/notes/notes_long_among_crtcl.png")
-note_long_among_unvisible = Image.open("pics/notes/note_long_among_unvisible.png")
-note_long_among_unvisible_crtcl = Image.open("pics/notes/note_long_among_unvisible_crtcl.png")
-note_flick = Image.open("pics/notes/notes_flick.png")
-note_flick_arrow = {
-    1: [],
-    3: [],
-    4: []
-}
-note_flick_arrow_crtcl = {
-    1: [],
-    3: [],
-    4: []
-}
-for i in range(1, 7):
-    note_flick_arrow[1].append(Image.open("pics/notes/notes_flick_arrow_%02d.png" % i))
-    note_flick_arrow[3].append(Image.open("pics/notes/notes_flick_arrow_%02d_diagonal.png" % i))
-    note_flick_arrow[4].append(Image.open("pics/notes/notes_flick_arrow_%02d_diagonal.png" % i).transpose(Image.FLIP_LEFT_RIGHT))
-    note_flick_arrow_crtcl[1].append(Image.open("pics/notes/notes_flick_arrow_crtcl_%02d.png" % i))
-    note_flick_arrow_crtcl[3].append(Image.open("pics/notes/notes_flick_arrow_crtcl_%02d_diagonal.png" % i))
-    note_flick_arrow_crtcl[4].append(Image.open("pics/notes/notes_flick_arrow_crtcl_%02d_diagonal.png" % i).transpose(Image.FLIP_LEFT_RIGHT))
 
 
 #####  create score image  ######
 def create_image(music_info, music_score):
+    # type 1
+    note_info = {
+        1: 'normal',
+        2: 'crtcl',
+        3: 'long_among',
+        4: 'skill',
+    }
+    # type 5 1 flick up 2 long among unvisible 3 flick left 4 flick right 5,6 long start
+    # type 3 1 long start 2 long end 3 long among 5 long among unvisible
+    #####  read resource  #####
+    note_normal = Image.open("pics/notes/notes_normal.png")
+    note_crtcl = Image.open("pics/notes/notes_crtcl.png")
+    note_long = Image.open("pics/notes/notes_long.png")
+    note_long_among = Image.open("pics/notes/notes_long_among.png")
+    note_long_among_crtcl = Image.open("pics/notes/notes_long_among_crtcl.png")
+    note_long_among_unvisible = Image.open("pics/notes/note_long_among_unvisible.png")
+    note_long_among_unvisible_crtcl = Image.open("pics/notes/note_long_among_unvisible_crtcl.png")
+    note_flick = Image.open("pics/notes/notes_flick.png")
+    note_flick_arrow = {
+        1: [],
+        3: [],
+        4: []
+    }
+    note_flick_arrow_crtcl = {
+        1: [],
+        3: [],
+        4: []
+    }
+    for i in range(1, 7):
+        note_flick_arrow[1].append(Image.open("pics/notes/notes_flick_arrow_%02d.png" % i))
+        note_flick_arrow[3].append(Image.open("pics/notes/notes_flick_arrow_%02d_diagonal.png" % i))
+        note_flick_arrow[4].append(
+            Image.open("pics/notes/notes_flick_arrow_%02d_diagonal.png" % i).transpose(Image.FLIP_LEFT_RIGHT))
+        note_flick_arrow_crtcl[1].append(Image.open("pics/notes/notes_flick_arrow_crtcl_%02d.png" % i))
+        note_flick_arrow_crtcl[3].append(Image.open("pics/notes/notes_flick_arrow_crtcl_%02d_diagonal.png" % i))
+        note_flick_arrow_crtcl[4].append(
+            Image.open("pics/notes/notes_flick_arrow_crtcl_%02d_diagonal.png" % i).transpose(Image.FLIP_LEFT_RIGHT))
+
     total_unit = int(music_score[-1]['unitid'])
     music_info['combo'] = 0
 
