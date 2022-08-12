@@ -9,6 +9,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 from modules.config import proxies
 from modules.pjskinfo import aliastomusicid
+from modules.sus2img import sus2img
 
 
 def hotrank():
@@ -214,10 +215,12 @@ def getchart(musicid, difficulty):
                             bgpic.save(f'charts/sdvxInCharts/{musicid}/{difficulty}.png')
                             return f'charts/sdvxInCharts/{musicid}/{difficulty}.png'
                         else:  # 没下载到
-                            if os.path.exists(f'charts/sus/{musicid}/{difficulty}.png'):  # 本地有缓存
+                            if os.path.exists(f'charts/sus/{musicid}/{difficulty}.png'):
                                 return f'charts/sus/{musicid}/{difficulty}.png'
                             else:
-                                return None
+                                sus2img(musicid, difficulty)
+                                return f'charts/sus/{musicid}/{difficulty}.png'
+
         else:  # 其他难度
             if os.path.exists(f'charts/SekaiViewer/{musicid}/{difficulty}.png'):  # 本地有缓存
                 return f'charts/SekaiViewer/{musicid}/{difficulty}.png'
@@ -225,7 +228,11 @@ def getchart(musicid, difficulty):
                 if downloadviewerchart(musicid, difficulty):  # sekai viewer下载成功
                     return f'charts/SekaiViewer/{musicid}/{difficulty}.png'
                 else:  # sekai viewer下载失败
-                    return None
+                    if os.path.exists(f'charts/sus/{musicid}/{difficulty}.png'):
+                        return f'charts/sus/{musicid}/{difficulty}.png'
+                    else:
+                        sus2img(musicid, difficulty)
+                        return f'charts/sus/{musicid}/{difficulty}.png'
     except:
         return None
 
@@ -374,8 +381,7 @@ def aliastochart(full, sdvx=False, qun=False):
             elif 'sdvxInCharts' in dir:
                 text = text + '\nBPM: ' + bpmtext[3:] + '\n谱面图片来自プロセカ譜面保管所'
             else:
-                text = text + '\nBPM: ' + bpmtext[3:] + '\n目前两个PJSK谱面预览来源均未更新，' \
-                                                        '暂时使用来自CHUNITHM谱面转换器生成的图片（长条没有斜率显示，边缘多出一条轨道）'
+                text = text + '\nBPM: ' + bpmtext[3:] + '\n该自动生成的谱面预览没有长条斜率，其他谱面预览源暂未更新'
             return text, dir  # 有图 return俩
         else:
             return text  # 无图 return歌曲信息
