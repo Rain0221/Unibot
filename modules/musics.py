@@ -319,7 +319,7 @@ def downloadviewerchart(musicid, difficulty):
         return False
 
 
-def aliastochart(full, sdvx=False):
+def aliastochart(full, sdvx=False, qun=False):
     if full[-2:] == 'ex':
         alias = full[:-2]
         diff = 'expert'
@@ -354,6 +354,8 @@ def aliastochart(full, sdvx=False):
         alias = full
         diff = 'master'
     resp = aliastomusicid(alias)
+    if qun and resp['match'] < 0.6:
+        return ''
     if resp['musicid'] == 0:
         return None  # 找不到歌曲 return None
     else:
