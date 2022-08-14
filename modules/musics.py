@@ -381,7 +381,7 @@ def aliastochart(full, sdvx=False, qun=False):
             elif 'sdvxInCharts' in dir:
                 text = text + '\nBPM: ' + bpmtext[3:] + '\n谱面图片来自プロセカ譜面保管所'
             else:
-                text = text + '\nBPM: ' + bpmtext[3:] + '\n该自动生成的谱面预览没有长条斜率，其他谱面预览源暂未更新'
+                text = text + '\nBPM: ' + bpmtext[3:] + '\n该自动生成的谱面预览没有长条斜率，部分中继点位置显示不正确，仅供参考。其他谱面预览源暂未更新'
             return text, dir  # 有图 return俩
         else:
             return text  # 无图 return歌曲信息
