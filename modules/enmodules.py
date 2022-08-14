@@ -350,6 +350,8 @@ class userprofile(object):
 
 
 def endaibu(targetid=None, secret=False):
+    if not verifyid(targetid):
+        return '你这ID有问题啊'
     try:
         profile = userprofile()
         profile.getprofile(targetid)

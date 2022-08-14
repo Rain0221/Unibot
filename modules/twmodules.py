@@ -17,6 +17,28 @@ rankline = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 100, 200, 300, 400, 5
             10000, 20000, 30000, 40000, 50000, 100000, 100000000]
 predictline = [100, 200, 300, 400, 500, 1000, 2000, 3000, 4000, 5000, 10000, 20000, 30000, 40000, 50000, 100000, 100000000]
 
+
+def twgettime(userid):
+    try:
+        passtime = int(userid) / 1024 / 1024 / 4096
+    except ValueError:
+        return 0
+    return int(passtime)
+
+def twverifyid(userid):
+    registertime = twgettime(userid)
+    now = int(time.time())
+    if registertime <= 1601438400 or registertime >= now:
+        return False
+    else:
+        return True
+'''
+1660419631226 7131447852496116481
+1660454155498 7131596012581460737
+1660419631 = x + 7131447852496116481 / 1024 / 1024 / 4096
+
+'''
+
 class musicinfo(object):
 
     def __init__(self):
@@ -141,6 +163,8 @@ def twsk(targetid=None, targetrank=None, secret=False):
     if event['status'] == 'counting':
         return '活动分数统计中，不要着急哦！'
     if targetid is not None:
+        if not twverifyid(targetid):
+            return '你这ID有问题啊'
         resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetUserId={targetid}')
     else:
         resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={targetrank}')
@@ -351,6 +375,8 @@ class userprofile(object):
 
 
 def twdaibu(targetid=None, secret=False):
+    if not twverifyid(targetid):
+        return '你这ID有问题啊'
     try:
         profile = userprofile()
         profile.getprofile(targetid)
@@ -1112,6 +1138,8 @@ def twdrawpjskinfo(musicid):
     return leak
 
 def twbindid(qqnum, userid):
+    if not twverifyid(userid):
+        return '你这ID有问题啊'
     conn = sqlite3.connect('pjsk.db')
     c = conn.cursor()
     cursor = c.execute(f'SELECT * from twbind where qqnum=?', (qqnum,))
