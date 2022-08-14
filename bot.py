@@ -592,9 +592,9 @@ def sync_handle_msg(event):
             gachaid = re.sub(r'\D', "", gachaid)
             if gachaid == '':
                 currentgacha = getcurrentgacha()
-                sendmsg(event, fakegacha(int(currentgacha['id']), 100, True))
+                sendmsg(event, fakegacha(int(currentgacha['id']), 10, True))
             else:
-                sendmsg(event, fakegacha(int(gachaid), 100, True))
+                sendmsg(event, fakegacha(int(gachaid), 10, True))
             return
         if (event.message[0:5] == 'sekai' or event.message[0:4] == 'pjsk') and '连' in event.message:
             if event.user_id not in whitelist and event.group_id not in whitelist:

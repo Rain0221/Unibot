@@ -358,9 +358,9 @@ def get_at_message(chain: bot_api.structs.Message):
             gachaid = re.sub(r'\D', "", gachaid)
             if gachaid == '':
                 currentgacha = getcurrentgacha()
-                bot.api_send_message(chain.channel_id, chain.id, fakegacha(int(currentgacha['id']), 100, True))
+                bot.api_send_message(chain.channel_id, chain.id, fakegacha(int(currentgacha['id']), 10, True))
             else:
-                bot.api_send_message(chain.channel_id, chain.id, fakegacha(int(gachaid), 100, True))
+                bot.api_send_message(chain.channel_id, chain.id, fakegacha(int(gachaid), 10, True))
             return
         if (chain.content[0:5] == 'sekai' or chain.content[0:4] == 'pjsk') and '连' in chain.content:
             gachaid = chain.content[chain.content.find("连") + len("连"):].strip()
