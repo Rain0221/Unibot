@@ -32,12 +32,7 @@ def twverifyid(userid):
         return False
     else:
         return True
-'''
-1660419631226 7131447852496116481
-1660454155498 7131596012581460737
-1660419631 = x + 7131447852496116481 / 1024 / 1024 / 4096
 
-'''
 
 class musicinfo(object):
 
