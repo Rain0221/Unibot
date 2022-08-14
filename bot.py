@@ -15,7 +15,7 @@ from aiocqhttp import CQHttp, Event
 from chachengfen import dd_query
 from modules.api import gacha
 from modules.chara import charaset, grcharaset, charadel, charainfo, grcharadel, aliastocharaid, get_card
-from modules.config import whitelist, wordcloud, block, msggroup
+from modules.config import whitelist, block, msggroup
 from modules.cyo5000 import genImage
 from modules.enmodules import engetqqbind, ensk, enbindid, ensetprivate, enaliastomusicid, endrawpjskinfo, endaibu, \
     enpjskjindu, enpjskb30, enpjskprofile
@@ -31,7 +31,6 @@ from modules.sendmail import sendemail
 from modules.sk import sk, getqqbind, bindid, setprivate, skyc, verifyid, gettime
 from modules.texttoimg import texttoimg, ycmimg
 from modules.twitter import newesttwi
-from wordCloud.generate import ciyun
 
 bot = CQHttp()
 botdir = os.getcwd()
@@ -58,10 +57,6 @@ send3 = False
 async def handle_msg(event: Event):
     global blacklist
     global botdebug
-    if event.group_id in wordcloud:
-        if 'CQ:' not in event.raw_message and '&#' not in event.raw_message:
-            async with aiofiles.open(f'wordCloud/{event.group_id}.txt', 'a', encoding='utf-8') as f:
-                await f.write(event.message + '\n')
     if event.message == '/delete unibot':
         info = await bot.get_group_member_info(self_id=event.self_id, group_id=event.group_id, user_id=event.user_id)
         if info['role'] == 'owner' or info['role'] == 'admin':
@@ -153,20 +148,6 @@ def sync_handle_msg(event):
     if event.message[0:1] == '/':
         event.message = event.message[1:]
     try:
-        if event.message == '词云':
-            if event.group_id not in wordcloud:
-                sendmsg(event, '该群未开启词云功能，请联系bot主人手动开启')
-                return
-            try:
-                lasttime = ciyunlimit[event.group_id]
-                if time.time() - lasttime < 3600:
-                    sendmsg(event, '上一次查还没过多久捏。别急')
-                    return
-            except KeyError:
-                pass
-            ciyunlimit[event.group_id] = time.time()
-            ciyun(event.group_id)
-            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{event.group_id}cy.png,cache=0]")
         if event.message == 'help':
             sendmsg(event, 'bot帮助文档：https://docs.unipjsk.com/')
             return
@@ -1003,6 +984,7 @@ def sync_handle_msg(event):
                             sendmsg(event, text + fr"[CQ:image,file=file:///{botdir}\{picdir},cache=0]")
                         else:
                             sendmsg(event, f"[CQ:at,qq={event.user_id}] 您猜错了，答案不是{idtoname(resp['musicid'])}哦")
+                    return
             except KeyError:
                 pass
 
@@ -1032,9 +1014,11 @@ def sync_handle_msg(event):
                             sendmsg(event, text + fr"[CQ:image,file=file:///{botdir}\{picdir},cache=0]")
                         else:
                             sendmsg(event, f"[CQ:at,qq={event.user_id}] 您猜错了，答案不是{resp[1]}哦")
-
+                    return
             except KeyError:
                 pass
+            sendmsg(event, 'bot帮助文档：https://docs.unipjsk.com/')
+            return
     except (requests.exceptions.ConnectionError, JSONDecodeError):
         sendmsg(event, '查不到数据捏，好像是bot网不好')
     except Exception as a:

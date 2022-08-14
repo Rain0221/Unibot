@@ -1,4 +1,0 @@
-requests
-configobj
-pydantic
-Pillow
