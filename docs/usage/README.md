@@ -2,6 +2,7 @@
 
 >  本文档将引导您使用 UniBot
 > 
+- UniBot是一款功能型机器人, 主要提供《世界计划 多彩舞台》日服，国际服，台服（部分群测试中）相关查询服务。
 - 使用该Bot，即意味着你同意[使用条款](/licence/)及[隐私条款](/privacy/)
 
 ::: warning 注意
@@ -22,6 +23,7 @@ bot频道版已上线，[点击进入](https://qun.qq.com/qqweb/qunpro/share?_wv
 ### pjskinfo
 - `pjskinfo+曲名` 查看当前歌曲详细信息，玩家游玩，热度等信息(图片版)，并列出当前歌曲所有昵
 - `pjskbpm+曲名` 查看当前歌曲的bpm
+- `查bpm+数字` 查询对应bpm所有歌曲
 ### 谱面预览
 - `谱面预览 曲名 难度` 查询对应曲名，难度的谱面预览（来源：[Sekai Viewer](https://sekai.best/)）
   - `难度`支持的输入: `easy`, `norml`, `hard`, `expert`, `master`, `ex`, `nm`, `hd`, `ex`, `ma`
@@ -50,7 +52,15 @@ bot频道版已上线，[点击进入](https://qun.qq.com/qqweb/qunpro/share?_wv
 所有歌曲昵称设置，角色昵称设置的日志内容将会在[实时日志](/dailylog/)页面按日公示
 :::
 
+
 ## 查询玩家信息
+
+> 在命令前加`en`即可查询国际服信息，如`en绑定`, `ensk`, `en逮捕`, `enpjsk进度`, `enpjskprofile`
+
+> ⚠稳定性未知，仅白名单群测试中：
+> 
+> 在命令前加`tw`即可查询台服信息，如`tw绑定`, `twsk`, `tw逮捕`, `twpjsk进度`, `twpjskprofile`
+
 - `绑定+id` 绑定id
 ### 活动查询
 - >由于和其他bot命令重合，`sk`功能可由管理员在群内发送`关闭sk` `开启sk`来开关该功能
