@@ -168,7 +168,6 @@ def twsk(targetid=None, targetrank=None, secret=False):
         resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetUserId={targetid}')
     else:
         resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={targetrank}')
-    time.sleep(0.5)
     ranking = json.loads(resp.content)
     try:
         name = ranking['rankings'][0]['name']
@@ -208,7 +207,6 @@ def twsk(targetid=None, targetrank=None, secret=False):
         else:
             upper = rankline[i - 1]
         resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={upper}')
-        time.sleep(0.5)
         ranking = json.loads(resp.content)
         linescore = ranking['rankings'][0]['score']
         deviation = (linescore - score) / 10000
@@ -219,7 +217,6 @@ def twsk(targetid=None, targetrank=None, secret=False):
         else:
             lower = rankline[i]
         resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={lower}')
-        time.sleep(0.5)
         print(resp.content)
         ranking = json.loads(resp.content)
         linescore = ranking['rankings'][0]['score']
