@@ -987,7 +987,6 @@ def sync_handle_msg(event):
                     return
             except KeyError:
                 pass
-
             # 判断有没有猜卡面
             try:
                 isgoing = charaguess[event.group_id]['isgoing']
