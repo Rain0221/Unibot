@@ -19,6 +19,8 @@ from modules.config import whitelist, wordcloud, block, msggroup
 from modules.cyo5000 import genImage
 from modules.enmodules import engetqqbind, ensk, enbindid, ensetprivate, enaliastomusicid, endrawpjskinfo, endaibu, \
     enpjskjindu, enpjskb30, enpjskprofile
+from modules.twmodules import twgetqqbind, twsk, twbindid, twsetprivate, twaliastomusicid, twdrawpjskinfo, twdaibu, \
+    twpjskjindu, twpjskb30, twpjskprofile
 from modules.gacha import getcharaname, getallcurrentgacha, getcurrentgacha, fakegacha
 from modules.homo import generate_homo
 from modules.musics import hotrank, levelrank, parse_bpm, aliastochart, idtoname, notecount, tasseiritsu, findbpm
@@ -48,7 +50,8 @@ botname = {
     3506606538: '三号机'
 }
 
-send = False
+send1 = False
+send3 = False
 
 
 @bot.on_message('group')
@@ -609,6 +612,128 @@ def sync_handle_msg(event):
                 sendmsg(event, fakegacha(int(gachaid), int(num), False))
             return
 
+        # 以下为台服内容
+        if event.user_id in whitelist or event.group_id in whitelist:
+            if event.message[:4] == "twsk":
+                if event.message == "twsk":
+                    bind = twgetqqbind(event.user_id)
+                    if bind is None:
+                        sendmsg(event, '你没有绑定id！')
+                        return
+                    result = twsk(bind[1], None, bind[2])
+                    sendmsg(event, result)
+                else:
+                    userid = event.message.replace("sk", "")
+                    userid = re.sub(r'\D', "", userid)
+                    if userid == '':
+                        sendmsg(event, '你这id有问题啊')
+                        return
+                    if int(userid) > 10000000:
+                        result = twsk(userid)
+                    else:
+                        result = twsk(None, userid)
+                    sendmsg(event, result)
+                    return
+            if event.message[:6] == "twbind" or event.message[:4] == "tw绑定":
+                userid = event.message.replace("twbind", "").replace("tw绑定", "")
+                userid = re.sub(r'\D', "", userid)
+                sendmsg(event, twbindid(event.user_id, userid))
+                return
+            if event.message == "tw不给看":
+                if twsetprivate(event.user_id, 1):
+                    sendmsg(event, '不给看！')
+                else:
+                    sendmsg(event, '你还没有绑定哦')
+                return
+            if event.message == "tw给看":
+                if twsetprivate(event.user_id, 0):
+                    sendmsg(event, '给看！')
+                else:
+                    sendmsg(event, '你还没有绑定哦')
+                return
+            if event.message[:10] == 'twpjskinfo':
+                resp = twaliastomusicid(event.message[event.message.find("pjskinfo") + len("pjskinfo"):].strip())
+                if resp['musicid'] == 0:
+                    sendmsg(event, '没有找到你要的歌曲哦')
+                    return
+                else:
+                    leak = twdrawpjskinfo(resp['musicid'])
+                    if resp['match'] < 0.8:
+                        text = '你要找的可能是：'
+                    else:
+                        text = ""
+                    if leak:
+                        text = text + f"匹配度:{round(resp['match'], 4)}\n⚠该内容为剧透内容"
+                    else:
+                        if resp['translate'] == '':
+                            text = text + f"{resp['name']}\n匹配度:{round(resp['match'], 4)}"
+                        else:
+                            text = text + f"{resp['name']} ({resp['translate']})\n匹配度:{round(resp['match'], 4)}"
+                    sendmsg(event,
+                            text + fr"[CQ:image,file=file:///{botdir}\piccache\enpjskinfo{resp['musicid']}.png,cache=0]")
+                return
+            if event.message[:4] == "tw逮捕":
+                if event.message == "tw逮捕":
+                    bind = twgetqqbind(event.user_id)
+                    if bind is None:
+                        sendmsg(event, '查不到捏，可能是没绑定')
+                        return
+                    result = twdaibu(bind[1], bind[2])
+                    sendmsg(event, result)
+                else:
+                    userid = event.message.replace("逮捕", "")
+                    if '[CQ:at' in userid:
+                        qq = re.sub(r'\D', "", userid)
+                        bind = twgetqqbind(qq)
+                        if bind is None:
+                            sendmsg(event, '查不到捏，可能是没绑定')
+                            return
+                        elif bind[2] and qq != str(event.user_id):
+                            sendmsg(event, '查不到捏，可能是不给看')
+                            return
+                        else:
+                            result = twdaibu(bind[1], bind[2])
+                            sendmsg(event, result)
+                            return
+                    userid = re.sub(r'\D', "", userid)
+                    if userid == '':
+                        sendmsg(event, '你这id有问题啊')
+                        return
+                    result = twdaibu(userid)
+                    sendmsg(event, result)
+                return
+            if event.message == "twpjsk进度":
+                bind = twgetqqbind(event.user_id)
+                if bind is None:
+                    sendmsg(event, '查不到捏，可能是没绑定')
+                    return
+                twpjskjindu(bind[1], bind[2])
+                sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}jindu.png,cache=0]")
+                return
+            if event.message == "twpjsk进度ex":
+                bind = twgetqqbind(event.user_id)
+                if bind is None:
+                    sendmsg(event, '查不到捏，可能是没绑定')
+                    return
+                twpjskjindu(bind[1], bind[2], 'expert')
+                sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}jindu.png,cache=0]")
+                return
+            if event.message == "twpjsk b30":
+                bind = twgetqqbind(event.user_id)
+                if bind is None:
+                    sendmsg(event, '查不到捏，可能是没绑定')
+                    return
+                twpjskb30(bind[1], bind[2])
+                sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}b30.png,cache=0]")
+                return
+            if event.message == "twpjskprofile":
+                bind = twgetqqbind(event.user_id)
+                if bind is None:
+                    sendmsg(event, '查不到捏，可能是没绑定')
+                    return
+                twpjskprofile(bind[1], bind[2])
+                sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}profile.png,cache=0]")
+                return
         # 以下为国际服内容
 
         if event.message[:4] == "ensk":
@@ -918,7 +1043,8 @@ def sync_handle_msg(event):
 
 
 def sendmsg(event, msg):
-    global send
+    global send1
+    global send3
     timeArray = time.localtime(time.time())
     Time = time.strftime("\n[%Y-%m-%d %H:%M:%S]", timeArray)
     try:
@@ -928,15 +1054,27 @@ def sendmsg(event, msg):
     print(botname[event.self_id] + '发送群消息', event.group_id, msg.replace('\n', ''))
     try:
         bot.sync.send_group_msg(self_id=event.self_id, group_id=event.group_id, message=msg)
-        send = False
+        if event.self_id == 1513705608:
+            send1 = False
+        elif event.self_id == 3506606538:
+            send3 = False
     except aiocqhttp.exceptions.ActionFailed:
-        print('发送失败')
-        if send is not True:
-            print('即将发送告警邮件')
-            sendemail(botname[event.self_id] + '群消息发送失败', str(event.group_id) + msg)
-            send = True
-        else:
-            print('告警邮件发过了')
+        if event.self_id == 1513705608:
+            print('一号机发送失败')
+            if send1 is not True:
+                print('即将发送告警邮件')
+                sendemail(botname[event.self_id] + '群消息发送失败', str(event.group_id) + msg)
+                send1 = True
+            else:
+                print('告警邮件发过了')
+        elif event.self_id == 3506606538:
+            print('三号机发送失败')
+            if send3 is not True:
+                print('即将发送告警邮件')
+                sendemail(botname[event.self_id] + '群消息发送失败', str(event.group_id) + msg)
+                send3 = True
+            else:
+                print('告警邮件发过了')
 
 
 @bot.on_notice('group_increase')  # 群人数增加事件
