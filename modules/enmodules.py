@@ -676,7 +676,7 @@ def generatehonor(honor, ismain=True):
                 pic.paste(rankpic, (190, 0), mask)
             if honorType == 'character' or honorType == 'achievement':
                 if star is True:
-                    for i in range(0, honor['honorLevel']):
+                    for i in range(0, honor['level']):
                         lv = Image.open(r'pics/icon_degreeLv.png')
                         r, g, b, mask = lv.split()
                         pic.paste(lv, (54 + 16 * i, 63), mask)
@@ -721,8 +721,8 @@ def generatehonor(honor, ismain=True):
                 pic.paste(rankpic, (34, 42), mask)
             if honorType == 'character' or honorType == 'achievement':
                 if star is True:
-                    if honor['honorLevel'] < 5:
-                        for i in range(0, honor['honorLevel']):
+                    if honor['level'] < 5:
+                        for i in range(0, honor['level']):
                             lv = Image.open(r'pics/icon_degreeLv.png')
                             r, g, b, mask = lv.split()
                             pic.paste(lv, (54 + 16 * i, 63), mask)
@@ -731,7 +731,7 @@ def generatehonor(honor, ismain=True):
                             lv = Image.open(r'pics/icon_degreeLv.png')
                             r, g, b, mask = lv.split()
                             pic.paste(lv, (54 + 16 * i, 63), mask)
-                        for i in range(0, honor['honorLevel'] - 5):
+                        for i in range(0, honor['level'] - 5):
                             lv = Image.open(r'pics/icon_degreeLv6.png')
                             r, g, b, mask = lv.split()
                             pic.paste(lv, (54 + 16 * i, 63), mask)

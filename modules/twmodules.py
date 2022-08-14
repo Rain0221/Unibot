@@ -259,9 +259,11 @@ class userprofile(object):
         # with open('piccache\profile.json', 'r', encoding='utf-8') as f:
         #     data = json.load(f)
         self.name = data['user']['userGamedata']['name']
-        self.twitterId = data['userProfile']['twitterId']
         self.userid = userid
-        self.word = data['userProfile']['word']
+        try:
+            self.word = data['userProfile']['word']
+        except:
+            pass
         self.rank = data['user']['userGamedata']['rank']
         try:
             self.characterId = data['userChallengeLiveSoloResults'][0]['characterId']
@@ -685,7 +687,8 @@ def generatehonor(honor, ismain=True):
                     pic.paste(frame, (0, 0), mask)
                 if rankpic is not None:
                     r, g, b, mask = rankpic.split()
-                    pic.paste(rankpic, (0, 0), mask)
+                    pic.paste(rankpic, (190, 0), mask)
+
             else:
                 pic = Image.open(r'data\assets\sekai\assetbundle\resources'
                                  fr'\startapp\honor\{backgroundAssetbundleName}\degree_main.png')
@@ -700,10 +703,11 @@ def generatehonor(honor, ismain=True):
                 pic.paste(rankpic, (190, 0), mask)
             if honorType == 'character' or honorType == 'achievement':
                 if star is True:
-                    for i in range(0, honor['honorLevel']):
+                    for i in range(0, honor['level']):
                         lv = Image.open(r'pics/icon_degreeLv.png')
                         r, g, b, mask = lv.split()
                         pic.paste(lv, (54 + 16 * i, 63), mask)
+
         else:
             # 小图
             if honorRarity == 'low':
@@ -730,7 +734,7 @@ def generatehonor(honor, ismain=True):
                     pic.paste(frame, (0, 0), mask)
                 if rankpic is not None:
                     r, g, b, mask = rankpic.split()
-                    pic.paste(rankpic, (0, 0), mask)
+                    pic.paste(rankpic, (34, 42), mask)
             else:
                 pic = Image.open(r'data\assets\sekai\assetbundle\resources'
                                  fr'\startapp\honor\{backgroundAssetbundleName}\degree_sub.png')
@@ -745,8 +749,8 @@ def generatehonor(honor, ismain=True):
                 pic.paste(rankpic, (34, 42), mask)
             if honorType == 'character' or honorType == 'achievement':
                 if star is True:
-                    if honor['honorLevel'] < 5:
-                        for i in range(0, honor['honorLevel']):
+                    if honor['level'] < 5:
+                        for i in range(0, honor['level']):
                             lv = Image.open(r'pics/icon_degreeLv.png')
                             r, g, b, mask = lv.split()
                             pic.paste(lv, (54 + 16 * i, 63), mask)
@@ -755,7 +759,7 @@ def generatehonor(honor, ismain=True):
                             lv = Image.open(r'pics/icon_degreeLv.png')
                             r, g, b, mask = lv.split()
                             pic.paste(lv, (54 + 16 * i, 63), mask)
-                        for i in range(0, honor['honorLevel'] - 5):
+                        for i in range(0, honor['level'] - 5):
                             lv = Image.open(r'pics/icon_degreeLv6.png')
                             r, g, b, mask = lv.split()
                             pic.paste(lv, (54 + 16 * i, 63), mask)
@@ -853,6 +857,7 @@ def generatehonor(honor, ismain=True):
                     lv = Image.open(r'pics/icon_degreeLv6.png')
                     r, g, b, mask = lv.split()
                     pic.paste(lv, (54 + 16 * i, 63), mask)
+
     return pic
 
 def bondsbackground(chara1, chara2, ismain=True):
