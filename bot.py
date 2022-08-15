@@ -16,7 +16,7 @@ from chachengfen import dd_query
 from modules.api import gacha
 from modules.chara import charaset, grcharaset, charadel, charainfo, grcharadel, aliastocharaid, get_card
 from modules.config import whitelist, block, msggroup, aliasblock
-from modules.cyo5000 import genImage
+from modules.cyo5000 import cyo5000
 from modules.enmodules import engetqqbind, ensk, enbindid, ensetprivate, enaliastomusicid, endrawpjskinfo, endaibu, \
     enpjskjindu, enpjskb30, enpjskprofile
 from modules.twmodules import twgetqqbind, twsk, twbindid, twsetprivate, twaliastomusicid, twdrawpjskinfo, twdaibu, \
@@ -122,7 +122,6 @@ async def handle_msg(event: Event):
     if event.raw_message == '关闭debug' and event.user_id in admin:
         botdebug = False
         await bot.send(event, '关闭成功')
-
 
 @bot.on_message('group')
 def sync_handle_msg(event):
@@ -511,20 +510,6 @@ def sync_handle_msg(event):
             ycmimg()
             sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\ycm.png,cache=0]")
             return
-        if event.message[:2] == "生成":
-            if event.group_id in blacklist['ettm']:
-                return
-            event.message = event.message[event.message.find("生成") + len("生成"):].strip()
-            para = event.message.split(" ")
-            now = int(time.time() * 1000)
-            if len(para) < 2:
-                para = event.message.split("/")
-                if len(para) < 2:
-                    sendmsg(event, '请求不对哦，/生成 这是红字 这是白字')
-                    return
-            genImage(para[0], para[1]).save(f"piccache/{now}.png")
-            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{now}.png,cache=0]")
-            return
         if event.message[:4] == 'homo':
             if event.self_id not in mainbot:
                 return
@@ -535,6 +520,26 @@ def sync_handle_msg(event):
                 sendmsg(event, event.message + '=' + generate_homo(event.message))
             except ValueError:
                 return
+            return
+        if "生成" in event.message:
+            if event.message[:2] == "生成":
+                rainbow = False
+            elif event.message[:4] == "彩虹生成":
+                rainbow = True
+            else:
+                return
+            if event.group_id in blacklist['ettm']:
+                return
+            event.message = event.message[event.message.find("生成") + len("生成"):].strip()
+            para = event.message.split(" ")
+            now = int(time.time() * 1000)
+            if len(para) < 2:
+                para = event.message.split("/")
+                if len(para) < 2:
+                    sendmsg(event, '请求不对哦，/生成 这是红字 这是白字')
+                    return
+            cyo5000(para[0], para[1], f"piccache/{now}.png", rainbow)
+            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{now}.png,cache=0]")
             return
         if event.message[:3] == "ccf":
             if event.self_id not in mainbot:
@@ -900,6 +905,8 @@ def sync_handle_msg(event):
                 cutjacket(musicid, event.group_id, size=140, isbw=True)
             elif event.message == 'pjsk非人类猜曲':
                 cutjacket(musicid, event.group_id, size=30, isbw=False)
+            else:
+                cutjacket(musicid, event.group_id, size=140, isbw=False)
             sendmsg(event, 'PJSK曲绘竞猜 （随机裁切）\n艾特我+你的答案以参加猜曲（不要使用回复）\n\n你有50秒的时间回答\n可手动发送“结束猜曲”来结束猜曲'
                     + fr"[CQ:image,file=file:///{botdir}\piccache/{event.group_id}.png,cache=0]")
             return
@@ -993,7 +1000,7 @@ def sync_handle_msg(event):
                 pass
             return
         # 判断艾特自己
-        if f'[CQ:at,qq={event.self_id}]' in event.message:
+        if event.message[:len(f'[CQ:at,qq={event.self_id}]')] == f'[CQ:at,qq={event.self_id}]':
             # 判断有没有猜曲
             try:
                 isgoing = pjskguess[event.group_id]['isgoing']

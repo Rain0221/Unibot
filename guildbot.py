@@ -8,7 +8,7 @@ import bot_api
 from bot_api.utils import yaml_util
 from modules.api import gacha
 from modules.config import piccacheurl, charturl, asseturl
-from modules.cyo5000 import genImage
+from modules.cyo5000 import cyo5000
 
 from modules.gacha import getcharaname, fakegacha, getcurrentgacha
 from modules.chara import charaset, grcharaset, charadel, charainfo, grcharadel, aliastocharaid, get_card
@@ -345,7 +345,13 @@ def get_at_message(chain: bot_api.structs.Message):
             ycmimg()
             bot.api_send_message(chain.channel_id, chain.id, '', f"{piccacheurl}ycm.png")
             return
-        if chain.content[:2] == "生成":
+        if "生成" in chain.content:
+            if chain.content[:2] == "生成":
+                rainbow = False
+            elif chain.content[:4] == "彩虹生成":
+                rainbow = True
+            else:
+                return
             chain.content = chain.content[chain.content.find("生成") + len("生成"):].strip()
             para = chain.content.split(" ")
             now = int(time.time() * 1000)
@@ -354,7 +360,7 @@ def get_at_message(chain: bot_api.structs.Message):
                 if len(para) < 2:
                     bot.api_send_message(chain.channel_id, chain.id, '请求不对哦，/生成 这是红字 这是白字')
                     return
-            genImage(para[0], para[1]).save(f"piccache/{now}.png")
+            cyo5000(para[0], para[1], f"piccache/{now}.png", rainbow)
             bot.api_send_message(chain.channel_id, chain.id, "", f"{piccacheurl}{now}.png")
             return
         if 'pjsk抽卡' in chain.content or 'sekai抽卡' in chain.content:
@@ -421,7 +427,7 @@ def get_at_message(chain: bot_api.structs.Message):
             elif chain.content == 'pjsk非人类猜曲':
                 cutjacket(musicid, chain.channel_id, size=30, isbw=False)
             else:
-                return
+                cutjacket(musicid, chain.channel_id, size=140, isbw=False)
             bot.api_send_message(chain.channel_id, chain.id,
                                  'PJSK曲绘竞猜 （随机裁切）\n艾特我+你的答案以参加猜曲（不要使用回复）\n\n你有50秒的时间回答\n可手动发送“结束猜曲”来结束猜曲',
                                  f'{piccacheurl}{chain.channel_id}.png')
