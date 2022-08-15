@@ -2,7 +2,7 @@
 
 >  本文档将引导您使用 UniBot
 > 
-- UniBot是一款功能型机器人, 主要提供《世界计划 多彩舞台》日服，国际服，台服（部分群测试中）相关查询服务。
+- UniBot是一款功能型机器人, 主要提供《世界计划 多彩舞台》日服，国际服，台服（稳定性测试中）相关查询服务。
 - 使用该Bot，即意味着你同意[使用条款](/licence/)及[隐私条款](/privacy/)
 
 ::: warning 注意
@@ -57,7 +57,7 @@ bot频道版已上线，[点击进入](https://qun.qq.com/qqweb/qunpro/share?_wv
 
 > 在命令前加`en`即可查询国际服信息，如`en绑定`, `ensk`, `en逮捕`, `enpjsk进度`, `enpjskprofile`
 
-> ⚠稳定性未知，仅白名单群测试中：
+> ⚠稳定性未知
 > 
 > 在命令前加`tw`即可查询台服信息，如`tw绑定`, `twsk`, `tw逮捕`, `twpjsk进度`, `twpjskprofile`
 

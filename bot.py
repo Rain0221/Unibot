@@ -626,7 +626,7 @@ def sync_handle_msg(event):
             return
 
         # 以下为台服内容
-        if event.user_id in whitelist or event.group_id in whitelist:
+        if True:
             if event.message[:4] == "twsk":
                 if event.message == "twsk":
                     bind = twgetqqbind(event.user_id)
