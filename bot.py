@@ -15,7 +15,7 @@ from aiocqhttp import CQHttp, Event
 from chachengfen import dd_query
 from modules.api import gacha
 from modules.chara import charaset, grcharaset, charadel, charainfo, grcharadel, aliastocharaid, get_card
-from modules.config import whitelist, block, msggroup
+from modules.config import whitelist, block, msggroup, aliasblock
 from modules.cyo5000 import genImage
 from modules.enmodules import engetqqbind, ensk, enbindid, ensetprivate, enaliastomusicid, endrawpjskinfo, endaibu, \
     enpjskjindu, enpjskb30, enpjskprofile
@@ -176,14 +176,30 @@ def sync_handle_msg(event):
                         text + fr"[CQ:image,file=file:///{botdir}\piccache\pjskinfo{resp['musicid']}.png,cache=0]")
             return
         if event.message[:7] == 'pjskset' and 'to' in event.message:
+            if event.user_id in aliasblock:
+                sendmsg(event, '你因乱设置昵称已无法使用此功能')
             event.message = event.message[7:]
             para = event.message.split('to')
-            resp = pjskset(para[0], para[1], event.user_id)
+            info = bot.sync.get_group_member_info(self_id=event.self_id, group_id=event.group_id, user_id=event.user_id)
+            if info['card'] == '':
+                username = info['nickname']
+            else:
+                username = info['card']
+            qun = bot.sync.get_group_info(self_id=event.self_id, group_id=event.group_id)
+            resp = pjskset(para[0], para[1], event.user_id, username, f"{qun['group_name']}({event.group_id})内")
             sendmsg(event, resp)
             return
         if event.message[:7] == 'pjskdel':
+            if event.user_id in aliasblock:
+                sendmsg(event, '你因乱设置昵称已无法使用此功能')
             event.message = event.message[7:]
-            resp = pjskdel(event.message, event.user_id)
+            info = bot.sync.get_group_member_info(self_id=event.self_id, group_id=event.group_id, user_id=event.user_id)
+            if info['card'] == '':
+                username = info['nickname']
+            else:
+                username = info['card']
+            qun = bot.sync.get_group_info(self_id=event.self_id, group_id=event.group_id)
+            resp = pjskdel(event.message, event.user_id, username, f"{qun['group_name']}({event.group_id})内")
             sendmsg(event, resp)
             return
         if event.message[:9] == 'pjskalias':
@@ -439,9 +455,17 @@ def sync_handle_msg(event):
                 sendmsg(event, '你这id有问题啊')
             return
         if event.message[:8] == 'charaset' and 'to' in event.message:
+            if event.user_id in aliasblock:
+                sendmsg(event, '你因乱设置昵称已无法使用此功能')
             event.message = event.message[8:]
             para = event.message.split('to')
-            sendmsg(event, charaset(para[0], para[1], event.user_id))
+            info = bot.sync.get_group_member_info(self_id=event.self_id, group_id=event.group_id, user_id=event.user_id)
+            if info['card'] == '':
+                username = info['nickname']
+            else:
+                username = info['card']
+            qun = bot.sync.get_group_info(self_id=event.self_id, group_id=event.group_id)
+            sendmsg(event, charaset(para[0], para[1], event.user_id, username, f"{qun['group_name']}({event.group_id})内"))
             return
         if event.message[:10] == 'grcharaset' and 'to' in event.message:
             event.message = event.message[10:]
@@ -449,8 +473,16 @@ def sync_handle_msg(event):
             sendmsg(event, grcharaset(para[0], para[1], event.group_id))
             return
         if event.message[:8] == 'charadel':
+            if event.user_id in aliasblock:
+                sendmsg(event, '你因乱设置昵称已无法使用此功能')
             event.message = event.message[8:]
-            sendmsg(event, charadel(event.message, event.user_id))
+            info = bot.sync.get_group_member_info(self_id=event.self_id, group_id=event.group_id, user_id=event.user_id)
+            if info['card'] == '':
+                username = info['nickname']
+            else:
+                username = info['card']
+            qun = bot.sync.get_group_info(self_id=event.self_id, group_id=event.group_id)
+            sendmsg(event, charadel(event.message, event.user_id, username, f"{qun['group_name']}({event.group_id})内"))
             return
         if event.message[:10] == 'grcharadel':
             event.message = event.message[10:]

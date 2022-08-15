@@ -29,7 +29,7 @@ def charainfo(alias, qunnum=''):
     conn.close()
     return f"{resp[1]}\n全群昵称：{allalias[:-1]}\n本群昵称：{qunalias[:-1]}"
 
-def charadel(alias, qqnum=None):
+def charadel(alias, qqnum=None, username='', qun='群与用户名未知，可能来自分布式'):
     resp = aliastocharaid(alias)
     if resp[0] == 0:
         return "找不到你说的角色哦，如删除仅本群可用昵称请使用grcharadel"
@@ -40,8 +40,8 @@ def charadel(alias, qqnum=None):
     conn.close()
     timeArray = time.localtime(time.time())
     Time = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
-    writelog(f'[{Time}] {qqnum}: 删除了{resp[1]}的昵称:{alias}')
-    return "删除成功！"
+    writelog(f'[{Time}] {qun} {username}({qqnum}): 删除了{resp[1]}的昵称:{alias}')
+    return "删除成功！\n已记录bot文档中公开的实时日志，乱删将被拉黑"
 
 def grcharadel(alias, qunnum=''):
     charaid = 0
@@ -76,7 +76,7 @@ def aliastocharaid(alias, qunnum=''):
     conn.close()
     return charaid, name
 
-def charaset(newalias, oldalias, qqnum=None):
+def charaset(newalias, oldalias, qqnum=None, username='', qun='群与用户名未知，可能来自分布式'):
     resp = aliastocharaid(oldalias)
     if resp[0] == 0:
         return "找不到你说的角色哦，如删除仅本群可用昵称请使用grcharadel"
@@ -97,8 +97,8 @@ def charaset(newalias, oldalias, qqnum=None):
     conn.close()
     timeArray = time.localtime(time.time())
     Time = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
-    writelog(f'[{Time}] {qqnum}: {newalias}->{resp[1]}')
-    return f"设置成功！(全群可用)\n{newalias}->{resp[1]}\n如果设置不合适的昵称将会被拉黑哦，删除命令：charadel昵称"
+    writelog(f'[{Time}] {qun} {username}({qqnum}): {newalias}->{resp[1]}')
+    return f"设置成功！(全群可用)\n{newalias}->{resp[1]}\n已记录bot文档中公开的实时日志，设置不合适的昵称将会被拉黑"
 
 
 def grcharaset(newalias, oldalias, qunnum):

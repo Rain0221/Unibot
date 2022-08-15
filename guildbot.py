@@ -67,14 +67,21 @@ def get_at_message(chain: bot_api.structs.Message):
                 bot.api_send_message(chain.channel_id, chain.id, text, f"{piccacheurl}pjskinfo{resp['musicid']}.png")
             return
         if chain.content[:7] == 'pjskset' and 'to' in chain.content:
+            # 频道bot不需要昵称设置黑名单 只允许在官方频道设置 发现有人乱设踢了就好了
+            if chain.channel_id != '6781353':
+                bot.api_send_message(chain.channel_id, chain.id, '为方便管理，请在bot频道的设置昵称专用区使用该命令\n点击bot头像即可查看bot频道')
+                return
             chain.content = chain.content[7:]
             para = chain.content.split('to')
-            resp = pjskset(para[0], para[1], chain.author.id)
+            resp = pjskset(para[0], para[1], chain.author.id, chain.author.username, 'bot官方频道内')
             bot.api_send_message(chain.channel_id, chain.id, resp)
             return
         if chain.content[:7] == 'pjskdel':
+            if chain.channel_id != '6781353':
+                bot.api_send_message(chain.channel_id, chain.id, '为方便管理，请在bot频道的设置昵称专用区使用该命令\n点击bot头像即可查看bot频道')
+                return
             chain.content = chain.content[7:]
-            resp = pjskdel(chain.content, chain.author.id)
+            resp = pjskdel(chain.content, chain.author.id, chain.author.username, 'bot官方频道内')
             bot.api_send_message(chain.channel_id, chain.id, resp)
             return
         if chain.content[:9] == 'pjskalias':
@@ -296,9 +303,12 @@ def get_at_message(chain: bot_api.structs.Message):
                 bot.api_send_message(chain.channel_id, chain.id, '你这id有问题啊')
             return
         if chain.content[:8] == 'charaset' and 'to' in chain.content:
+            if chain.channel_id != '6781353':
+                bot.api_send_message(chain.channel_id, chain.id, '为方便管理，请在bot频道的设置昵称专用区使用该命令\n点击bot头像即可查看bot频道')
+                return
             chain.content = chain.content[8:]
             para = chain.content.split('to')
-            bot.api_send_message(chain.channel_id, chain.id, charaset(para[0], para[1], chain.author.id))
+            bot.api_send_message(chain.channel_id, chain.id, charaset(para[0], para[1], chain.author.id, chain.author.username, 'bot官方频道内'))
             return
         if chain.content[:10] == 'grcharaset' and 'to' in chain.content:
             chain.content = chain.content[10:]
@@ -306,8 +316,11 @@ def get_at_message(chain: bot_api.structs.Message):
             bot.api_send_message(chain.channel_id, chain.id, grcharaset(para[0], para[1], chain.guild_id))
             return
         if chain.content[:8] == 'charadel':
+            if chain.channel_id != '6781353':
+                bot.api_send_message(chain.channel_id, chain.id, '为方便管理，请在bot频道的设置昵称专用区使用该命令\n点击bot头像即可查看bot频道')
+                return
             chain.content = chain.content[8:]
-            bot.api_send_message(chain.channel_id, chain.id, charadel(chain.content, chain.author.id))
+            bot.api_send_message(chain.channel_id, chain.id, charadel(chain.content, chain.author.id, chain.author.username, 'bot官方频道内'))
             return
         if chain.content[:10] == 'grcharadel':
             chain.content = chain.content[10:]

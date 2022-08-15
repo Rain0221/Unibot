@@ -345,7 +345,7 @@ def drawpjskinfo(musicid):
     return leak
 
 
-def pjskset(newalias, oldalias, qqnum=None):
+def pjskset(newalias, oldalias, qqnum=None, username='', qun='群与用户名未知，可能来自分布式'):
     resp = aliastomusicid(oldalias)
     if resp['musicid'] == 0:
         return "找不到你要设置的歌曲，请使用正确格式：pjskinfo新昵称to旧昵称"
@@ -372,11 +372,11 @@ def pjskset(newalias, oldalias, qqnum=None):
         title = music['title']
     timeArray = time.localtime(time.time())
     Time = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
-    writelog(f'[{Time}] {qqnum}: {newalias}->{title}')
-    return f"设置成功！{newalias}->{title}\n如果设置不合适的昵称将会被拉黑哦，删除命令：pjskdel昵称"
+    writelog(f'[{Time}] {qun} {username}({qqnum}): {newalias}->{title}')
+    return f"设置成功！{newalias}->{title}\n已记录bot文档中公开的实时日志，设置不合适的昵称将会被拉黑"
 
 
-def pjskdel(alias, qqnum=None):
+def pjskdel(alias, qqnum=None, username='', qun='群与用户名未知，可能来自分布式'):
     if alias[:1] == ' ':
         alias = alias[1:]
     if alias[-1:] == ' ':
@@ -391,8 +391,8 @@ def pjskdel(alias, qqnum=None):
     conn.close()
     timeArray = time.localtime(time.time())
     Time = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
-    writelog(f'[{Time}] {qqnum}: 删除了{resp["name"]}的昵称：{alias}')
-    return "删除成功！"
+    writelog(f'[{Time}] {qun} {username}({qqnum}): 删除了{resp["name"]}的昵称：{alias}')
+    return "删除成功！\n已记录bot文档中公开的实时日志，乱删将被拉黑"
 
 
 def pjskalias(alias, musicid=None):
