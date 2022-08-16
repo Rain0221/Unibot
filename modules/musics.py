@@ -212,7 +212,11 @@ def getchart(musicid, difficulty):
                             dirs = f'charts/sdvxInCharts/{musicid}'
                             if not os.path.exists(dirs):
                                 os.makedirs(dirs)
-                            bgpic.save(f'charts/sdvxInCharts/{musicid}/{difficulty}.png')
+
+                            r, g, b, mask = bgpic.split()
+                            final = Image.new('RGB', bgpic.size, (0, 0, 0))
+                            final.paste(bgpic, (0, 0), mask)
+                            final.save(f'charts/sdvxInCharts/{musicid}/{difficulty}.png')
                             return f'charts/sdvxInCharts/{musicid}/{difficulty}.png'
                         else:  # 没下载到
                             if os.path.exists(f'charts/sus/{musicid}/{difficulty}.png'):
@@ -265,7 +269,10 @@ def getsdvxchart(musicid, difficulty):
                     dirs = f'charts/sdvxInCharts/{musicid}'
                     if not os.path.exists(dirs):
                         os.makedirs(dirs)
-                    bgpic.save(f'charts/sdvxInCharts/{musicid}/{difficulty}.png')
+                    r, g, b, mask = bgpic.split()
+                    final = Image.new('RGB', bgpic.size, (0, 0, 0))
+                    final.paste(bgpic, (0, 0), mask)
+                    final.save(f'charts/sdvxInCharts/{musicid}/{difficulty}.png')
                     return f'charts/sdvxInCharts/{musicid}/{difficulty}.png'
                 else:  # 没下载到
                     return None
@@ -448,6 +455,23 @@ def findbpm(targetbpm):
     return text
 
 if __name__ == '__main__':
-    # downloadviewerchart(49, 'master')
-    print(tasseiritsu([1224, 0, 1, 0, 0]))
-    # print(getchart(248, 'master'))
+    path = '../charts/sdvxInCharts'
+    target = []
+    files = os.listdir(path)
+    files_dir = [f for f in files if os.path.isdir(os.path.join(path, f))]
+    count = 0
+    for i in files_dir:
+        count += 1
+        chartfiles = os.listdir(path + "/" + i)
+        files_file = [f for f in chartfiles if os.path.isfile(os.path.join(path + "/" + i, f))]
+        print(f'{count}/{len(files_dir)}', i, files_file)
+        for j in files_file:
+            pic = Image.open(f'{path}/{i}/{j}')
+            r, g, b, mask = pic.split()
+            final = Image.new('RGB', pic.size, (0, 0, 0))
+            final.paste(pic, (0, 0), mask)
+            final.save(f'{path}/{i}/{j}')
+
+
+
+
