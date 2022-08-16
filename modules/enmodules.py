@@ -234,9 +234,13 @@ class userprofile(object):
         # with open('piccache\profile.json', 'r', encoding='utf-8') as f:
         #     data = json.load(f)
         self.name = data['user']['userGamedata']['name']
-        self.twitterId = data['userProfile']['twitterId']
+
         self.userid = userid
-        self.word = data['userProfile']['word']
+        try:
+            self.twitterId = data['userProfile']['twitterId']
+            self.word = data['userProfile']['word']
+        except:
+            pass
         self.rank = data['user']['userGamedata']['rank']
         try:
             self.characterId = data['userChallengeLiveSoloResults'][0]['characterId']
