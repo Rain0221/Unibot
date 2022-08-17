@@ -15,6 +15,7 @@ charturl = ''  # 频道bot发送谱面预览url前缀（带/）（频道bot用�
 asseturl = 'https://assets.sekai.unijzlsx.com/'  # pjsk资源文件地址（频道bot用）
 whitelist = []  # 群bot猜曲白名单
 wordcloud = []  # 词云开启群
+groupban = []  # 黑名单群
 loghtml = ''  # 昵称设置日志保存目录
 rsshub = ''  # rsshub地址（推特推送用 详见https://github.com/watagashi-uni/twitterpush）
 twitterlist = ''  # 抓取的推特列表地址（推特推送用 详见https://github.com/watagashi-uni/twitterpush）

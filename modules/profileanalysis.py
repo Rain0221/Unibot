@@ -789,3 +789,6 @@ def pjskb30(userid, private=False):
                                                        '※定数每次统计时可能会改变', '#000000', font)
     img.save(fr'piccache\{userid}b30.png')
 
+
+if __name__ == '__main__':
+    pass

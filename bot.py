@@ -3,7 +3,7 @@ import json
 import random
 from datetime import datetime
 from json import JSONDecodeError
-
+import asyncio
 import aiocqhttp
 import aiofiles
 import requests
@@ -15,7 +15,7 @@ from aiocqhttp import CQHttp, Event
 from chachengfen import dd_query
 from modules.api import gacha
 from modules.chara import charaset, grcharaset, charadel, charainfo, grcharadel, aliastocharaid, get_card
-from modules.config import whitelist, block, msggroup, aliasblock
+from modules.config import whitelist, block, msggroup, aliasblock, groupban, asseturl
 from modules.cyo5000 import cyo5000
 from modules.enmodules import engetqqbind, ensk, enbindid, ensetprivate, enaliastomusicid, endrawpjskinfo, endaibu, \
     enpjskjindu, enpjskb30, enpjskprofile
@@ -24,13 +24,15 @@ from modules.twmodules import twgetqqbind, twsk, twbindid, twsetprivate, twalias
 from modules.gacha import getcharaname, getallcurrentgacha, getcurrentgacha, fakegacha
 from modules.homo import generate_homo
 from modules.musics import hotrank, levelrank, parse_bpm, aliastochart, idtoname, notecount, tasseiritsu, findbpm
-from modules.pjskguess import getrandomjacket, cutjacket, getrandomchart, cutchartimg, getrandomcard, cutcard
+from modules.pjskguess import getrandomjacket, cutjacket, getrandomchart, cutchartimg, getrandomcard, cutcard, \
+    getrandommusic, cutmusic
 from modules.pjskinfo import aliastomusicid, drawpjskinfo, pjskset, pjskdel, pjskalias
 from modules.profileanalysis import daibu, rk, pjskjindu, pjskprofile, pjskb30
 from modules.sendmail import sendemail
 from modules.sk import sk, getqqbind, bindid, setprivate, skyc, verifyid, gettime
 from modules.texttoimg import texttoimg, ycmimg
 from modules.twitter import newesttwi
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 bot = CQHttp()
 botdir = os.getcwd()
@@ -42,7 +44,6 @@ gachalimit = {'lasttime': '', 'count': 0}
 admin = [1103479519]
 mainbot = [1513705608]
 requestwhitelist = []  # 邀请加群白名单 随时设置 不保存到文件
-groupban = [467602419]
 botdebug = False
 botname = {
     1513705608: '一号机',
@@ -892,22 +893,39 @@ def sync_handle_msg(event):
                     sendmsg(event, '已经开启猜曲！')
                     return
                 else:
-                    musicid = getrandomjacket()
+                    if event.message == 'pjsk听歌猜曲' or event.message == 'pjsk倒放猜曲':
+                        musicid, assetbundleName = getrandommusic()
+                    else:
+                        musicid = getrandomjacket()
                     pjskguess[event.group_id] = {'isgoing': True, 'musicid': musicid,
                                                  'starttime': int(time.time())}
             except KeyError:
-                musicid = getrandomjacket()
+                if event.message == 'pjsk听歌猜曲' or event.message == 'pjsk倒放猜曲':
+                    musicid, assetbundleName = getrandommusic()
+                else:
+                    musicid = getrandomjacket()
                 pjskguess[event.group_id] = {'isgoing': True, 'musicid': musicid, 'starttime': int(time.time())}
+
             if event.message == 'pjsk猜曲':
                 cutjacket(musicid, event.group_id, size=140, isbw=False)
             elif event.message == 'pjsk阴间猜曲':
                 cutjacket(musicid, event.group_id, size=140, isbw=True)
             elif event.message == 'pjsk非人类猜曲':
                 cutjacket(musicid, event.group_id, size=30, isbw=False)
+            elif event.message == 'pjsk听歌猜曲':
+                cutmusic(assetbundleName, event.group_id)
+                sendmsg(event, 'PJSK听歌识曲竞猜 （随机裁切）\n艾特我+你的答案以参加猜曲（不要使用回复）\n\n你有50秒的时间回答\n可手动发送“结束猜曲”来结束猜曲')
+                sendmsg(event, fr"[CQ:record,file=file:///{botdir}/piccache/{event.group_id}.mp3,cache=0]")
+                return
+            elif event.message == 'pjsk倒放猜曲':
+                cutmusic(assetbundleName, event.group_id, True)
+                sendmsg(event, 'PJSK听歌识曲竞猜 （随机裁切）\n艾特我+你的答案以参加猜曲（不要使用回复）\n\n你有50秒的时间回答\n可手动发送“结束猜曲”来结束猜曲')
+                sendmsg(event, fr"[CQ:record,file=file:///{botdir}/piccache/{event.group_id}.mp3,cache=0]")
+                return
             else:
                 cutjacket(musicid, event.group_id, size=140, isbw=False)
             sendmsg(event, 'PJSK曲绘竞猜 （随机裁切）\n艾特我+你的答案以参加猜曲（不要使用回复）\n\n你有50秒的时间回答\n可手动发送“结束猜曲”来结束猜曲'
-                    + fr"[CQ:image,file=file:///{botdir}\piccache/{event.group_id}.png,cache=0]")
+                    + fr"[CQ:image,file=file:///{botdir}/piccache/{event.group_id}.png,cache=0]")
             return
         if event.message == 'pjsk猜谱面':
             if event.user_id not in whitelist and event.group_id not in whitelist:
@@ -1070,9 +1088,11 @@ def sendmsg(event, msg):
     Time = time.strftime("\n[%Y-%m-%d %H:%M:%S]", timeArray)
     try:
         print(Time, botname[event.self_id] + '收到命令', event.group_id, event.user_id, event.message.replace('\n', ''))
+        print(botname[event.self_id] + '发送群消息', event.group_id, msg.replace('\n', ''))
     except KeyError:
         print(Time, '测试bot收到命令', event.group_id, event.user_id, event.message.replace('\n', ''))
-    print(botname[event.self_id] + '发送群消息', event.group_id, msg.replace('\n', ''))
+        print('测试bot发送群消息', event.group_id, msg.replace('\n', ''))
+
     try:
         bot.sync.send_group_msg(self_id=event.self_id, group_id=event.group_id, message=msg)
         if event.self_id == 1513705608:
@@ -1167,6 +1187,38 @@ async def handle_group_ban(event: Event):
                                  message=f'我在群{event.group_id}内被{event.operator_id}禁言{event.duration / 60}分钟，已自动退群')
 
 
+async def autopjskguess():
+    global pjskguess
+    global charaguess
+    now = time.time()
+    for group in pjskguess:
+        if pjskguess[group]['isgoing'] and pjskguess[group]['starttime'] + 50 < now:
+            picdir = f"{asseturl}/startapp/music/jacket/" \
+                     f"jacket_s_{str(pjskguess[group]['musicid']).zfill(3)}/" \
+                     f"jacket_s_{str(pjskguess[group]['musicid']).zfill(3)}.png"
+            text = '时间到，正确答案：' + idtoname(pjskguess[group]['musicid'])
+            pjskguess[group]['isgoing'] = False
+            await bot.send_group_msg(group_id=group, message=text + fr"[CQ:image,file={picdir},cache=0]")
+
+    for group in charaguess:
+        if charaguess[group]['isgoing'] and charaguess[group]['starttime'] + 30 < now:
+            if charaguess[group]['istrained']:
+                picdir = f'{asseturl}/startapp/' \
+                         f"character/member/{charaguess[group]['assetbundleName']}/card_after_training.jpg"
+            else:
+                picdir = f'{asseturl}/startapp/' \
+                         f"character/member/{charaguess[group]['assetbundleName']}/card_normal.jpg"
+            text = f"时间到，正确答案：{charaguess[group]['prefix']} - " + \
+                   getcharaname(charaguess[group]['charaid'])
+            charaguess[group]['isgoing'] = False
+            await bot.send_group_msg(group_id=group, message=text + fr"[CQ:image,file={picdir},cache=0]")
+
+
 with open('yamls/blacklist.yaml', "r") as f:
     blacklist = yaml.load(f, Loader=yaml.FullLoader)
-bot.run(host='127.0.0.1', port=1234, debug=False)
+loop = asyncio.new_event_loop()
+asyncio.set_event_loop(loop)
+scheduler = AsyncIOScheduler()
+scheduler.add_job(autopjskguess, 'interval', seconds=4)
+scheduler.start()
+bot.run(host='127.0.0.1', port=1234, debug=False, loop=loop)

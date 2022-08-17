@@ -4,7 +4,8 @@ import random
 import time
 
 from PIL import Image
-
+from mutagen.mp3 import MP3
+from pydub import AudioSegment
 from modules.musics import isleak
 
 
@@ -104,6 +105,46 @@ def cutcard(assetbundleName, cardRarityType, qunnum, size=250):
     img = img.crop((ran1, ran2, ran1 + size, ran2 + size))
     img.save(f'piccache/{qunnum}.png')
     return istrained
+
+def defaultvocal(musicid):
+    with open('masterdata/musicVocals.json', 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    assetbundleName = ''
+    for vocal in data:
+        if vocal['musicId'] == musicid:
+            if vocal['musicVocalType'] == 'sekai' or vocal['musicVocalType'] == 'instrumental':
+                return vocal['assetbundleName']
+            elif vocal['musicVocalType'] == 'original_song' or vocal['musicVocalType'] == 'virtual_singer':
+                assetbundleName = vocal['assetbundleName']
+    return assetbundleName
+
+def getrandommusic():
+    path = 'data/assets/sekai/assetbundle/resources/ondemand/music/long'
+    with open('masterdata/musics.json', 'r', encoding='utf-8') as f:
+        musics = json.load(f)
+    target = []
+    for music in musics:
+        if music['publishedAt'] < time.time() * 1000:
+            target.append(music['id'])
+    while True:
+        musicid = target[random.randint(0, len(target) - 1)]
+        assetbundleName = defaultvocal(musicid)
+        if os.path.exists(f'{path}/{assetbundleName}/{assetbundleName}.mp3'):
+            break
+    return musicid, assetbundleName
+
+def cutmusic(assetbundleName, qunnum, reverse=False):
+    path = 'data/assets/sekai/assetbundle/resources/ondemand/music/long'
+    musicpath = f'{path}/{assetbundleName}/{assetbundleName}.mp3'
+    length = MP3(musicpath).info.length
+    music = AudioSegment.from_mp3(musicpath)
+    starttime = random.randint(20, int(length) - 10)
+    if reverse:
+        cut = music[starttime * 1000: starttime * 1000 + 5000]
+        cut = cut.reverse()
+    else:
+        cut = music[starttime * 1000: starttime * 1000 + 1700]
+    cut.export(f"piccache/{qunnum}.mp3",format="mp3")
 # print(getrandomjacket())
 # cutjacket(getrandomjacket(), 1232232, 140, True)
 
