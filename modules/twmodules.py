@@ -10,6 +10,7 @@ import requests
 import yaml
 
 from modules.pjskinfo import musiclength
+from modules.sk import timeremain
 
 apiurl = 'http://127.0.0.1:5002/api'
 
@@ -142,15 +143,17 @@ def twcurrentevent():
         startAt = data[i]['startAt']
         endAt = data[i]['closedAt']
         now = int(round(time.time() * 1000))
+        remain = ''
         if not startAt < now < endAt:
             continue
         if data[i]['startAt'] < now < data[i]['aggregateAt']:
             status = 'going'
+            remain = timeremain((data[i]['aggregateAt'] - now) / 1000)
         elif data[i]['aggregateAt'] < now < data[i]['aggregateAt'] + 600000:
             status = 'counting'
         else:
             status = 'end'
-        return {'id': data[i]['id'], 'status': status}
+        return {'id': data[i]['id'], 'status': status, 'remain': remain}
 
 def twsk(targetid=None, targetrank=None, secret=False):
     event = twcurrentevent()
@@ -191,7 +194,7 @@ def twsk(targetid=None, targetrank=None, secret=False):
         userId = ' - ' + userId
     else:
         userId = ''
-    msg = f'{name}{userId}\n{teamname}分数{score / 10000}W，排名{rank}'
+    msg = f'{name}{userId}\n{teamname}分数{score / 10000}W，排名{rank}\n'
     for i in range(0, 31):
         if rank < rankline[i]:
             break
@@ -217,6 +220,8 @@ def twsk(targetid=None, targetrank=None, secret=False):
         linescore = ranking['rankings'][0]['score']
         deviation = (score - linescore) / 10000
         msg = msg + f'\n下一档排名{lower}的分数为{linescore/10000}W，相差{deviation}W'
+    if event['status'] == 'going':
+        msg = msg + '\n活动还剩' + event['remain']
     return msg
 
 class userprofile(object):

@@ -11,6 +11,20 @@ rankline = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 100, 200, 300, 400, 5
             10000, 20000, 30000, 40000, 50000, 100000, 100000000]
 predictline = [100, 200, 300, 400, 500, 1000, 2000, 3000, 4000, 5000, 10000, 20000, 30000, 40000, 50000, 100000, 100000000]
 
+def timeremain(time):
+    if time < 60:
+        return f'{int(time)}秒'
+    elif time < 60*60:
+        return f'{int(time / 60)}分{int(time % 60)}秒'
+    elif time < 60*60*24:
+        hours = int(time / 60 / 60)
+        remain = time - 3600 * hours
+        return f'{int(time / 60 / 60)}小时{int(remain / 60)}分{int(remain % 60)}秒'
+    else:
+        days = int(time / 3600 / 24)
+        remain = time - 3600 * 24 * days
+        return f'{int(days)}天{timeremain(remain)}'
+
 
 def currentevent():
     with open('masterdata/events.json', 'r', encoding='utf-8') as f:
@@ -19,15 +33,17 @@ def currentevent():
         startAt = data[i]['startAt']
         endAt = data[i]['closedAt']
         now = int(round(time.time() * 1000))
+        remain = ''
         if not startAt < now < endAt:
             continue
         if data[i]['startAt'] < now < data[i]['aggregateAt']:
             status = 'going'
+            remain = timeremain((data[i]['aggregateAt'] - now) / 1000)
         elif data[i]['aggregateAt'] < now < data[i]['aggregateAt'] + 600000:
             status = 'counting'
         else:
             status = 'end'
-        return {'id': data[i]['id'], 'status': status}
+        return {'id': data[i]['id'], 'status': status, 'remain': remain}
 
 
 def gettime(userid):
@@ -199,8 +215,7 @@ def sk(targetid=None, targetrank=None, secret=False):
             linescore = ssyc(lower, eventid)
             if linescore != 0:
                 msg = msg + f'\n{lower}名预测{linescore/10000}W'
-        if linescore != 0:
-            msg = msg + f'\n预测线来自xfl03(3-3.dev)'
+    msg = msg + '\n活动还剩' + event['remain']
     return msg
 
 def getqqbind(qqnum):
