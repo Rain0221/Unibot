@@ -898,13 +898,13 @@ def sync_handle_msg(event):
                     else:
                         musicid = getrandomjacket()
                     pjskguess[event.group_id] = {'isgoing': True, 'musicid': musicid,
-                                                 'starttime': int(time.time())}
+                                                 'starttime': int(time.time()), 'selfid': event.self_id}
             except KeyError:
                 if event.message == 'pjsk听歌猜曲' or event.message == 'pjsk倒放猜曲':
                     musicid, assetbundleName = getrandommusic()
                 else:
                     musicid = getrandomjacket()
-                pjskguess[event.group_id] = {'isgoing': True, 'musicid': musicid, 'starttime': int(time.time())}
+                pjskguess[event.group_id] = {'isgoing': True, 'musicid': musicid, 'starttime': int(time.time()), 'selfid': event.self_id}
 
             if event.message == 'pjsk猜曲':
                 cutjacket(musicid, event.group_id, size=140, isbw=False)
@@ -946,10 +946,10 @@ def sync_handle_msg(event):
                 else:
                     musicid = getrandomchart()
                     pjskguess[event.group_id] = {'isgoing': True, 'musicid': musicid,
-                                                 'starttime': int(time.time())}
+                                                 'starttime': int(time.time()), 'selfid': event.self_id}
             except KeyError:
                 musicid = getrandomchart()
-                pjskguess[event.group_id] = {'isgoing': True, 'musicid': musicid, 'starttime': int(time.time())}
+                pjskguess[event.group_id] = {'isgoing': True, 'musicid': musicid, 'starttime': int(time.time()), 'selfid': event.self_id}
             cutchartimg(musicid, event.group_id)
             sendmsg(event, 'PJSK谱面竞猜（随机裁切）\n艾特我+你的答案以参加猜曲（不要使用回复）\n\n你有50秒的时间回答\n可手动发送“结束猜曲”来结束猜曲'
                     + fr"[CQ:image,file=file:///{botdir}\piccache/{event.group_id}.png,cache=0]")
@@ -974,12 +974,12 @@ def sync_handle_msg(event):
                     cardinfo = getrandomcard()
                     charaguess[event.group_id] = {'isgoing': True, 'charaid': cardinfo[0],
                                                   'assetbundleName': cardinfo[1], 'prefix': cardinfo[2],
-                                                  'starttime': int(time.time())}
+                                                  'starttime': int(time.time()), 'selfid': event.self_id}
             except KeyError:
                 cardinfo = getrandomcard()
                 charaguess[event.group_id] = {'isgoing': True, 'charaid': cardinfo[0],
                                               'assetbundleName': cardinfo[1],
-                                              'prefix': cardinfo[2], 'starttime': int(time.time())}
+                                              'prefix': cardinfo[2], 'starttime': int(time.time()), 'selfid': event.self_id}
 
             charaguess[event.group_id]['istrained'] = cutcard(cardinfo[1], cardinfo[3], event.group_id)
             sendmsg(event, 'PJSK猜卡面\n你有30秒的时间回答\n艾特我+你的答案（只猜角色）以参加猜曲（不要使用回复）\n发送「结束猜卡面」可退出猜卡面模式'
@@ -1198,7 +1198,10 @@ async def autopjskguess():
                      f"jacket_s_{str(pjskguess[group]['musicid']).zfill(3)}.png"
             text = '时间到，正确答案：' + idtoname(pjskguess[group]['musicid'])
             pjskguess[group]['isgoing'] = False
-            await bot.send_group_msg(group_id=group, message=text + fr"[CQ:image,file={picdir},cache=0]")
+            try:
+                await bot.send_group_msg(self_id=pjskguess[group]['selfid'], group_id=group, message=text + fr"[CQ:image,file={picdir},cache=0]")
+            except:
+                pass
 
     for group in charaguess:
         if charaguess[group]['isgoing'] and charaguess[group]['starttime'] + 30 < now:
@@ -1211,7 +1214,10 @@ async def autopjskguess():
             text = f"时间到，正确答案：{charaguess[group]['prefix']} - " + \
                    getcharaname(charaguess[group]['charaid'])
             charaguess[group]['isgoing'] = False
-            await bot.send_group_msg(group_id=group, message=text + fr"[CQ:image,file={picdir},cache=0]")
+            try:
+                await bot.send_group_msg(self_id=charaguess[group]['selfid'], group_id=group, message=text + fr"[CQ:image,file={picdir},cache=0]")
+            except:
+                pass
 
 
 with open('yamls/blacklist.yaml', "r") as f:
