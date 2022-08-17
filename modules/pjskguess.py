@@ -145,6 +145,7 @@ def cutmusic(assetbundleName, qunnum, reverse=False):
     else:
         cut = music[starttime * 1000: starttime * 1000 + 1700]
     cut.export(f"piccache/{qunnum}.mp3",format="mp3")
+    # TODO: 自动清理音频缓存
 # print(getrandomjacket())
 # cutjacket(getrandomjacket(), 1232232, 140, True)
 
