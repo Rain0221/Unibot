@@ -215,7 +215,7 @@ def sk(targetid=None, targetrank=None, secret=False):
             linescore = ssyc(lower, eventid)
             if linescore != 0:
                 msg = msg + f'\n{lower}名预测{linescore/10000}W'
-    msg = msg + '\n活动还剩' + event['remain']
+        msg = msg + '\n活动还剩' + event['remain']
     return msg
 
 def getqqbind(qqnum):
