@@ -8,6 +8,75 @@ from PIL import Image
 
 from modules.gacha import getcharaname
 from modules.pjskinfo import writelog
+from modules.texttoimg import texttoimg
+
+
+def cardidtopic(cardid):
+    with open('masterdata/cards.json', 'r', encoding='utf-8') as f:
+        allcards = json.load(f)
+    assetbundleName = ''
+    for card in allcards:
+        if card['id'] == cardid:
+            assetbundleName = card['assetbundleName']
+    if assetbundleName == '':
+        return []
+    path = 'data/assets/sekai/assetbundle/resources/startapp/character/member'
+    path = path + "/" + assetbundleName
+    files = os.listdir(path)
+    files_file = [f for f in files if os.path.isfile(os.path.join(path, f))]
+    if 'card_after_training.png' in files_file:
+        return [path + '/card_normal.png', path + '/card_after_training.png']
+    else:
+        return [path + '/card_normal.png']
+
+def cardtype(cardid, cardCostume3ds, costume3ds):
+    # 普通0 限定1
+    costume = []
+    for i in cardCostume3ds:
+        if i['cardId'] == cardid:
+            costume.append(i['costume3dId'])
+    for costumeid in costume:
+        for model in costume3ds:
+            if model['id'] == costumeid:
+                if model['partType'] == 'hair':
+                    return 1
+    return 0
+
+def findcard(charaid, cardRarityType=None):
+    with open('masterdata/cards.json', 'r', encoding='utf-8') as f:
+        allcards = json.load(f)
+    with open(f'masterdata/cardCostume3ds.json', 'r', encoding='utf-8') as f:
+        cardCostume3ds = json.load(f)
+    with open(f'masterdata/costume3ds.json', 'r', encoding='utf-8') as f:
+        costume3ds = json.load(f)
+    allcards.sort(key=lambda x: x["releaseAt"], reverse=True)
+    name = getcharaname(charaid)
+    text = ''
+    for card in allcards:
+        if card['characterId'] == charaid:
+            cardtypenum = cardtype(card['id'], cardCostume3ds, costume3ds)
+            limit = ''
+            if cardtypenum == 1:
+                limit = '[限定]'
+            rarity = ''
+            if card['cardRarityType'] == 'rarity_1':
+                rarity = '★'
+            elif card['cardRarityType'] == 'rarity_2':
+                rarity = '★★'
+            elif card['cardRarityType'] == 'rarity_3':
+                rarity = '★★★'
+            elif card['cardRarityType'] == 'rarity_4':
+                rarity = '★★★★'
+            elif card['cardRarityType'] == 'rarity_birthday':
+                rarity = '生日卡'
+            if cardRarityType is not None:
+                if card['cardRarityType'] == cardRarityType:
+                    text += f"{card['id']}: {limit}{rarity} {card['prefix']} - {name}\n"
+            else:
+                text += f"{card['id']}: {limit}{rarity} {card['prefix']} - {name}\n"
+    texttoimg(text[:-1], 700, f'{charaid}{cardRarityType}')
+    return f'{charaid}{cardRarityType}.png'
+
 
 
 def charainfo(alias, qunnum=''):

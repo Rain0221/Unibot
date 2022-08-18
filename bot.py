@@ -14,7 +14,8 @@ import yaml
 from aiocqhttp import CQHttp, Event
 from chachengfen import dd_query
 from modules.api import gacha
-from modules.chara import charaset, grcharaset, charadel, charainfo, grcharadel, aliastocharaid, get_card
+from modules.chara import charaset, grcharaset, charadel, charainfo, grcharadel, aliastocharaid, get_card, cardidtopic, \
+    findcard
 from modules.config import whitelist, block, msggroup, aliasblock, groupban, asseturl
 from modules.cyo5000 import cyo5000
 from modules.enmodules import engetqqbind, ensk, enbindid, ensetprivate, enaliastomusicid, endrawpjskinfo, endaibu, \
@@ -243,6 +244,31 @@ def sync_handle_msg(event):
             texttoimg(skyc(), 500, 'skyc')
             sendmsg(event, 'sk预测' + fr"[CQ:image,file=file:///{botdir}\piccache\skyc.png,cache=0]")
             return
+        elif event.message[:8] == 'findcard':
+            event.message = event.message[event.message.find("findcard") + len("findcard"):].strip()
+            para = event.message.split(' ')
+            resp = aliastocharaid(para[0], event.group_id)
+            if resp[0] != 0:
+                if len(para) == 1:
+                    sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{findcard(resp[0], None)},cache=0]")
+                elif len(para) == 2:
+                    if para[1] == '一星' or para[1] == '1':
+                        sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{findcard(resp[0], 'rarity_1')},cache=0]")
+                    elif para[1] == '二星' or para[1] == '2':
+                        sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{findcard(resp[0], 'rarity_2')},cache=0]")
+                    elif para[1] == '三星' or para[1] == '3':
+                        sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{findcard(resp[0], 'rarity_3')},cache=0]")
+                    elif para[1] == '四星' or para[1] == '4':
+                        sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{findcard(resp[0], 'rarity_4')},cache=0]")
+                    elif '生日' in para[1] or 'birthday' in para[1]:
+                        sendmsg(event,
+                                fr"[CQ:image,file=file:///{botdir}\piccache\{findcard(resp[0], 'rarity_birthday')},cache=0]")
+                    else:
+                        sendmsg(event, '命令不正确')
+            else:
+                sendmsg(event, '找不到你说的角色哦')
+            return
+
         if event.message[:2] == "sk":
             if event.group_id in blacklist['sk']:
                 return
@@ -423,6 +449,13 @@ def sync_handle_msg(event):
                                             "\n（温馨提示：谱面预览2只能看master与expert）")
             else:  # 匹配不到歌曲
                 sendmsg(event, "没有找到你说的歌曲哦")
+            return
+        if event.message[:4] == 'card':
+            cardid = event.message[event.message.find("card") + len("card"):].strip()
+            pics = cardidtopic(int(cardid))
+            print(pics)
+            for pic in pics:
+                sendmsg(event, fr"[CQ:image,file=file:///{botdir}\{pic},cache=0]")
             return
         if event.message[:4] == "谱面预览" or event.message[-4:] == "谱面预览" :
             picdir = aliastochart(event.message.replace("谱面预览", ''), False, True)
