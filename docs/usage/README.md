@@ -92,5 +92,5 @@ bot频道版已上线，[点击进入](https://qun.qq.com/qqweb/qunpro/share?_wv
 - SDK: [nonebot/aiocqhttp](https://github.com/nonebot/aiocqhttp)
 ### 数据来源
 - 预测线: [33Kit](https://3-3.dev/)
-- 玩家游玩，热度等信息: [Project Sekai Profile](https://profile.pjsekai.moe/)
+- 歌曲达成率，难度偏差，热度等信息: [Project Sekai Profile](https://profile.pjsekai.moe/)
 - 谱面预览: [Sekai Viewer](https://sekai.best/), [プロセカ譜面保管所](https://sdvx.in/prsk.html)
