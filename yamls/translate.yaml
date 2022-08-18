@@ -457,6 +457,18 @@ card_prefix:
   478: 和娃娃们一起
   479: Miku Miku☆Gunner！
   480: Happy Birthday！！
+  481: 最强的偶像笑容！
+  482: 是掉下来了吗？
+  483: 先从腹肌的强化开始！
+  484: 混入心意的冰沙
+  485: 夏天！ 合宿！ 泳装！
+  486: 给予勇气之物
+  487: 向着朝阳眯起眼
+  488: 遥远的温度
+  489: 因为想作出好作品
+  490: 名为等待的选择
+  491: Happy Birthday！！
+  492: Happy Anniversary！！
 character_name:
   1: 星乃一歌
   2: 天马咲希
@@ -586,6 +598,8 @@ events:
   64: The Vivid Old Tale
   65: No seek No find
   66: close game/OFFLINE
+  67: 在青空尽头，追逐著光辉
+  68: 于是现在，将蝴蝶结系上
 musics:
   1: Tell Your World
   2: ROKI
@@ -787,6 +801,7 @@ musics:
   232: 蓝色颜料
   233: Cosmospice/宇宙香料
   234: 德川杯面禁止令
+  237: 将你的夜晚给予我
   238: Black★Rock Shooter/黑岩射手
   239: 月光
   240: 起舞吧管弦乐团
@@ -800,3 +815,5 @@ musics:
   254: 未完成赞歌
   257: Tera Tera
   264: Parasol Cider
+  266: YY
+  274: 如此便好
