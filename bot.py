@@ -952,7 +952,7 @@ def sync_handle_msg(event):
                 return
             elif event.message == 'pjsk倒放猜曲':
                 cutmusic(assetbundleName, event.group_id, True)
-                sendmsg(event, 'PJSK听歌识曲竞猜 （随机裁切）\n艾特我+你的答案以参加猜曲（不要使用回复）\n\n你有50秒的时间回答\n可手动发送“结束猜曲”来结束猜曲')
+                sendmsg(event, 'PJSK倒放识曲竞猜 （随机裁切）\n艾特我+你的答案以参加猜曲（不要使用回复）\n\n你有50秒的时间回答\n可手动发送“结束猜曲”来结束猜曲')
                 sendmsg(event, fr"[CQ:record,file=file:///{botdir}/piccache/{event.group_id}.mp3,cache=0]")
                 return
             else:
@@ -1214,6 +1214,7 @@ async def handle_group_request(event: Event):
 
 @bot.on_notice('group_ban')
 async def handle_group_ban(event: Event):
+    print(event.group_id, event.operator_id, event.user_id, event.duration)
     if event.user_id == event.self_id:
         await bot.set_group_leave(self_id=event.self_id, group_id=event.group_id)
         await bot.send_group_msg(self_id=event.self_id, group_id=msggroup,
