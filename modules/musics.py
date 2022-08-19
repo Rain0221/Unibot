@@ -295,17 +295,17 @@ def idtotime(musicid):
 def downloadviewerchart(musicid, difficulty):
     try:
         try:
-            re = requests.get(f'https://minio.dnaroma.eu/sekai-music-charts/{str(musicid).zfill(4)}/{difficulty}.png',
+            re = requests.get(f'https://storage.sekai.best/sekai-music-charts/{str(musicid).zfill(4)}/{difficulty}.png',
                               proxies=proxies)
         except:
-            re = requests.get(f'https://minio.dnaroma.eu/sekai-music-charts/{str(musicid).zfill(4)}/{difficulty}.png',
+            re = requests.get(f'https://storage.sekai.best/sekai-music-charts/{str(musicid).zfill(4)}/{difficulty}.png',
                               proxies=None)
         if re.status_code == 200:
             dirs = rf'charts/SekaiViewer/{musicid}'
             if not os.path.exists(dirs):
                 os.makedirs(dirs)
             if difficulty == 'master':
-                svg = requests.get(f'https://minio.dnaroma.eu/sekai-music-charts/{str(musicid).zfill(4)}/{difficulty}.svg',
+                svg = requests.get(f'https://storage.sekai.best/sekai-music-charts/{str(musicid).zfill(4)}/{difficulty}.svg',
                                    proxies=proxies)
                 i = 0
                 while True:
