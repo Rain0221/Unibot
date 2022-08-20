@@ -319,9 +319,12 @@ def drawpjskinfo(musicid, olddir=True):
                 draw.text(text_coordinate, str(adjust), fill=(1, 255, 221), font=font_style)
     vocals = vocalimg(musicid)
     r, g, b, mask = vocals.split()
-    # img.paste(vocals, (1117 - int(vocals.size[0] / 2), 863 - int(vocals.size[1] / 2)), mask)
-    img.paste(vocals, (758, 710), mask)
-
+    if vocals.size[1] < 320:
+        img.paste(vocals, (758, 710), mask)
+    elif vocals.size == (780, 325):
+        img.paste(vocals, (728, 710), mask)
+    else:
+        img.paste(vocals, (758, 670), mask)
     if olddir:
         img.save(fr'piccache\pjskinfo{musicid}.png')
     else:
@@ -329,56 +332,130 @@ def drawpjskinfo(musicid, olddir=True):
     return leak
 
 def vocalimg(musicid):
-    img = Image.new('RGBA', (720, 320), color=(0, 0, 0, 0))
     with open('masterdata/musicVocals.json', 'r', encoding='utf-8') as f:
         musicVocals = json.load(f)
     with open('masterdata/outsideCharacters.json', 'r', encoding='utf-8') as f:
         outsideCharacters = json.load(f)
     pos = 20
     row = 0
-    height = [20, 92, 164, 236]
+    height = [20, 92, 164, 236, 308]
     cut = [0, 0]
+    vs = 0
+    sekai = 0
+    noan = True
+
     for vocal in musicVocals:
         if vocal['musicId'] == musicid:
-            vocalimg = Image.new('RGBA', (700, 70), color=(0, 0, 0, 0))
-            draw = ImageDraw.Draw(vocalimg)
             if vocal['musicVocalType'] == "original_song":
-                text = '原曲版'
+                vs += 1
             elif vocal['musicVocalType'] == "sekai":
-                text = 'SEKAI版'
+                sekai += 1
             elif vocal['musicVocalType'] == "virtual_singer":
-                text = 'V版'
-            elif vocal['musicVocalType'] == "april_fool_2022":
-                text = '2022愚人节版'
-            elif vocal['musicVocalType'] == "another_vocal":
-                text = '其他'
+                vs += 1
+            elif vocal['musicVocalType'] == "instrumental":
+                img = Image.open('pics/inst.png')
+                return img
             else:
-                text = vocal['musicVocalType']
-            font_style = ImageFont.truetype(r"fonts\SourceHanSansCN-Bold.otf", 27)
-            innerpos = 25 + font_style.getsize(str(text))[0]
-            draw.text((20, 20), text, fill=(67, 70, 101), font=font_style)
-            for chara in vocal['characters']:
-                if chara['characterType'] == 'game_character':
-                    chara = Image.open(f'chara/chr_ts_{chara["characterId"]}.png').resize((60, 60))
-                    r, g, b, mask = chara.split()
-                    vocalimg.paste(chara, (innerpos + 5, 8), mask)
-                    innerpos += 65
+                noan = False
+                break
+    if vs > 1:
+        noan = False
+
+    if noan:
+        font_style = ImageFont.truetype(r"fonts\SourceHanSansCN-Bold.otf", 35)
+        img = Image.open('pics/vocal.png')
+        if vs == 0:
+            draw = ImageDraw.Draw(img)
+            draw.text((240, 75), 'SEKAI Ver. ONLY', fill=(227, 246, 251), font=font_style)
+        if sekai == 0:
+            draw = ImageDraw.Draw(img)
+            draw.text((195, 230), 'Virtual Singer Ver. ONLY', fill=(227, 246, 251), font=font_style)
+        for vocal in musicVocals:
+            if vocal['musicId'] == musicid:
+                vocalimg = Image.new('RGBA', (750, 85), color=(0, 0, 0, 0))
+                draw = ImageDraw.Draw(vocalimg)
+                innerpos = 0
+                for chara in vocal['characters']:
+                    if chara['characterType'] == 'game_character':
+                        chara = Image.open(f'chara/chr_ts_{chara["characterId"]}.png').resize((70, 70))
+                        r, g, b, mask = chara.split()
+                        vocalimg.paste(chara, (innerpos + 5, 8), mask)
+                        innerpos += 80
+                    else:
+                        try:
+                            chara = Image.open(f'chara/outsideCharacters/{chara["characterId"]}.png').resize((70, 70))
+                            r, g, b, mask = chara.split()
+                            vocalimg.paste(chara, (innerpos + 5, 8), mask)
+                            innerpos += 80
+                        except:
+                            for i in outsideCharacters:
+                                if i['id'] == chara['characterId']:
+                                    draw.text((innerpos + 8, 20), i['name'], fill=(67, 70, 101), font=font_style)
+                                    innerpos += 8 + font_style.getsize(str(i['name']))[0]
+                vocalimg = vocalimg.crop((0, 0, innerpos + 15, 150))
+                r, g, b, mask = vocalimg.split()
+                if vocal['musicVocalType'] == "original_song" or vocal['musicVocalType'] == "virtual_singer":
+                    img.paste(vocalimg, (390 - int(vocalimg.size[0] / 2), 135 - int(vocalimg.size[1] / 2)), mask)
+                elif vocal['musicVocalType'] == "sekai":
+                    img.paste(vocalimg, (390 - int(vocalimg.size[0] / 2), 290 - int(vocalimg.size[1] / 2)), mask)
+    else:
+        font_style = ImageFont.truetype(r"fonts\SourceHanSansCN-Bold.otf", 27)
+        img = Image.new('RGBA', (720, 380), color=(0, 0, 0, 0))
+        for vocal in musicVocals:
+            if vocal['musicId'] == musicid:
+                vocalimg = Image.new('RGBA', (700, 70), color=(0, 0, 0, 0))
+                draw = ImageDraw.Draw(vocalimg)
+                if vocal['musicVocalType'] == "original_song":
+                    text = '原曲版'
+                elif vocal['musicVocalType'] == "sekai":
+                    text = 'SEKAI版'
+                elif vocal['musicVocalType'] == "virtual_singer":
+                    text = 'V版'
+                elif vocal['musicVocalType'] == "april_fool_2022":
+                    text = '2022愚人节版'
+                elif vocal['musicVocalType'] == "another_vocal":
+                    text = '其他'
+                elif vocal['musicVocalType'] == "instrumental":
+                    text = '无人声伴奏'
                 else:
-                    for i in outsideCharacters:
-                        if i['id'] == chara['characterId']:
-                            draw.text((innerpos + 8, 20), i['name'], fill=(67, 70, 101), font=font_style)
-                            innerpos += 8 + font_style.getsize(str(i['name']))[0]
-            vocalimg = vocalimg.crop((0, 0, innerpos + 15, 72))
-            r, g, b, mask = vocalimg.split()
-            if pos + vocalimg.size[0] > 720:
-                pos = 20
-                row += 1
-            img.paste(vocalimg, (pos, height[row]), mask)
-            if pos + vocalimg.size[0] > cut[0]:
-                cut[0] = pos + vocalimg.size[0]
-            pos += vocalimg.size[0]
-    cut[1] = height[row] + 65
-    img = img.crop((0, 0, cut[0] + 10, cut[1] + 10))
+                    text = vocal['musicVocalType']
+                innerpos = 25 + font_style.getsize(str(text))[0]
+                draw.text((20, 20), text, fill=(67, 70, 101), font=font_style)
+                for chara in vocal['characters']:
+                    if chara['characterType'] == 'game_character':
+                        chara = Image.open(f'chara/chr_ts_{chara["characterId"]}.png').resize((60, 60))
+                        r, g, b, mask = chara.split()
+                        vocalimg.paste(chara, (innerpos + 5, 8), mask)
+                        innerpos += 65
+                    else:
+                        try:
+                            chara = Image.open(f'chara/outsideCharacters/{chara["characterId"]}.png').resize((60, 60))
+                            r, g, b, mask = chara.split()
+                            vocalimg.paste(chara, (innerpos + 5, 8), mask)
+                            innerpos += 65
+                        except:
+                            for i in outsideCharacters:
+                                if i['id'] == chara['characterId']:
+                                    draw.text((innerpos + 8, 20), i['name'], fill=(67, 70, 101), font=font_style)
+                                    innerpos += 8 + font_style.getsize(str(i['name']))[0]
+                vocalimg = vocalimg.crop((0, 0, innerpos + 15, 72))
+                r, g, b, mask = vocalimg.split()
+
+                if pos + vocalimg.size[0] > 720:
+                    pos = 20
+                    row += 1
+                img.paste(vocalimg, (pos, height[row]), mask)
+                if pos + vocalimg.size[0] > cut[0]:
+                    cut[0] = pos + vocalimg.size[0]
+                pos += vocalimg.size[0]
+                if (vocal['musicVocalType'] == "sekai" or vocal['musicVocalType'] == "original_song"
+                    or vocal['musicVocalType'] == "virtual_singer") and pos != 20:
+                    pos = 20
+                    row += 1
+        if pos == 20:
+            row -= 1
+        cut[1] = height[row] + 65
+        img = img.crop((0, 0, cut[0] + 10, cut[1] + 10))
     return img
 
 def pjskset(newalias, oldalias, qqnum=None, username='', qun='群与用户名未知，可能来自旧版分布式'):
