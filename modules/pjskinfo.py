@@ -111,25 +111,24 @@ def matchname(alias):
         match['translate'] = ''
     return match
 
-
-def drawpjskinfo(musicid):
+def drawpjskinfo(musicid, olddir=True):
     info = musicinfo()
     with open(r'masterdata/realtime/musics.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
     for music in data:
-        if music['id'] != musicid:
-            continue
-        info.title = music['title']
-        info.lyricist = music['lyricist']
-        info.composer = music['composer']
-        info.arranger = music['arranger']
-        info.publishedAt = music['publishedAt']
-        info.fillerSec = music['fillerSec']
-        try:
-            info.hot = music['hot']
-            info.hotAdjust = music['hotAdjust']
-        except KeyError:
-            pass
+        if music['id'] == musicid:
+            info.title = music['title']
+            info.lyricist = music['lyricist']
+            info.composer = music['composer']
+            info.arranger = music['arranger']
+            info.publishedAt = music['publishedAt']
+            info.fillerSec = music['fillerSec']
+            try:
+                info.hot = music['hot']
+                info.hotAdjust = music['hotAdjust']
+            except KeyError:
+                pass
+            break
     if info.title == '':
         with open(r'masterdata/musics.json', 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -147,33 +146,24 @@ def drawpjskinfo(musicid):
     with open(r'masterdata/realtime/musicDifficulties.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
     for i in range(0, len(data)):
-        if data[i]['musicId'] != musicid:
-            continue
-        info.playLevel = [data[i]['playLevel'], data[i + 1]['playLevel'],
-                          data[i + 2]['playLevel'], data[i + 3]['playLevel'], data[i + 4]['playLevel']]
-        info.noteCount = [data[i]['noteCount'], data[i + 1]['noteCount'],
-                          data[i + 2]['noteCount'], data[i + 3]['noteCount'], data[i + 4]['noteCount']]
-        try:
-            info.clearRate = [data[i]['clearRate'], data[i + 1]['clearRate'],
-                              data[i + 2]['clearRate'], data[i + 3]['clearRate'], data[i + 4]['clearRate']]
-            info.fullComboRate = [data[i]['fullComboRate'], data[i + 1]['fullComboRate'],
-                                  data[i + 2]['fullComboRate'], data[i + 3]['fullComboRate'],
-                                  data[i + 4]['fullComboRate']]
-            info.fullPerfectRate = [data[i]['fullPerfectRate'], data[i + 1]['fullPerfectRate'],
-                                    data[i + 2]['fullPerfectRate'], data[i + 3]['fullPerfectRate'],
-                                    data[i + 4]['fullPerfectRate']]
-            info.playLevelAdjust = [data[i]['playLevelAdjust'], data[i + 1]['playLevelAdjust'],
-                                    data[i + 2]['playLevelAdjust'], data[i + 3]['playLevelAdjust'],
-                                    data[i + 4]['playLevelAdjust']]
-            info.fullComboAdjust = [data[i]['fullComboAdjust'], data[i + 1]['fullComboAdjust'],
-                                    data[i + 2]['fullComboAdjust'], data[i + 3]['fullComboAdjust'],
-                                    data[i + 4]['fullComboAdjust']]
-            info.fullPerfectAdjust = [data[i]['fullPerfectAdjust'], data[i + 1]['fullPerfectAdjust'],
-                                      data[i + 2]['fullPerfectAdjust'], data[i + 3]['fullPerfectAdjust'],
-                                      data[i + 4]['fullPerfectAdjust']]
-        except KeyError:
-            pass
-        break
+        if data[i]['musicId'] == musicid:
+            info.playLevel = [data[i]['playLevel'], data[i + 1]['playLevel'],
+                              data[i + 2]['playLevel'], data[i + 3]['playLevel'], data[i + 4]['playLevel']]
+            info.noteCount = [data[i]['noteCount'], data[i + 1]['noteCount'],
+                              data[i + 2]['noteCount'], data[i + 3]['noteCount'], data[i + 4]['noteCount']]
+            try:
+                info.playLevelAdjust = [data[i]['playLevelAdjust'], data[i + 1]['playLevelAdjust'],
+                                        data[i + 2]['playLevelAdjust'], data[i + 3]['playLevelAdjust'],
+                                        data[i + 4]['playLevelAdjust']]
+                info.fullComboAdjust = [data[i]['fullComboAdjust'], data[i + 1]['fullComboAdjust'],
+                                        data[i + 2]['fullComboAdjust'], data[i + 3]['fullComboAdjust'],
+                                        data[i + 4]['fullComboAdjust']]
+                info.fullPerfectAdjust = [data[i]['fullPerfectAdjust'], data[i + 1]['fullPerfectAdjust'],
+                                          data[i + 2]['fullPerfectAdjust'], data[i + 3]['fullPerfectAdjust'],
+                                          data[i + 4]['fullPerfectAdjust']]
+            except KeyError:
+                pass
+            break
     if info.playLevel[0] == 0:
         with open(r'masterdata/musicDifficulties.json', 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -191,7 +181,7 @@ def drawpjskinfo(musicid):
         img = Image.open(r'pics/leak.png')
         leak = True
     else:
-        if info.clearRate[0] == 0:
+        if info.playLevelAdjust[0] == 0:
             img = Image.open(r'pics/pjskinfonew.png')
         else:
             img = Image.open(r'pics/pjskinfo.png')
@@ -249,7 +239,7 @@ def drawpjskinfo(musicid):
         text_coordinate = (int((132 + 138 * i) - text_width[0] / 2), int(960 - text_width[1] / 2))
         draw.text(text_coordinate, str(info.noteCount[i]), fill=(67, 70, 101), font=font_style)
 
-    if info.clearRate[0] != 0:
+    if info.playLevelAdjust[0] != 0:
 
         if info.hotAdjust > 0.5:
             hotpic = Image.open(r'pics/hot.png')
@@ -272,57 +262,43 @@ def drawpjskinfo(musicid):
         r, g, b, mask = hotpic.split()
         font_style = ImageFont.truetype(r"fonts\SourceHanSansCN-Bold.otf", 28)
         text_width = font_style.getsize(str(hot))
-        text_coordinate = (int(1170 - text_width[0] / 2), int(760 - text_width[1] / 2))
+        text_coordinate = (int(1760 - text_width[0]), int(805 - text_width[1] / 2))
         draw.text(text_coordinate, hot, fill=(67, 70, 101), font=font_style)
         if info.hotAdjust > 0.5:
             if info.hotAdjust > 2:
-                text_coordinate = (int(1173 + text_width[0] / 2), int(757 - text_width[1] / 2))
+                text_coordinate = (int(1720 + text_width[0] / 2), int(802 - text_width[1] / 2))
                 img.paste(hotpic, text_coordinate, mask)
-                text_coordinate = (int(1213 + text_width[0] / 2), int(757 - text_width[1] / 2))
+                text_coordinate = (int(1755 + text_width[0] / 2), int(802 - text_width[1] / 2))
                 img.paste(hotpic, text_coordinate, mask)
-                text_coordinate = (int(1253 + text_width[0] / 2), int(757 - text_width[1] / 2))
+                text_coordinate = (int(1790 + text_width[0] / 2), int(802 - text_width[1] / 2))
                 img.paste(hotpic, text_coordinate, mask)
             elif info.hotAdjust > 1:
-                text_coordinate = (int(1173 + text_width[0] / 2), int(757 - text_width[1] / 2))
+                text_coordinate = (int(1745 + text_width[0] / 2), int(802 - text_width[1] / 2))
                 img.paste(hotpic, text_coordinate, mask)
-                text_coordinate = (int(1213 + text_width[0] / 2), int(757 - text_width[1] / 2))
+                text_coordinate = (int(1785 + text_width[0] / 2), int(802 - text_width[1] / 2))
                 img.paste(hotpic, text_coordinate, mask)
             else:
-                text_coordinate = (int(1173 + text_width[0] / 2), int(757 - text_width[1] / 2))
+                text_coordinate = (int(1755 + text_width[0] / 2), int(802 - text_width[1] / 2))
                 img.paste(hotpic, text_coordinate, mask)
         else:
-            text_coordinate = (int(1180 + text_width[0] / 2), int(757 - text_width[1] / 2))
+            text_coordinate = (int(1755 + text_width[0] / 2), int(802 - text_width[1] / 2))
             img.paste(hotpic, text_coordinate, mask)
-        for i in range(0, 5):
-            clearrate = f'{round(info.clearRate[i] * 100, 1)}%'
-            fcrate = f'{round(info.fullComboRate[i] * 100, 1)}%'
-            aprate = f'{round(info.fullPerfectRate[i] * 100, 1)}%'
-            levelplus = str(round(info.playLevel[i] + info.playLevelAdjust[i], 1))
-            text_width = font_style.getsize(str(clearrate))
-            text_coordinate = (int(1006 + 116 * i - text_width[0] / 2), int(822 - text_width[1] / 2))
-            draw.text(text_coordinate, clearrate, fill=(67, 70, 101), font=font_style)
-
-            text_width = font_style.getsize(str(fcrate))
-            text_coordinate = (int(1006 + 116 * i - text_width[0] / 2), int(883 - text_width[1] / 2))
-            draw.text(text_coordinate, fcrate, fill=(67, 70, 101), font=font_style)
-
-            text_width = font_style.getsize(str(aprate))
-            text_coordinate = (int(1006 + 116 * i - text_width[0] / 2), int(944 - text_width[1] / 2))
-            draw.text(text_coordinate, aprate, fill=(67, 70, 101), font=font_style)
-
-            text_width = font_style.getsize(str(levelplus))
-            text_coordinate = (int(1006 + 116 * i - text_width[0] / 2), int(1005 - text_width[1] / 2))
-            draw.text(text_coordinate, levelplus, fill=(67, 70, 101), font=font_style)
 
         for i in range(3, 5):
+            levelplus = str(round(info.playLevel[i] + info.playLevelAdjust[i], 1))
             fclevelplus = str(round(info.playLevel[i] + info.fullComboAdjust[i], 1))
             aplevelplus = str(round(info.playLevel[i] + info.fullPerfectAdjust[i], 1))
+
+            text_width = font_style.getsize(str(levelplus))
+            text_coordinate = (int(1363 + 116 * i - text_width[0] / 2), int(864 - text_width[1] / 2))
+            draw.text(text_coordinate, levelplus, fill=(67, 70, 101), font=font_style)
+
             text_width = font_style.getsize(str(fclevelplus))
-            text_coordinate = (int(1388 + 116 * i - text_width[0] / 2), int(948 - text_width[1] / 2))
+            text_coordinate = (int(1363 + 116 * i - text_width[0] / 2), int(922 - text_width[1] / 2))
             draw.text(text_coordinate, fclevelplus, fill=(67, 70, 101), font=font_style)
 
             text_width = font_style.getsize(str(aplevelplus))
-            text_coordinate = (int(1388 + 116 * i - text_width[0] / 2), int(1005 - text_width[1] / 2))
+            text_coordinate = (int(1363 + 116 * i - text_width[0] / 2), int(980 - text_width[1] / 2))
             draw.text(text_coordinate, aplevelplus, fill=(67, 70, 101), font=font_style)
 
         font_style = ImageFont.truetype(r"fonts\SourceHanSansCN-Bold.otf", 20)
@@ -341,11 +317,71 @@ def drawpjskinfo(musicid):
                 text_width = font_style.getsize(str(adjust))
                 text_coordinate = (int((132 + 138 * i) - text_width[0] / 2), int(915 - text_width[1] / 2))
                 draw.text(text_coordinate, str(adjust), fill=(1, 255, 221), font=font_style)
-    img.save(fr'piccache\pjskinfo{musicid}.png')
+    vocals = vocalimg(musicid)
+    r, g, b, mask = vocals.split()
+    # img.paste(vocals, (1117 - int(vocals.size[0] / 2), 863 - int(vocals.size[1] / 2)), mask)
+    img.paste(vocals, (758, 710), mask)
+
+    if olddir:
+        img.save(fr'piccache\pjskinfo{musicid}.png')
+    else:
+        img.save(fr'piccache\pjskinfo\{musicid}.png')
     return leak
 
+def vocalimg(musicid):
+    img = Image.new('RGBA', (720, 320), color=(0, 0, 0, 0))
+    with open('masterdata/musicVocals.json', 'r', encoding='utf-8') as f:
+        musicVocals = json.load(f)
+    with open('masterdata/outsideCharacters.json', 'r', encoding='utf-8') as f:
+        outsideCharacters = json.load(f)
+    pos = 20
+    row = 0
+    height = [20, 92, 164, 236]
+    cut = [0, 0]
+    for vocal in musicVocals:
+        if vocal['musicId'] == musicid:
+            vocalimg = Image.new('RGBA', (700, 70), color=(0, 0, 0, 0))
+            draw = ImageDraw.Draw(vocalimg)
+            if vocal['musicVocalType'] == "original_song":
+                text = '原曲版'
+            elif vocal['musicVocalType'] == "sekai":
+                text = 'SEKAI版'
+            elif vocal['musicVocalType'] == "virtual_singer":
+                text = 'V版'
+            elif vocal['musicVocalType'] == "april_fool_2022":
+                text = '2022愚人节版'
+            elif vocal['musicVocalType'] == "another_vocal":
+                text = '其他'
+            else:
+                text = vocal['musicVocalType']
+            font_style = ImageFont.truetype(r"fonts\SourceHanSansCN-Bold.otf", 27)
+            innerpos = 25 + font_style.getsize(str(text))[0]
+            draw.text((20, 20), text, fill=(67, 70, 101), font=font_style)
+            for chara in vocal['characters']:
+                if chara['characterType'] == 'game_character':
+                    chara = Image.open(f'chara/chr_ts_{chara["characterId"]}.png').resize((60, 60))
+                    r, g, b, mask = chara.split()
+                    vocalimg.paste(chara, (innerpos + 5, 8), mask)
+                    innerpos += 65
+                else:
+                    for i in outsideCharacters:
+                        if i['id'] == chara['characterId']:
+                            draw.text((innerpos + 8, 20), i['name'], fill=(67, 70, 101), font=font_style)
+                            innerpos += 8 + font_style.getsize(str(i['name']))[0]
+            vocalimg = vocalimg.crop((0, 0, innerpos + 15, 72))
+            r, g, b, mask = vocalimg.split()
+            if pos + vocalimg.size[0] > 720:
+                pos = 20
+                row += 1
+            img.paste(vocalimg, (pos, height[row]), mask)
+            if pos + vocalimg.size[0] > cut[0]:
+                cut[0] = pos + vocalimg.size[0]
+            pos += vocalimg.size[0]
+    cut[1] = height[row] + 65
+    img = img.crop((0, 0, cut[0] + 10, cut[1] + 10))
+    return img
 
-def pjskset(newalias, oldalias, qqnum=None, username='', qun='群与用户名未知，可能来自分布式'):
+def pjskset(newalias, oldalias, qqnum=None, username='', qun='群与用户名未知，可能来自旧版分布式'):
     resp = aliastomusicid(oldalias)
     if resp['musicid'] == 0:
         return "找不到你要设置的歌曲，请使用正确格式：pjskinfo新昵称to旧昵称"
