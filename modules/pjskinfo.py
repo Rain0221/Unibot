@@ -1,5 +1,6 @@
 import datetime
 import json
+import os
 import sqlite3
 import difflib
 import time
@@ -110,6 +111,31 @@ def matchname(alias):
     except KeyError:
         match['translate'] = ''
     return match
+
+def get_filectime(file):
+    return datetime.datetime.fromtimestamp(os.path.getctime(file))
+
+def isleak(musicid):
+    with open(r'masterdata/musics.json', 'r', encoding='utf-8') as f:
+        musics = json.load(f)
+    for i in musics:
+        if i['id'] == musicid:
+            if int(time.time() * 1000) < i['publishedAt']:
+                return True
+            else:
+                return False
+    return True
+
+def pjskinfo(musicid):
+    if os.path.exists(f'piccache/pjskinfo/{musicid}.png'):
+        pjskinfotime = get_filectime(f'piccache/pjskinfo/{musicid}.png')
+        playdatatime = get_filectime('masterdata/realtime/musics.json')
+        if pjskinfotime > playdatatime:
+            return isleak(musicid)
+        else:
+            return drawpjskinfo(musicid, False)
+    else:
+        return drawpjskinfo(musicid, False)
 
 def drawpjskinfo(musicid, olddir=True):
     info = musicinfo()
@@ -321,8 +347,6 @@ def drawpjskinfo(musicid, olddir=True):
     r, g, b, mask = vocals.split()
     if vocals.size[1] < 320:
         img.paste(vocals, (758, 710), mask)
-    elif vocals.size == (780, 325):
-        img.paste(vocals, (728, 710), mask)
     else:
         img.paste(vocals, (758, 670), mask)
     if olddir:
@@ -366,10 +390,10 @@ def vocalimg(musicid):
         img = Image.open('pics/vocal.png')
         if vs == 0:
             draw = ImageDraw.Draw(img)
-            draw.text((240, 75), 'SEKAI Ver. ONLY', fill=(227, 246, 251), font=font_style)
+            draw.text((220, 102), 'SEKAI Ver. ONLY', fill=(227, 246, 251), font=font_style)
         if sekai == 0:
             draw = ImageDraw.Draw(img)
-            draw.text((195, 230), 'Virtual Singer Ver. ONLY', fill=(227, 246, 251), font=font_style)
+            draw.text((165, 257), 'Virtual Singer Ver. ONLY', fill=(227, 246, 251), font=font_style)
         for vocal in musicVocals:
             if vocal['musicId'] == musicid:
                 vocalimg = Image.new('RGBA', (750, 85), color=(0, 0, 0, 0))
@@ -395,9 +419,9 @@ def vocalimg(musicid):
                 vocalimg = vocalimg.crop((0, 0, innerpos + 15, 150))
                 r, g, b, mask = vocalimg.split()
                 if vocal['musicVocalType'] == "original_song" or vocal['musicVocalType'] == "virtual_singer":
-                    img.paste(vocalimg, (390 - int(vocalimg.size[0] / 2), 135 - int(vocalimg.size[1] / 2)), mask)
+                    img.paste(vocalimg, (370 - int(vocalimg.size[0] / 2), 162 - int(vocalimg.size[1] / 2)), mask)
                 elif vocal['musicVocalType'] == "sekai":
-                    img.paste(vocalimg, (390 - int(vocalimg.size[0] / 2), 290 - int(vocalimg.size[1] / 2)), mask)
+                    img.paste(vocalimg, (370 - int(vocalimg.size[0] / 2), 317 - int(vocalimg.size[1] / 2)), mask)
     else:
         font_style = ImageFont.truetype(r"fonts\SourceHanSansCN-Bold.otf", 27)
         img = Image.new('RGBA', (720, 380), color=(0, 0, 0, 0))

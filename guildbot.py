@@ -14,7 +14,7 @@ from modules.gacha import getcharaname, fakegacha, getcurrentgacha
 from modules.chara import charaset, grcharaset, charadel, charainfo, grcharadel, aliastocharaid, get_card
 from modules.musics import hotrank, levelrank, parse_bpm, aliastochart, idtoname
 from modules.pjskguess import getrandomjacket, cutjacket, getrandomchart, cutchartimg, getrandomcard, cutcard
-from modules.pjskinfo import aliastomusicid, drawpjskinfo, pjskset, pjskdel, pjskalias
+from modules.pjskinfo import aliastomusicid, drawpjskinfo, pjskset, pjskdel, pjskalias, pjskinfo
 from modules.profileanalysis import daibu, rk, pjskjindu, pjskprofile, pjskb30
 from modules.sk import sk, getqqbind, bindid, setprivate, skyc, gettime, verifyid
 from modules.texttoimg import texttoimg, ycmimg
@@ -52,7 +52,7 @@ def get_at_message(chain: bot_api.structs.Message):
                 bot.api_send_message(chain.channel_id, chain.id, '没有找到你要的歌曲哦')
                 return
             else:
-                leak = drawpjskinfo(resp['musicid'])
+                leak = pjskinfo(resp['musicid'])
                 if resp['match'] < 0.8:
                     text = '你要找的可能是：'
                 else:
@@ -64,7 +64,7 @@ def get_at_message(chain: bot_api.structs.Message):
                         text = text + f"{resp['name']}\n匹配度:{round(resp['match'], 4)}"
                     else:
                         text = text + f"{resp['name']} ({resp['translate']})\n匹配度:{round(resp['match'], 4)}"
-                bot.api_send_message(chain.channel_id, chain.id, text, f"{piccacheurl}pjskinfo{resp['musicid']}.png")
+                bot.api_send_message(chain.channel_id, chain.id, text, f"{piccacheurl}pjskinfo/{resp['musicid']}.png")
             return
         if chain.content[:7] == 'pjskset' and 'to' in chain.content:
             # 频道bot不需要昵称设置黑名单 只允许在官方频道设置 发现有人乱设踢了就好了

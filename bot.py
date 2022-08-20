@@ -27,7 +27,7 @@ from modules.homo import generate_homo
 from modules.musics import hotrank, levelrank, parse_bpm, aliastochart, idtoname, notecount, tasseiritsu, findbpm
 from modules.pjskguess import getrandomjacket, cutjacket, getrandomchart, cutchartimg, getrandomcard, cutcard, \
     getrandommusic, cutmusic
-from modules.pjskinfo import aliastomusicid, drawpjskinfo, pjskset, pjskdel, pjskalias
+from modules.pjskinfo import aliastomusicid, pjskset, pjskdel, pjskalias, pjskinfo
 from modules.profileanalysis import daibu, rk, pjskjindu, pjskprofile, pjskb30
 from modules.sendmail import sendemail
 from modules.sk import sk, getqqbind, bindid, setprivate, skyc, verifyid, gettime
@@ -161,7 +161,7 @@ def sync_handle_msg(event):
                 sendmsg(event, '没有找到你要的歌曲哦')
                 return
             else:
-                leak = drawpjskinfo(resp['musicid'])
+                leak = pjskinfo(resp['musicid'])
                 if resp['match'] < 0.8:
                     text = '你要找的可能是：'
                 else:
@@ -174,7 +174,7 @@ def sync_handle_msg(event):
                     else:
                         text = text + f"{resp['name']} ({resp['translate']})\n匹配度:{round(resp['match'], 4)}"
                 sendmsg(event,
-                        text + fr"[CQ:image,file=file:///{botdir}\piccache\pjskinfo{resp['musicid']}.png,cache=0]")
+                        text + fr"[CQ:image,file=file:///{botdir}\piccache\pjskinfo\{resp['musicid']}.png,cache=0]")
             return
         if event.message[:7] == 'pjskset' and 'to' in event.message:
             if event.user_id in aliasblock:
