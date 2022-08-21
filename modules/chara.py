@@ -109,6 +109,9 @@ def charadel(alias, qqnum=None, username='', qun='群与用户名未知，可能
     conn.close()
     timeArray = time.localtime(time.time())
     Time = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
+    if str(qqnum) == '1103479519':
+        writelog(f'[{Time}] 管理员删除了{resp[1]}的昵称:{alias}')
+        return "删除成功！"
     writelog(f'[{Time}] {qun} {username}({qqnum}): 删除了{resp[1]}的昵称:{alias}')
     return "删除成功！\n已记录bot文档中公开的实时日志，乱删将被拉黑"
 
