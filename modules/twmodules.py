@@ -215,7 +215,6 @@ def twsk(targetid=None, targetrank=None, secret=False):
         else:
             lower = rankline[i]
         resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={lower}')
-        print(resp.content)
         ranking = json.loads(resp.content)
         linescore = ranking['rankings'][0]['score']
         deviation = (score - linescore) / 10000
