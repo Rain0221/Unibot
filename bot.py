@@ -6,6 +6,7 @@ from json import JSONDecodeError
 import asyncio
 import aiocqhttp
 import aiofiles
+import aiohttp
 import requests
 import re
 import time
@@ -16,7 +17,7 @@ from chachengfen import dd_query
 from modules.api import gacha
 from modules.chara import charaset, grcharaset, charadel, charainfo, grcharadel, aliastocharaid, get_card, cardidtopic, \
     findcard
-from modules.config import whitelist, block, msggroup, aliasblock, groupban, asseturl
+from modules.config import whitelist, block, msggroup, aliasblock, groupban, asseturl, verifyurl, distributedurl
 from modules.cyo5000 import cyo5000
 from modules.enmodules import engetqqbind, ensk, enbindid, ensetprivate, enaliastomusicid, endrawpjskinfo, endaibu, \
     enpjskjindu, enpjskb30, enpjskprofile
@@ -54,6 +55,12 @@ botname = {
 send1 = False
 send3 = False
 
+async def geturl(url):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as res:
+            print(res.status)
+            text = await res.text()
+            return text
 
 @bot.on_message('group')
 async def handle_msg(event: Event):
@@ -124,6 +131,12 @@ async def handle_msg(event: Event):
     if event.raw_message == '关闭debug' and event.user_id in admin:
         botdebug = False
         await bot.send(event, '关闭成功')
+    if event.raw_message[:6] == 'verify':
+        verify = event.message[event.message.find("verify") + len("verify"):].strip()
+        resp = await geturl(f'{verifyurl}verify?qq={event.user_id}&verify={verify}')
+        if resp == 'token验证成功':
+            await geturl(f'{distributedurl}refresh')
+        await bot.send(event, resp)
 
 @bot.on_message('group')
 def sync_handle_msg(event):
