@@ -131,7 +131,7 @@ async def handle_msg(event: Event):
     if event.raw_message == '关闭debug' and event.user_id in admin:
         botdebug = False
         await bot.send(event, '关闭成功')
-    if event.raw_message[:6] == 'verify':
+    if event.raw_message[:6] == 'verify' and event.group_id == 467602419:
         verify = event.message[event.message.find("verify") + len("verify"):].strip()
         resp = await geturl(f'{verifyurl}verify?qq={event.user_id}&verify={verify}')
         if resp == 'token验证成功':
