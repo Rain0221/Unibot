@@ -140,7 +140,13 @@ def sk(targetid=None, targetrank=None, secret=False):
         return '活动分数统计中，不要着急哦！'
     if targetid is not None:
         if not verifyid(targetid):
-            return '你这ID有问题啊'
+            bind = getqqbind(targetid)
+            if bind is None:
+                return '查不到捏'
+            elif bind[2]:
+                return '查不到捏，可能是不给看'
+            else:
+                targetid = bind[1]
         resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetUserId={targetid}')
     else:
         resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={targetrank}')
