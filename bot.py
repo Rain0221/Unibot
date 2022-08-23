@@ -632,7 +632,7 @@ def sync_handle_msg(event):
             if event.group_id in kkwhitelist:
                 url = kankan(event.message[event.message.find('看看') + len('看看'):].strip())
                 if url is not None:
-                    sendmsg(event, f"[CQ:image,file={url},cache=0]")
+                    sendmsg(event, f"[CQ:image,file={url},cache=1]")
             return
         if event.message[:2] == '上传':
             if event.group_id in kkwhitelist:
