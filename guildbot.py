@@ -1,3 +1,4 @@
+import os
 import re
 import time
 import traceback
@@ -9,7 +10,10 @@ from bot_api.utils import yaml_util
 from modules.api import gacha
 from modules.config import piccacheurl, charturl, asseturl
 from modules.cyo5000 import cyo5000
-
+from modules.enmodules import engetqqbind, ensk, enbindid, ensetprivate, enaliastomusicid, endrawpjskinfo, endaibu, \
+    enpjskjindu, enpjskb30, enpjskprofile
+from modules.twmodules import twgetqqbind, twsk, twbindid, twsetprivate, twaliastomusicid, twdrawpjskinfo, twdaibu, \
+    twpjskjindu, twpjskb30, twpjskprofile
 from modules.gacha import getcharaname, fakegacha, getcurrentgacha
 from modules.chara import charaset, grcharaset, charadel, charainfo, grcharadel, aliastocharaid, get_card
 from modules.musics import hotrank, levelrank, parse_bpm, aliastochart, idtoname
@@ -25,7 +29,7 @@ bot = bot_api.BotApp(token['bot']['id'], token['bot']['token'], token['bot']['se
                      inters=[bot_api.Intents.GUILDS, bot_api.Intents.AT_MESSAGES, bot_api.Intents.GUILD_MEMBERS])
 pjskguess = {}
 charaguess = {}
-
+botdir = os.getcwd()
 
 @bot.receiver(bot_api.structs.Codes.SeverCode.BotGroupAtMessage)
 def get_at_message(chain: bot_api.structs.Message):
@@ -395,6 +399,249 @@ def get_at_message(chain: bot_api.structs.Message):
                 bot.api_send_message(chain.channel_id, chain.id, fakegacha(int(gachaid), int(num), False))
             return
 
+        # 以下为台服内容
+        if chain.content[:4] == "twsk":
+            if chain.content == "twsk":
+                bind = twgetqqbind(chain.author.id)
+                if bind is None:
+                    bot.api_send_message(chain.channel_id, chain.id, '你没有绑定id！')
+                    return
+                result = twsk(bind[1], None, bind[2])
+                bot.api_send_message(chain.channel_id, chain.id, result)
+            else:
+                userid = chain.content.replace("sk", "")
+                userid = re.sub(r'\D', "", userid)
+                if userid == '':
+                    bot.api_send_message(chain.channel_id, chain.id, '你这id有问题啊')
+                    return
+                if int(userid) > 10000000:
+                    result = twsk(userid)
+                else:
+                    result = twsk(None, userid)
+                bot.api_send_message(chain.channel_id, chain.id, result)
+                return
+        if chain.content[:6] == "twbind" or chain.content[:4] == "tw绑定":
+            userid = chain.content.replace("twbind", "").replace("tw绑定", "")
+            userid = re.sub(r'\D', "", userid)
+            bot.api_send_message(chain.channel_id, chain.id, twbindid(chain.author.id, userid))
+            return
+        if chain.content == "tw不给看":
+            if twsetprivate(chain.author.id, 1):
+                bot.api_send_message(chain.channel_id, chain.id, '不给看！')
+            else:
+                bot.api_send_message(chain.channel_id, chain.id, '你还没有绑定哦')
+            return
+        if chain.content == "tw给看":
+            if twsetprivate(chain.author.id, 0):
+                bot.api_send_message(chain.channel_id, chain.id, '给看！')
+            else:
+                bot.api_send_message(chain.channel_id, chain.id, '你还没有绑定哦')
+            return
+        if chain.content[:10] == 'twpjskinfo':
+            resp = twaliastomusicid(chain.content[chain.content.find("pjskinfo") + len("pjskinfo"):].strip())
+            if resp['musicid'] == 0:
+                bot.api_send_message(chain.channel_id, chain.id, '没有找到你要的歌曲哦')
+                return
+            else:
+                leak = twdrawpjskinfo(resp['musicid'])
+                if resp['match'] < 0.8:
+                    text = '你要找的可能是：'
+                else:
+                    text = ""
+                if leak:
+                    text = text + f"匹配度:{round(resp['match'], 4)}\n⚠该内容为剧透内容"
+                else:
+                    if resp['translate'] == '':
+                        text = text + f"{resp['name']}\n匹配度:{round(resp['match'], 4)}"
+                    else:
+                        text = text + f"{resp['name']} ({resp['translate']})\n匹配度:{round(resp['match'], 4)}"
+                bot.api_send_message(chain.channel_id, chain.id,
+                        text, f"{piccacheurl}enpjskinfo{resp['musicid']}.png")
+            return
+        if chain.content[:4] == "tw逮捕":
+            if chain.content == "tw逮捕":
+                bind = twgetqqbind(chain.author.id)
+                if bind is None:
+                    bot.api_send_message(chain.channel_id, chain.id, '查不到捏，可能是没绑定')
+                    return
+                result = twdaibu(bind[1], bind[2])
+                bot.api_send_message(chain.channel_id, chain.id, result)
+            else:
+                userid = chain.content.replace("逮捕", "")
+                if '[CQ:at' in userid:
+                    qq = re.sub(r'\D', "", userid)
+                    bind = twgetqqbind(qq)
+                    if bind is None:
+                        bot.api_send_message(chain.channel_id, chain.id, '查不到捏，可能是没绑定')
+                        return
+                    elif bind[2] and qq != str(chain.author.id):
+                        bot.api_send_message(chain.channel_id, chain.id, '查不到捏，可能是不给看')
+                        return
+                    else:
+                        result = twdaibu(bind[1], bind[2])
+                        bot.api_send_message(chain.channel_id, chain.id, result)
+                        return
+                userid = re.sub(r'\D', "", userid)
+                if userid == '':
+                    bot.api_send_message(chain.channel_id, chain.id, '你这id有问题啊')
+                    return
+                result = twdaibu(userid)
+                bot.api_send_message(chain.channel_id, chain.id, result)
+            return
+        if chain.content == "twpjsk进度":
+            bind = twgetqqbind(chain.author.id)
+            if bind is None:
+                bot.api_send_message(chain.channel_id, chain.id, '查不到捏，可能是没绑定')
+                return
+            twpjskjindu(bind[1], bind[2])
+            bot.api_send_message(chain.channel_id, chain.id, '' ,f"{piccacheurl}{bind[1]}jindu.png")
+            return
+        if chain.content == "twpjsk进度ex":
+            bind = twgetqqbind(chain.author.id)
+            if bind is None:
+                bot.api_send_message(chain.channel_id, chain.id, '查不到捏，可能是没绑定')
+                return
+            twpjskjindu(bind[1], bind[2], 'expert')
+            bot.api_send_message(chain.channel_id, chain.id, '', f"{piccacheurl}{bind[1]}jindu.png")
+            return
+        if chain.content == "twpjsk b30":
+            bind = twgetqqbind(chain.author.id)
+            if bind is None:
+                bot.api_send_message(chain.channel_id, chain.id, '查不到捏，可能是没绑定')
+                return
+            twpjskb30(bind[1], bind[2])
+            bot.api_send_message(chain.channel_id, chain.id, '', f"{piccacheurl}{bind[1]}b30.png")
+            return
+        if chain.content == "twpjskprofile":
+            bind = twgetqqbind(chain.author.id)
+            if bind is None:
+                bot.api_send_message(chain.channel_id, chain.id, '查不到捏，可能是没绑定')
+                return
+            twpjskprofile(bind[1], bind[2])
+            bot.api_send_message(chain.channel_id, chain.id, '', f"{piccacheurl}{bind[1]}profile.png")
+            return
+
+        # 国际服
+        if chain.content[:4] == "ensk":
+            if chain.content == "ensk":
+                bind = engetqqbind(chain.author.id)
+                if bind is None:
+                    bot.api_send_message(chain.channel_id, chain.id, '你没有绑定id！')
+                    return
+                result = ensk(bind[1], None, bind[2])
+                bot.api_send_message(chain.channel_id, chain.id, result)
+            else:
+                userid = chain.content.replace("sk", "")
+                userid = re.sub(r'\D', "", userid)
+                if userid == '':
+                    bot.api_send_message(chain.channel_id, chain.id, '你这id有问题啊')
+                    return
+                if int(userid) > 10000000:
+                    result = ensk(userid)
+                else:
+                    result = ensk(None, userid)
+                bot.api_send_message(chain.channel_id, chain.id, result)
+                return
+        if chain.content[:6] == "enbind" or chain.content[:4] == "en绑定":
+            userid = chain.content.replace("enbind", "").replace("en绑定", "")
+            userid = re.sub(r'\D', "", userid)
+            bot.api_send_message(chain.channel_id, chain.id, enbindid(chain.author.id, userid))
+            return
+        if chain.content == "en不给看":
+            if ensetprivate(chain.author.id, 1):
+                bot.api_send_message(chain.channel_id, chain.id, '不给看！')
+            else:
+                bot.api_send_message(chain.channel_id, chain.id, '你还没有绑定哦')
+            return
+        if chain.content == "en给看":
+            if ensetprivate(chain.author.id, 0):
+                bot.api_send_message(chain.channel_id, chain.id, '给看！')
+            else:
+                bot.api_send_message(chain.channel_id, chain.id, '你还没有绑定哦')
+            return
+        if chain.content[:10] == 'enpjskinfo':
+            resp = enaliastomusicid(chain.content[chain.content.find("pjskinfo") + len("pjskinfo"):].strip())
+            if resp['musicid'] == 0:
+                bot.api_send_message(chain.channel_id, chain.id, '没有找到你要的歌曲哦')
+                return
+            else:
+                leak = endrawpjskinfo(resp['musicid'])
+                if resp['match'] < 0.8:
+                    text = '你要找的可能是：'
+                else:
+                    text = ""
+                if leak:
+                    text = text + f"匹配度:{round(resp['match'], 4)}\n⚠该内容为剧透内容"
+                else:
+                    if resp['translate'] == '':
+                        text = text + f"{resp['name']}\n匹配度:{round(resp['match'], 4)}"
+                    else:
+                        text = text + f"{resp['name']} ({resp['translate']})\n匹配度:{round(resp['match'], 4)}"
+                bot.api_send_message(chain.channel_id, chain.id,
+                        text, f"{piccacheurl}enpjskinfo{resp['musicid']}.png")
+            return
+        if chain.content[:4] == "en逮捕":
+            if chain.content == "en逮捕":
+                bind = engetqqbind(chain.author.id)
+                if bind is None:
+                    bot.api_send_message(chain.channel_id, chain.id, '查不到捏，可能是没绑定')
+                    return
+                result = endaibu(bind[1], bind[2])
+                bot.api_send_message(chain.channel_id, chain.id, result)
+            else:
+                userid = chain.content.replace("逮捕", "")
+                if '[CQ:at' in userid:
+                    qq = re.sub(r'\D', "", userid)
+                    bind = engetqqbind(qq)
+                    if bind is None:
+                        bot.api_send_message(chain.channel_id, chain.id, '查不到捏，可能是没绑定')
+                        return
+                    elif bind[2] and qq != str(chain.author.id):
+                        bot.api_send_message(chain.channel_id, chain.id, '查不到捏，可能是不给看')
+                        return
+                    else:
+                        result = endaibu(bind[1], bind[2])
+                        bot.api_send_message(chain.channel_id, chain.id, result)
+                        return
+                userid = re.sub(r'\D', "", userid)
+                if userid == '':
+                    bot.api_send_message(chain.channel_id, chain.id, '你这id有问题啊')
+                    return
+                result = endaibu(userid)
+                bot.api_send_message(chain.channel_id, chain.id, result)
+            return
+        if chain.content == "enpjsk进度":
+            bind = engetqqbind(chain.author.id)
+            if bind is None:
+                bot.api_send_message(chain.channel_id, chain.id, '查不到捏，可能是没绑定')
+                return
+            enpjskjindu(bind[1], bind[2])
+            bot.api_send_message(chain.channel_id, chain.id, '' ,f"{piccacheurl}{bind[1]}jindu.png")
+            return
+        if chain.content == "enpjsk进度ex":
+            bind = engetqqbind(chain.author.id)
+            if bind is None:
+                bot.api_send_message(chain.channel_id, chain.id, '查不到捏，可能是没绑定')
+                return
+            enpjskjindu(bind[1], bind[2], 'expert')
+            bot.api_send_message(chain.channel_id, chain.id, '', f"{piccacheurl}{bind[1]}jindu.png")
+            return
+        if chain.content == "enpjsk b30":
+            bind = engetqqbind(chain.author.id)
+            if bind is None:
+                bot.api_send_message(chain.channel_id, chain.id, '查不到捏，可能是没绑定')
+                return
+            enpjskb30(bind[1], bind[2])
+            bot.api_send_message(chain.channel_id, chain.id, '', f"{piccacheurl}{bind[1]}b30.png")
+            return
+        if chain.content == "enpjskprofile":
+            bind = engetqqbind(chain.author.id)
+            if bind is None:
+                bot.api_send_message(chain.channel_id, chain.id, '查不到捏，可能是没绑定')
+                return
+            enpjskprofile(bind[1], bind[2])
+            bot.api_send_message(chain.channel_id, chain.id, '', f"{piccacheurl}{bind[1]}profile.png")
+            return
 
 
         # 猜曲
