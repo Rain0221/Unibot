@@ -21,6 +21,7 @@ from modules.config import whitelist, block, msggroup, aliasblock, groupban, ass
 from modules.cyo5000 import cyo5000
 from modules.enmodules import engetqqbind, ensk, enbindid, ensetprivate, enaliastomusicid, endrawpjskinfo, endaibu, \
     enpjskjindu, enpjskb30, enpjskprofile
+from modules.kk import kkwhitelist, kankan, uploadkk
 from modules.twmodules import twgetqqbind, twsk, twbindid, twsetprivate, twaliastomusicid, twdrawpjskinfo, twdaibu, \
     twpjskjindu, twpjskb30, twpjskprofile
 from modules.gacha import getcharaname, getallcurrentgacha, getcurrentgacha, fakegacha
@@ -627,11 +628,26 @@ def sync_handle_msg(event):
         if event.message[:4] == '查bpm':
             sendmsg(event, findbpm(int(event.message[4:])))
             return
+        if event.message[:2] == '看看':
+            if event.group_id in kkwhitelist:
+                url = kankan(event.message[event.message.find('看看') + len('看看'):].strip())
+                if url is not None:
+                    sendmsg(event, f"[CQ:image,file={url},cache=0]")
+            return
+        if event.message[:2] == '上传':
+            if event.group_id in kkwhitelist:
+                if '[CQ:image' in event.message:
+                    foldername = event.message[event.message.find('上传') + len('上传'):].strip()
+                    foldername = foldername[:foldername.find('[CQ:image')]
+                    url = event.message[event.message.find('url=') + len('url='):event.message.find(']')]
+                    filename = f'{event.user_id}_{int(time.time()*100)}.jpg'
+                    uploadkk(url, filename, foldername)
+                    sendmsg(event, "上传成功")
         if event.message[:1] == '看' or event.message[:2] == '来点':
             if event.user_id not in whitelist and event.group_id not in whitelist:
                 return
-            event.message = event.message.replace('看', '')
-            event.message = event.message.replace('来点', '')
+            event.message = event.message.replace('看', '', 1)
+            event.message = event.message.replace('来点', '', 1)
             resp = aliastocharaid(event.message, event.group_id)
             if resp[0] != 0:
                 cardurl = get_card(resp[0])
