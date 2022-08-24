@@ -22,6 +22,7 @@ from modules.cyo5000 import cyo5000
 from modules.enmodules import engetqqbind, ensk, enbindid, ensetprivate, enaliastomusicid, endrawpjskinfo, endaibu, \
     enpjskjindu, enpjskb30, enpjskprofile
 from modules.kk import kkwhitelist, kankan, uploadkk
+from modules.otherpics import geteventpic
 from modules.twmodules import twgetqqbind, twsk, twbindid, twsetprivate, twaliastomusicid, twdrawpjskinfo, twdaibu, \
     twpjskjindu, twpjskb30, twpjskprofile
 from modules.gacha import getcharaname, getallcurrentgacha, getcurrentgacha, fakegacha
@@ -692,7 +693,22 @@ def sync_handle_msg(event):
             else:
                 sendmsg(event, fakegacha(int(gachaid), int(num), False))
             return
-
+        if event.message[:5] == 'event':
+            eventid = event.message[event.message.find("event") + len("event"):].strip()
+            eventid = re.sub(r'\D', "", eventid)
+            try:
+                if eventid == '':
+                    picdir = geteventpic()
+                else:
+                    picdir = geteventpic(int(eventid))
+            except FileNotFoundError:
+                sendmsg(event, f"未找到活动资源图片，请等待更新")
+                return
+            if picdir:
+                sendmsg(event, fr"[CQ:image,file=file:///{botdir}\{picdir},cache=0]")
+            else:
+                sendmsg(event, f"未找到活动或生成失败")
+            return
         # 以下为台服内容
         if event.message[:4] == "twsk":
             if event.message == "twsk":
