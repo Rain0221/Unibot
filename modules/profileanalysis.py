@@ -1,6 +1,6 @@
 import json
 import time
-from PIL import Image, ImageFont, ImageDraw
+from PIL import Image, ImageFont, ImageDraw, ImageFilter
 import requests
 
 from modules.config import apiurl
@@ -814,16 +814,21 @@ def pjskb30(userid, private=False):
                 diff[i]['rank'] = diff[i]['fclevel+'] * 0.95
     diff.sort(key=lambda x: x["rank"], reverse=True)
     rank = 0
-
+    shadow = Image.new("RGBA", (320, 130), (0, 0, 0, 0))
+    shadow.paste(Image.new("RGBA", (310, 120), (0, 0, 0, 50)), (5, 5))
+    shadow = shadow.filter(ImageFilter.GaussianBlur(3))
     for i in range(0, 30):
         rank = rank + diff[i]['rank']
         single = b30single(diff[i], musics)
+        r, g, b, mask = shadow.split()
+        pic.paste(shadow, ((int(52 + (i % 3) * 342)), int(307 + int(i / 3) * 142)), mask)
         pic.paste(single, ((int(53+(i%3)*342)), int(309+int(i/3)*142)))
     rank = round(rank / 30, 2)
     font_style = ImageFont.truetype(r"fonts\SourceHanSansCN-Bold.otf", 35)
     text_width = font_style.getsize(str(rank))
     text_coordinate = (int(625 - text_width[0] / 2), int(164 - text_width[1] / 2))
     draw.text(text_coordinate, str(rank), fill=(255, 255, 255), font=font_style)
+    pic = pic.convert("RGB")
     pic.save(fr'piccache\{userid}b30.png')
 
 def b30single(diff, musics):
