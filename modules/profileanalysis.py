@@ -5,7 +5,7 @@ import requests
 
 from modules.config import apiurl
 from modules.sk import verifyid
-
+assetpath = 'data/assets/sekai/assetbundle/resources'
 rankmatchgrades = {
     1: 'ビギナー(初学者)',
     2: 'ブロンズ(青铜)',
@@ -709,6 +709,73 @@ def pjskb30(userid, private=False):
     # with open('piccache\profile.json', 'r', encoding='utf-8') as f:
     #     data = json.load(f)
     name = data['user']['userGamedata']['name']
+    userProfileHonors = data['userProfileHonors']
+    rank = data['user']['userGamedata']['rank']
+    userDecks = [0, 0, 0, 0, 0]
+    special_training = [False, False, False, False, False]
+    for i in range(0, 5):
+        userDecks[i] = data['userDecks'][0][f'member{i + 1}']
+        for userCards in data['userCards']:
+            if userCards['cardId'] != userDecks[i]:
+                continue
+            if userCards['defaultImage'] == "special_training":
+                special_training[i] = True
+    pic = Image.open('pics/b30.png')
+    if private:
+        id = '保密'
+    else:
+        id = userid
+    with open('masterdata/cards.json', 'r', encoding='utf-8') as f:
+        cards = json.load(f)
+    try:
+        assetbundleName = ''
+        for i in cards:
+            if i['id'] == userDecks[0]:
+                assetbundleName = i['assetbundleName']
+        if special_training[0]:
+            cardimg = Image.open(f'{assetpath}/startapp/thumbnail/chara/{assetbundleName}_after_training.png')
+            cutoutimg = Image.open(f'{assetpath}/startapp/character/member_cutout_trm/{assetbundleName}/after_training.png')
+        else:
+            cardimg = Image.open(f'{assetpath}/startapp/thumbnail/chara/{assetbundleName}_normal.png')
+            cutoutimg = Image.open(f'{assetpath}/startapp/character/member_cutout_trm/{assetbundleName}/normal.png')
+        cutoutimg = cutoutimg.resize((int(cutoutimg.size[0]*0.47), int(cutoutimg.size[1]*0.47)))
+        r, g, b, mask = cutoutimg.split()
+        pic.paste(cutoutimg, (780, 15), mask)
+
+        cardimg = cardimg.resize((116, 116))
+        r, g, b, mask = cardimg.split()
+        pic.paste(cardimg, (68, 70), mask)
+    except FileNotFoundError:
+        pass
+    draw = ImageDraw.Draw(pic)
+    font_style = ImageFont.truetype(r"fonts\SourceHanSansCN-Bold.otf", 35)
+    draw.text((215, 65), name, fill=(0, 0, 0), font=font_style)
+    font_style = ImageFont.truetype(r"fonts\FOT-RodinNTLGPro-DB.ttf", 15)
+    draw.text((218, 118), 'id:' + id, fill=(0, 0, 0), font=font_style)
+    font_style = ImageFont.truetype(r"fonts\FOT-RodinNTLGPro-DB.ttf", 28)
+    draw.text((314, 150), str(rank), fill=(255, 255, 255), font=font_style)
+
+
+    for i in userProfileHonors:
+        if i['seq'] == 1:
+            honorpic = generatehonor(i, True)
+            honorpic = honorpic.resize((226, 48))
+            r, g, b, mask = honorpic.split()
+            pic.paste(honorpic, (61, 226), mask)
+
+    for i in userProfileHonors:
+        if i['seq'] == 2:
+            honorpic = generatehonor(i, False)
+            honorpic = honorpic.resize((107, 48))
+            r, g, b, mask = honorpic.split()
+            pic.paste(honorpic, (290, 226), mask)
+
+    for i in userProfileHonors:
+        if i['seq'] == 3:
+            honorpic = generatehonor(i, False)
+            honorpic = honorpic.resize((107, 48))
+            r, g, b, mask = honorpic.split()
+            pic.paste(honorpic, (403, 226), mask)
     with open(r'masterdata/realtime/musicDifficulties.json', 'r', encoding='utf-8') as f:
         diff = json.load(f)
     for i in range(0, len(diff)):
@@ -746,49 +813,70 @@ def pjskb30(userid, private=False):
                 diff[i]['result'] = 1
                 diff[i]['rank'] = diff[i]['fclevel+'] * 0.95
     diff.sort(key=lambda x: x["rank"], reverse=True)
-    text = ''
-    musictitle = ''
     rank = 0
+
     for i in range(0, 30):
         rank = rank + diff[i]['rank']
-        for j in musics:
-            if j['id'] == diff[i]['musicId']:
-                musictitle = j['title']
-        if diff[i]['playLevelAdjust'] != 0:
-            if diff[i]['result'] == 2:
-                text = text + f"{musictitle} [{diff[i]['musicDifficulty'].upper()} {diff[i]['playLevel']}]" \
-                              f" AP ({round(diff[i]['aplevel+'], 1)})\n"
-            if diff[i]['result'] == 1:
-                text = text + f"{musictitle} [{diff[i]['musicDifficulty'].upper()} {diff[i]['playLevel']}]" \
-                              f" FC ({round(diff[i]['fclevel+'], 1)}×0.95)\n"
-        else:
-            if diff[i]['result'] == 2:
-                text = text + f"{musictitle} [{diff[i]['musicDifficulty'].upper()} {diff[i]['playLevel']}]" \
-                              f" AP ({round(diff[i]['aplevel+'], 1)}.?)\n"
-            if diff[i]['result'] == 1:
-                text = text + f"{musictitle} [{diff[i]['musicDifficulty'].upper()} {diff[i]['playLevel']}]" \
-                              f" FC ({round(diff[i]['fclevel+'], 1)}.?×0.95)\n"
+        single = b30single(diff[i], musics)
+        pic.paste(single, ((int(53+(i%3)*342)), int(309+int(i/3)*142)))
     rank = round(rank / 30, 2)
-    if private:
-        title = name
-    else:
-        title = name + ' - ' + userid
-    title = title + '\n你的ranking为' + str(rank)
-    IMG_SIZE = (750, int(190 + text.count('\n') * 31.5))
-    img = Image.new('RGB', IMG_SIZE, (255, 255, 255))
-    draw = ImageDraw.Draw(img)
-    font = ImageFont.truetype(r'fonts\SourceHanSansCN-Medium.otf', 22)
-    draw.text((20, 15), title, '#000000', font)
-    font = ImageFont.truetype(r'fonts\FOT-RodinNTLGPro-DB.ttf', 22)
-    draw.text((20, 95), text, '#000000', font, spacing=10)
-    font = ImageFont.truetype(r'fonts\SourceHanSansCN-Medium.otf', 22)
-    draw.text((20, int(85 + text.count('\n') * 31.5)), '当前理论值为' + str(highest), '#000000', font)
-    font = ImageFont.truetype(r'fonts\SourceHanSansCN-Medium.otf', 15)
-    draw.text((20, int(125 + text.count('\n') * 31.5)), '注：FC权重为0.95，非官方算法，仅供参考娱乐\n'
-                                                       '数据来源：https://profile.pjsekai.moe/ '
-                                                       '※定数每次统计时可能会改变', '#000000', font)
-    img.save(fr'piccache\{userid}b30.png')
+    font_style = ImageFont.truetype(r"fonts\SourceHanSansCN-Bold.otf", 35)
+    draw.text((578, 143), str(rank), fill=(255, 255, 255), font=font_style)
+    pic.save(fr'piccache\{userid}b30.png')
 
+def b30single(diff, musics):
+    color = {
+        'master': (187, 51, 238),
+        'expert': (238, 67, 102),
+        'hard': (254, 170, 0),
+        'normal': (51, 187, 238),
+        'easy': (102, 221, 17),
+    }
+    musictitle = ''
+    for j in musics:
+        if j['id'] == diff['musicId']:
+            musictitle = j['title']
+    pic = Image.new("RGB", (620, 240), (255, 255, 255))
+    if diff['result'] == 2 or diff['result'] == 1:
+        draw = ImageDraw.Draw(pic)
+        font = ImageFont.truetype(r'fonts\YuGothicUI-Semibold.ttf', 48)
+        size = font.getsize(musictitle)
+        if size[0] > 365:
+            musictitle = musictitle[:int(len(musictitle)*(345/size[0]))] + '...'
+        draw.text((238, 84), musictitle, '#000000', font)
+        # print(musictitle, font.getsize(musictitle))
+        jacket = Image.open(f'{assetpath}/startapp/thumbnail/music_jacket/jacket_s_{str(diff["musicId"]).zfill(3)}.png')
+        jacket = jacket.resize((186, 186))
+        pic.paste(jacket, (32, 28))
+
+        draw.ellipse((242, 32, 286, 76), fill=color[diff['musicDifficulty']])
+        draw.rectangle((262, 32, 334, 76), fill=color[diff['musicDifficulty']])
+        draw.ellipse((312, 32, 356, 76), fill=color[diff['musicDifficulty']])
+
+        font = ImageFont.truetype(r'fonts\SourceHanSansCN-Bold.otf', 38)
+
+        if diff['playLevelAdjust'] != 0:
+            if diff['result'] == 2:
+                resultpic = Image.open('pics/AllPerfect.png')
+                draw.text((259, 24), str(round(diff['aplevel+'], 1)), (255, 255, 255), font)
+                draw.text((370, 24), '→ ' + str(round(diff['aplevel+'], 1)), (0, 0, 0), font)
+            if diff['result'] == 1:
+                resultpic = Image.open('pics/FullCombo.png')
+                draw.text((259, 24), str(round(diff['fclevel+'], 1)), (255, 255, 255), font)
+                draw.text((370, 24), '→ ' + str(round(diff['aplevel+'] * 0.95, 1)), (0, 0, 0), font)
+        else:
+            if diff['result'] == 2:
+                resultpic = Image.open('pics/AllPerfect.png')
+                draw.text((259, 24), f'{round(diff["aplevel+"], 1)}.?', (255, 255, 255), font)
+                draw.text((370, 24), f'→ {round(diff["aplevel+"], 1)}.0', (0, 0, 0), font)
+            if diff['result'] == 1:
+                resultpic = Image.open('pics/FullCombo.png')
+                draw.text((259, 24), f'{round(diff["fclevel+"], 1)}.?', (255, 255, 255), font)
+                draw.text((370, 24), f'→ {round(diff["fclevel+"], 1)}.0', (0, 0, 0), font)
+        r, g, b, mask = resultpic.split()
+        pic.paste(resultpic, (238, 154), mask)
+    pic = pic.resize((310, 120))
+    return pic
 
 if __name__ == '__main__':
     pass

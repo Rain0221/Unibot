@@ -686,7 +686,7 @@ def sync_handle_msg(event):
             gachaid = event.message[event.message.find("连") + len("连"):].strip()
             num = event.message[:event.message.find('连')].replace('sekai', '').replace('pjsk', '')
             num = re.sub(r'\D', "", num)
-            if int(num) > 400:
+            if int(num) > 200:
                 sendmsg(event, '太多了，少抽一点吧！')
                 return
             if gachaid == '':
@@ -1152,6 +1152,7 @@ def sync_handle_msg(event):
                     return
             except KeyError:
                 pass
+        if event.message == f'[CQ:at,qq={event.self_id}]':
             sendmsg(event, 'bot帮助文档：https://docs.unipjsk.com/')
             return
     except (requests.exceptions.ConnectionError, JSONDecodeError):
