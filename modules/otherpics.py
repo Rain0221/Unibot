@@ -107,14 +107,20 @@ def cardthumnail(cardid, istrained=False, cards=None):
                 pic.paste(star, (10, 118), mask)
                 pic.paste(star, (36, 118), mask)
             if card['cardRarityType'] == 'rarity_3':
-                star = Image.open(f'{botpath}/chara/rarity_star_afterTraining.png')
+                if istrained:
+                    star = Image.open(f'{botpath}/chara/rarity_star_afterTraining.png')
+                else:
+                    star = Image.open(f'{botpath}/chara/rarity_star_normal.png')
                 star = star.resize((28, 28))
                 r, g, b, mask = star.split()
                 pic.paste(star, (10, 118), mask)
                 pic.paste(star, (36, 118), mask)
                 pic.paste(star, (62, 118), mask)
             if card['cardRarityType'] == 'rarity_4':
-                star = Image.open(f'{botpath}/chara/rarity_star_afterTraining.png')
+                if istrained:
+                    star = Image.open(f'{botpath}/chara/rarity_star_afterTraining.png')
+                else:
+                    star = Image.open(f'{botpath}/chara/rarity_star_normal.png')
                 star = star.resize((28, 28))
                 r, g, b, mask = star.split()
                 pic.paste(star, (10, 118), mask)
@@ -131,6 +137,73 @@ def cardthumnail(cardid, istrained=False, cards=None):
             r, g, b, mask = attr.split()
             pic.paste(attr, (1, 1), mask)
             return pic
+
+def gachacardthumnail(cardid, istrained=False, cards=None):
+    if cards is None:
+        masterdatadir = path.join(botpath, 'masterdata/')
+        with open(masterdatadir + 'cards.json', 'r', encoding='utf-8') as f:
+            cards = json.load(f)
+    if istrained:
+        suffix = 'after_training'
+    else:
+        suffix = 'normal'
+    for card in cards:
+        if card['id'] == cardid:
+            if card['cardRarityType'] != 'rarity_3' and card['cardRarityType'] != 'rarity_4':
+                suffix = 'normal'
+            pic = Image.new('RGBA', (338, 338), (0, 0, 0, 0))
+            cardpic = Image.open(f'{assetpath}/startapp/character/member_cutout/{card["assetbundleName"]}/{suffix}.png')
+            picmask = Image.open(f'{botpath}/pics/gachacardmask.png')
+            r, g, b, mask = picmask.split()
+            pic.paste(cardpic, (0, 0), mask)
+            cardFrame = Image.open(f'{botpath}/chara/cardFrame_{card["cardRarityType"]}.png')
+            cardFrame = cardFrame.resize((338, 338))
+            r, g, b, mask = cardFrame.split()
+
+            pic.paste(cardFrame, (0, 0), mask)
+            if card['cardRarityType'] == 'rarity_1':
+                star = Image.open(f'{botpath}/chara/rarity_star_normal.png')
+                star = star.resize((61, 61))
+                r, g, b, mask = star.split()
+                pic.paste(star, (21, 256), mask)
+            if card['cardRarityType'] == 'rarity_2':
+                star = Image.open(f'{botpath}/chara/rarity_star_normal.png')
+                star = star.resize((60, 60))
+                r, g, b, mask = star.split()
+                pic.paste(star, (21, 256), mask)
+                pic.paste(star, (78, 256), mask)
+            if card['cardRarityType'] == 'rarity_3':
+                if istrained:
+                    star = Image.open(f'{botpath}/chara/rarity_star_afterTraining.png')
+                else:
+                    star = Image.open(f'{botpath}/chara/rarity_star_normal.png')
+                star = star.resize((60, 60))
+                r, g, b, mask = star.split()
+                pic.paste(star, (21, 256), mask)
+                pic.paste(star, (78, 256), mask)
+                pic.paste(star, (134, 256), mask)
+            if card['cardRarityType'] == 'rarity_4':
+                if istrained:
+                    star = Image.open(f'{botpath}/chara/rarity_star_afterTraining.png')
+                else:
+                    star = Image.open(f'{botpath}/chara/rarity_star_normal.png')
+                star = star.resize((60, 60))
+                r, g, b, mask = star.split()
+                pic.paste(star, (21, 256), mask)
+                pic.paste(star, (78, 256), mask)
+                pic.paste(star, (134, 256), mask)
+                pic.paste(star, (190, 256), mask)
+            if card['cardRarityType'] == 'rarity_birthday':
+                star = Image.open(f'{botpath}/chara/rarity_birthday.png')
+                star = star.resize((60, 60))
+                r, g, b, mask = star.split()
+                pic.paste(star, (21, 256), mask)
+            attr = Image.open(f'{botpath}/chara/icon_attribute_{card["attr"]}.png')
+            attr = attr.resize((76, 76))
+            r, g, b, mask = attr.split()
+            pic.paste(attr, (1, 1), mask)
+            return pic
+
 
 def charabonuspic(unitid, attr, cards, gameCharacterUnits, endtime):
     charaid, unit, charapicname = analysisunitid(unitid, gameCharacterUnits)
@@ -212,6 +285,26 @@ def drawevent(event):
     # pic.show()
     pic.save(f'{botpath}/piccache/event/{event.id}.png')
 
+def gachapic(charas, filename):
+    pic = Image.open(f'{botpath}/pics/gacha.png')
+    masterdatadir = path.join(botpath, 'masterdata/')
+    with open(masterdatadir + 'cards.json', 'r', encoding='utf-8') as f:
+        cards = json.load(f)
+    cover = Image.new('RGB', (1550, 600), (255, 255, 255))
+    pic.paste(cover, (314, 500))
+    for i in range(0, 5):
+        cardpic = gachacardthumnail(charas[i], False, cards)
+        cardpic = cardpic.resize((263, 263))
+        r, g, b, mask = cardpic.split()
+        pic.paste(cardpic, (336 + 304 * i, 520), mask)
+    for i in range(0, 5):
+        cardpic = gachacardthumnail(charas[i+5], False, cards)
+        cardpic = cardpic.resize((263, 263))
+        r, g, b, mask = cardpic.split()
+        pic.paste(cardpic, (336 + 304 * i, 825), mask)
+    pic = pic.convert('RGB')
+    pic.save(f'{botpath}/piccache/{filename}.jpg')
+
 def geteventpic(eventid=None):
     if eventid is None:
         eventid = currentevent()['id']
@@ -226,7 +319,7 @@ def geteventpic(eventid=None):
 
 
 if __name__ == '__main__':
-    print(geteventpic(36))
+    gachapic([30, 66, 138, 86, 123, 201, 159, 334, 201, 158], '123')
     # cardthumnail(487, True)
     # event = event()
     # print(event.getevent(88))

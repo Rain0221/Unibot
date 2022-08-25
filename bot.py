@@ -663,9 +663,10 @@ def sync_handle_msg(event):
             gachaid = re.sub(r'\D', "", gachaid)
             if gachaid == '':
                 currentgacha = getcurrentgacha()
-                sendmsg(event, fakegacha(int(currentgacha['id']), 10, False))
+                msg = fakegacha(int(currentgacha['id']), 10, False)
             else:
-                sendmsg(event, fakegacha(int(gachaid), 10, False))
+                msg = fakegacha(int(gachaid), 10, False)
+            sendmsg(event, msg[0] + fr"[CQ:image,file=file:///{botdir}\{msg[1]},cache=0]")
             return
         if 'pjsk反抽卡' in event.message or 'sekai反抽卡' in event.message:
             if event.user_id not in whitelist and event.group_id not in whitelist:
@@ -674,9 +675,10 @@ def sync_handle_msg(event):
             gachaid = re.sub(r'\D', "", gachaid)
             if gachaid == '':
                 currentgacha = getcurrentgacha()
-                sendmsg(event, fakegacha(int(currentgacha['id']), 10, True))
+                msg = fakegacha(int(currentgacha['id']), 10, True)
             else:
-                sendmsg(event, fakegacha(int(gachaid), 10, True))
+                msg = fakegacha(int(gachaid), 10, True)
+            sendmsg(event, msg[0] + fr"[CQ:image,file=file:///{botdir}\{msg[1]},cache=0]")
             return
         if (event.message[0:5] == 'sekai' or event.message[0:4] == 'pjsk') and '连' in event.message:
             if event.user_id not in whitelist and event.group_id not in whitelist:

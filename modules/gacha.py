@@ -2,6 +2,8 @@ import random
 import time
 import json
 
+from modules.otherpics import gachapic
+
 
 def getcard(data, cardid, para):
     for i in data:
@@ -105,6 +107,7 @@ def fakegacha(gachaid, num, reverse=False):  # 仅支持普通活动抽卡
     count4 = 0
     count3 = 0
     count2 = 0
+    result = []
     for i in range(1, num + 1):
         if i % 10 == 0 and baodi and reverse is not True:
             baodi = False
@@ -115,7 +118,7 @@ def fakegacha(gachaid, num, reverse=False):  # 仅支持普通活动抽卡
             count4 += 1
             baodi = False
             nowweight = 0
-            rannum2 = random.randint(0, allweight)
+            rannum2 = random.randint(0, allweight - 1)
             for j in range(0, len(reality4)):
                 nowweight = nowweight + reality4[j]['weight']
                 if nowweight >= rannum2:
@@ -129,18 +132,25 @@ def fakegacha(gachaid, num, reverse=False):  # 仅支持普通活动抽卡
                         alltext = alltext + "[当期]"
                         keytext = keytext + "[当期]"
                     alltext = alltext + f"{reality4[j]['prefix']} - {getcharaname(reality4[j]['charaid'])}\n"
-                    keytext = keytext + f"{reality4[j]['prefix']} - {getcharaname(reality4[j]['charaid'])}\n"
+                    keytext = keytext + f"{reality4[j]['prefix']} - {getcharaname(reality4[j]['charaid'])}(第{i}抽)\n"
+                    result.append(reality4[j]['id'])
                     break
         elif rannum < rate4 + rate3:  # 三星
             count3 += 1
-            rannum2 = random.randint(0, len(reality3))
-            alltext = alltext + f"★★★{reality4[rannum2]['prefix']} - {getcharaname(reality4[rannum2]['charaid'])}\n"
+            rannum2 = random.randint(0, len(reality3) - 1)
+            alltext = alltext + f"★★★{reality3[rannum2]['prefix']} - {getcharaname(reality3[rannum2]['charaid'])}\n"
+            result.append(reality3[rannum2]['id'])
         else:  # 二星
             count2 += 1
-            rannum2 = random.randint(0, len(reality3))
-            alltext = alltext + f"★★{reality4[rannum2]['prefix']} - {getcharaname(reality4[rannum2]['charaid'])}\n"
+            rannum2 = random.randint(0, len(reality3) - 1)
+            alltext = alltext + f"★★{reality2[rannum2]['prefix']} - {getcharaname(reality2[rannum2]['charaid'])}\n"
+            result.append(reality2[rannum2]['id'])
 
-    if num <= 10:
+    if num == 10:
+        now = int(time.time()*1000)
+        gachapic(result, now)
+        return f"[{gacha['name']}]", f"piccache/{now}.jpg"
+    elif num < 10:
         return f"[{gacha['name']}]\n{alltext}"
     else:
         if birthday:
