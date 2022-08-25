@@ -851,11 +851,16 @@ def b30single(diff, musics):
         jacket = jacket.resize((186, 186))
         pic.paste(jacket, (32, 28))
 
+        draw.ellipse((5, 5, 5+60, 5+60), fill=color[diff['musicDifficulty']])
+        font = ImageFont.truetype(r'fonts\SourceHanSansCN-Bold.otf', 38)
+        text_width = font.getsize(str(diff['playLevel']))
+        text_coordinate = (int(36 - text_width[0] / 2), int(28 - text_width[1] / 2))
+        draw.text(text_coordinate, str(diff['playLevel']), (255, 255, 255), font)
+
         draw.ellipse((242, 32, 286, 76), fill=color[diff['musicDifficulty']])
         draw.rectangle((262, 32, 334, 76), fill=color[diff['musicDifficulty']])
         draw.ellipse((312, 32, 356, 76), fill=color[diff['musicDifficulty']])
 
-        font = ImageFont.truetype(r'fonts\SourceHanSansCN-Bold.otf', 38)
 
         if diff['playLevelAdjust'] != 0:
             if diff['result'] == 2:
