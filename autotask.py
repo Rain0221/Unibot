@@ -56,15 +56,15 @@ def cleancache(path='piccache/'):
     nowtime = datetime.datetime.now()
     deltime = datetime.timedelta(seconds=300)
     nd = nowtime - deltime
-    for root, firs, files in os.walk(path):
-        for file in files:
-            if file[-4:] == '.png':
-                filectime = get_filectime(path + file)
-                if filectime < nd:
-                    os.remove(path + file)
-                    print(f"删除{file} (缓存{nowtime - filectime})")
-                else:
-                    print(f"跳过{file} (缓存{nowtime - filectime})")
+    for file in os.listdir('piccache/'):
+        if file[-4:] == '.png' or file[-4:] == '.mp3' or file[-4:] == '.jpg':
+            filectime = get_filectime(path + file)
+            if filectime < nd:
+                os.remove(path + file)
+                # print(f"删除{file} (缓存{nowtime - filectime})")
+            else:
+                pass
+                # print(f"跳过{file} (缓存{nowtime - filectime})")
 
 def updatetranslate(raw, value):
     with open('yamls/translate.yaml', encoding='utf-8') as f:
