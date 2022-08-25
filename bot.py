@@ -663,9 +663,9 @@ def sync_handle_msg(event):
             gachaid = re.sub(r'\D', "", gachaid)
             if gachaid == '':
                 currentgacha = getcurrentgacha()
-                msg = fakegacha(int(currentgacha['id']), 10, False)
+                msg = fakegacha(int(currentgacha['id']), 10, False, True)
             else:
-                msg = fakegacha(int(gachaid), 10, False)
+                msg = fakegacha(int(gachaid), 10, False, True)
             sendmsg(event, msg[0] + fr"[CQ:image,file=file:///{botdir}\{msg[1]},cache=0]")
             return
         if 'pjsk反抽卡' in event.message or 'sekai反抽卡' in event.message:
@@ -675,9 +675,9 @@ def sync_handle_msg(event):
             gachaid = re.sub(r'\D', "", gachaid)
             if gachaid == '':
                 currentgacha = getcurrentgacha()
-                msg = fakegacha(int(currentgacha['id']), 10, True)
+                msg = fakegacha(int(currentgacha['id']), 10, True, True)
             else:
-                msg = fakegacha(int(gachaid), 10, True)
+                msg = fakegacha(int(gachaid), 10, True, True)
             sendmsg(event, msg[0] + fr"[CQ:image,file=file:///{botdir}\{msg[1]},cache=0]")
             return
         if (event.message[0:5] == 'sekai' or event.message[0:4] == 'pjsk') and '连' in event.message:

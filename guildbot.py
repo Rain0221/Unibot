@@ -372,9 +372,9 @@ def get_at_message(chain: bot_api.structs.Message):
             gachaid = re.sub(r'\D', "", gachaid)
             if gachaid == '':
                 currentgacha = getcurrentgacha()
-                msg = fakegacha(int(currentgacha['id']), 10, False)
+                msg = fakegacha(int(currentgacha['id']), 10, False, True)
             else:
-                msg = fakegacha(int(gachaid), 10, False)
+                msg = fakegacha(int(gachaid), 10, False, True)
             bot.api_send_message(chain.channel_id, chain.id, msg[0], f"{piccacheurl}{msg[1].replace('piccache/', '')}")
             return
         if 'pjsk反抽卡' in chain.content or 'sekai反抽卡' in chain.content:
@@ -382,9 +382,9 @@ def get_at_message(chain: bot_api.structs.Message):
             gachaid = re.sub(r'\D', "", gachaid)
             if gachaid == '':
                 currentgacha = getcurrentgacha()
-                msg = fakegacha(int(currentgacha['id']), 10, True)
+                msg = fakegacha(int(currentgacha['id']), 10, True, True)
             else:
-                msg = fakegacha(int(gachaid), 10, True)
+                msg = fakegacha(int(gachaid), 10, True, True)
             bot.api_send_message(chain.channel_id, chain.id, msg[0], f"{piccacheurl}{msg[1].replace('piccache/', '')}")
             return
         if (chain.content[0:5] == 'sekai' or chain.content[0:4] == 'pjsk') and '连' in chain.content:
