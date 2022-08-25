@@ -740,7 +740,7 @@ def pjskb30(userid, private=False):
             cutoutimg = Image.open(f'{assetpath}/startapp/character/member_cutout_trm/{assetbundleName}/normal.png')
         cutoutimg = cutoutimg.resize((int(cutoutimg.size[0]*0.47), int(cutoutimg.size[1]*0.47)))
         r, g, b, mask = cutoutimg.split()
-        pic.paste(cutoutimg, (780, 15), mask)
+        pic.paste(cutoutimg, (770, 15), mask)
 
         cardimg = cardimg.resize((116, 116))
         r, g, b, mask = cardimg.split()
@@ -821,7 +821,9 @@ def pjskb30(userid, private=False):
         pic.paste(single, ((int(53+(i%3)*342)), int(309+int(i/3)*142)))
     rank = round(rank / 30, 2)
     font_style = ImageFont.truetype(r"fonts\SourceHanSansCN-Bold.otf", 35)
-    draw.text((578, 143), str(rank), fill=(255, 255, 255), font=font_style)
+    text_width = font_style.getsize(str(rank))
+    text_coordinate = (int(625 - text_width[0] / 2), int(164 - text_width[1] / 2))
+    draw.text(text_coordinate, str(rank), fill=(255, 255, 255), font=font_style)
     pic.save(fr'piccache\{userid}b30.png')
 
 def b30single(diff, musics):
@@ -863,7 +865,7 @@ def b30single(diff, musics):
             if diff['result'] == 1:
                 resultpic = Image.open('pics/FullCombo.png')
                 draw.text((259, 24), str(round(diff['fclevel+'], 1)), (255, 255, 255), font)
-                draw.text((370, 24), '→ ' + str(round(diff['aplevel+'] * 0.95, 1)), (0, 0, 0), font)
+                draw.text((370, 24), '→ ' + str(round(diff['fclevel+'] * 0.95, 1)), (0, 0, 0), font)
         else:
             if diff['result'] == 2:
                 resultpic = Image.open('pics/AllPerfect.png')
