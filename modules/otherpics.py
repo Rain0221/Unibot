@@ -283,7 +283,8 @@ def drawevent(event):
             pic.paste(bonuspic, (pos[0], pos[1]+140*row), mask)
             pos[0] += bonuspic.size[0] + 50
     # pic.show()
-    pic.save(f'{botpath}/piccache/event/{event.id}.png')
+    pic = pic.convert('RGB')
+    pic.save(f'{botpath}/piccache/event/{event.id}.jpg')
 
 def gachapic(charas, filename):
     pic = Image.open(f'{botpath}/pics/gacha.png')
@@ -308,12 +309,12 @@ def gachapic(charas, filename):
 def geteventpic(eventid=None):
     if eventid is None:
         eventid = currentevent()['id']
-    if os.path.exists(f'{botpath}/piccache/event/{eventid}.png'):
-        return f'piccache/event/{eventid}.png'
+    if os.path.exists(f'{botpath}/piccache/event/{eventid}.jpg'):
+        return f'piccache/event/{eventid}.jpg'
     eventinfo = event()
     if eventinfo.getevent(eventid):
         drawevent(eventinfo)
-        return f'piccache/event/{eventid}.png'
+        return f'piccache/event/{eventid}.jpg'
     else:
         return False
 

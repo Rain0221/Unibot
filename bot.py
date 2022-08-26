@@ -194,6 +194,7 @@ def sync_handle_msg(event):
         if event.message[:7] == 'pjskset' and 'to' in event.message:
             if event.user_id in aliasblock:
                 sendmsg(event, '你因乱设置昵称已无法使用此功能')
+                return
             event.message = event.message[7:]
             para = event.message.split('to')
             info = bot.sync.get_group_member_info(self_id=event.self_id, group_id=event.group_id, user_id=event.user_id)
@@ -208,6 +209,7 @@ def sync_handle_msg(event):
         if event.message[:7] == 'pjskdel':
             if event.user_id in aliasblock:
                 sendmsg(event, '你因乱设置昵称已无法使用此功能')
+                return
             event.message = event.message[7:]
             info = bot.sync.get_group_member_info(self_id=event.self_id, group_id=event.group_id, user_id=event.user_id)
             if info['card'] == '':
@@ -505,6 +507,7 @@ def sync_handle_msg(event):
         if event.message[:8] == 'charaset' and 'to' in event.message:
             if event.user_id in aliasblock:
                 sendmsg(event, '你因乱设置昵称已无法使用此功能')
+                return
             event.message = event.message[8:]
             para = event.message.split('to')
             info = bot.sync.get_group_member_info(self_id=event.self_id, group_id=event.group_id, user_id=event.user_id)
@@ -523,6 +526,7 @@ def sync_handle_msg(event):
         if event.message[:8] == 'charadel':
             if event.user_id in aliasblock:
                 sendmsg(event, '你因乱设置昵称已无法使用此功能')
+                return
             event.message = event.message[8:]
             info = bot.sync.get_group_member_info(self_id=event.self_id, group_id=event.group_id, user_id=event.user_id)
             if info['card'] == '':

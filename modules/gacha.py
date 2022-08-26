@@ -2,6 +2,7 @@ import random
 import time
 import json
 
+from modules.config import piccacheurl
 from modules.otherpics import gachapic
 
 
@@ -59,7 +60,7 @@ def getallcurrentgacha():
     return gachas
 
 
-def fakegacha(gachaid, num, reverse=False, ispic=False):  # 仅支持普通活动抽卡
+def fakegacha(gachaid, num, reverse=False, selfbot=False):  # 仅支持普通活动抽卡
     with open('masterdata/gachas.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
     gacha = None
@@ -146,11 +147,14 @@ def fakegacha(gachaid, num, reverse=False, ispic=False):  # 仅支持普通活�
             alltext = alltext + f"★★{reality2[rannum2]['prefix']} - {getcharaname(reality2[rannum2]['charaid'])}\n"
             result.append(reality2[rannum2]['id'])
 
-    if num == 10 and ispic:
+    if num == 10:
         now = int(time.time()*1000)
         gachapic(result, now)
-        return f"[{gacha['name']}]", f"piccache/{now}.jpg"
-    elif num <= 10:
+        if selfbot:
+            return f"[{gacha['name']}]", f"piccache/{now}.jpg"
+        else:
+            return f"[{gacha['name']}]\n[CQ:image,file={piccacheurl}{now}.jpg,cache=0]"
+    elif num < 10:
         return f"[{gacha['name']}]\n{alltext}"
     else:
         if birthday:
