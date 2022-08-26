@@ -620,6 +620,9 @@ def generatehonor(honor, ismain=True):
             pic.paste(chara1, (0, -40), mask)
             r, g, b, mask = chara2.split()
             pic.paste(chara2, (220, -40), mask)
+            maskimg = Image.open('pics/mask_degree_main.png')
+            r, g, b, mask = maskimg.split()
+            pic.putalpha(mask)
             if honorRarity == 'low':
                 frame = Image.open(r'pics/frame_degree_m_1.png')
             elif honorRarity == 'middle':
@@ -661,6 +664,9 @@ def generatehonor(honor, ismain=True):
             chara2 = chara2.resize((120, 102))
             r, g, b, mask = chara2.split()
             pic.paste(chara2, (60, -20), mask)
+            maskimg = Image.open('pics/mask_degree_sub.png')
+            r, g, b, mask = maskimg.split()
+            pic.putalpha(mask)
             if honorRarity == 'low':
                 frame = Image.open(r'pics/frame_degree_s_1.png')
             elif honorRarity == 'middle':
@@ -703,7 +709,7 @@ def bondsbackground(chara1, chara2, ismain=True):
         pic1.paste(pic2, (90, 0))
     return pic1
 
-def pjskb30(userid, private=False):
+def pjskb30(userid, private=False, returnpic=False):
     resp = requests.get(f'{apiurl}/user/{userid}/profile')
     data = json.loads(resp.content)
     # with open('piccache\profile.json', 'r', encoding='utf-8') as f:
@@ -761,7 +767,7 @@ def pjskb30(userid, private=False):
             honorpic = generatehonor(i, True)
             honorpic = honorpic.resize((226, 48))
             r, g, b, mask = honorpic.split()
-            pic.paste(honorpic, (61, 226), mask)
+            pic.paste(honorpic, (59, 226), mask)
 
     for i in userProfileHonors:
         if i['seq'] == 2:
@@ -824,11 +830,42 @@ def pjskb30(userid, private=False):
         pic.paste(shadow, ((int(52 + (i % 3) * 342)), int(307 + int(i / 3) * 142)), mask)
         pic.paste(single, ((int(53+(i%3)*342)), int(309+int(i/3)*142)))
     rank = round(rank / 30, 2)
+
+    font_style = ImageFont.truetype("fonts/SourceHanSansCN-Medium.otf", 16)
+    draw.text((50, 1722), f'注：FC权重为0.95，非官方算法，仅供参考娱乐，当前理论值为{highest}', fill='#00CCBB',
+              font=font_style)
+    draw.text((50, 1752), '定数来源：https://profile.pjsekai.moe/  ※定数每次统计时可能会改变', fill='#00CCBB',
+              font=font_style)
+    rankimg = Image.new("RGBA", (120, 55), (100, 110, 180, 0))
+    draw = ImageDraw.Draw(rankimg)
     font_style = ImageFont.truetype(r"fonts\SourceHanSansCN-Bold.otf", 35)
     text_width = font_style.getsize(str(rank))
-    text_coordinate = (int(625 - text_width[0] / 2), int(164 - text_width[1] / 2))
-    draw.text(text_coordinate, str(rank), fill=(255, 255, 255), font=font_style)
+    # 硬核画文字边框
+    draw.text((int(60 - text_width[0] / 2) + 3, int(20 - text_width[1] / 2)), str(rank), fill=(61, 74, 162, 210),
+              font=font_style)
+    draw.text((int(60 - text_width[0] / 2) - 3, int(20 - text_width[1] / 2)), str(rank), fill=(61, 74, 162, 210),
+              font=font_style)
+    draw.text((int(60 - text_width[0] / 2), int(20 - text_width[1] / 2) + 3), str(rank), fill=(61, 74, 162, 210),
+              font=font_style)
+    draw.text((int(60 - text_width[0] / 2), int(20 - text_width[1] / 2) - 3), str(rank), fill=(61, 74, 162, 210),
+              font=font_style)
+    draw.text((int(60 - text_width[0] / 2) - 2, int(20 - text_width[1] / 2) - 2), str(rank), fill=(61, 74, 162, 210),
+              font=font_style)
+    draw.text((int(60 - text_width[0] / 2) + 2, int(20 - text_width[1] / 2) + 2), str(rank), fill=(61, 74, 162, 210),
+              font=font_style)
+    draw.text((int(60 - text_width[0] / 2) - 2, int(20 - text_width[1] / 2) + 2), str(rank), fill=(61, 74, 162, 210),
+              font=font_style)
+    draw.text((int(60 - text_width[0] / 2) + 2, int(20 - text_width[1] / 2) - 2), str(rank), fill=(61, 74, 162, 210),
+              font=font_style)
+    rankimg = rankimg.filter(ImageFilter.GaussianBlur(1.2))
+    draw = ImageDraw.Draw(rankimg)
+    draw.text((int(60 - text_width[0] / 2), int(20 - text_width[1] / 2)), str(rank), fill=(255, 255, 255), font=font_style)
+    r, g, b, mask = rankimg.split()
+    pic.paste(rankimg, (565, 142), mask)
+    # pic.show()
     pic = pic.convert("RGB")
+    if returnpic:
+        return pic
     pic.save(fr'piccache\{userid}b30.png')
 
 def b30single(diff, musics):
