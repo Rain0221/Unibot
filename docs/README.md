@@ -26,3 +26,4 @@ features:
   details: 猜曲和歌曲查询的别名数据库人人可贡献
 footer: Copyright © 2021-present 綿菓子ウニ
 ---
+![功能](/modules.jpg)
