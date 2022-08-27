@@ -45,6 +45,7 @@ pjskguess = {}
 charaguess = {}
 ciyunlimit = {}
 gachalimit = {'lasttime': '', 'count': 0}
+pokelimit = {'lasttime': '', 'count': 0}
 admin = [1103479519]
 mainbot = [1513705608]
 requestwhitelist = []  # 邀请加群白名单 随时设置 不保存到文件
@@ -237,6 +238,8 @@ def sync_handle_msg(event):
                 if nowtime == lasttime and count >= 2:
                     sendmsg(event, f'技能冷却中，剩余cd:{60 - datetime.now().second}秒（一分钟内所有群只能抽两次）')
                     return
+                if nowtime != lasttime:
+                    count = 0
                 gachalimit['lasttime'] = nowtime
                 gachalimit['count'] = count + 1
             sendmsg(event, '了解')
@@ -1272,6 +1275,25 @@ async def handle_group_ban(event: Event):
         await bot.send_group_msg(self_id=event.self_id, group_id=msggroup,
                                  message=f'我在群{event.group_id}内被{event.operator_id}禁言{event.duration / 60}分钟，已自动退群')
 
+@bot.on_notice()
+async def handle_poke(event: Event):
+    if event.sub_type == 'poke' and event.target_id == event.self_id:
+        if event.self_id in mainbot:
+            global pokelimit
+            nowtime = f"{str(datetime.now().hour).zfill(2)}{str(datetime.now().minute).zfill(2)}"
+            lasttime = pokelimit['lasttime']
+            count = pokelimit['count']
+            if nowtime == lasttime and count >= 5:
+                print(pokelimit)
+                print('达到每分钟戳一戳发语音上限')
+                return
+            if nowtime != lasttime:
+                count = 0
+            pokelimit['lasttime'] = nowtime
+            pokelimit['count'] = count + 1
+            print(pokelimit)
+            await bot.send_group_msg(self_id=event.self_id, group_id=event.group_id,
+                                 message=fr"[CQ:record,file=file:///{botdir}/chara/kndvoice/{random.choice(os.listdir('chara/kndvoice/'))},cache=0]")
 
 async def autopjskguess():
     global pjskguess
