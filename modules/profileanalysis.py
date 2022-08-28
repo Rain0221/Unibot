@@ -921,7 +921,7 @@ def b30single(diff, musics):
             if diff['result'] == 1:
                 resultpic = Image.open('pics/FullCombo.png')
                 draw.text((259, 24), f'{round(diff["fclevel+"], 1)}.?', (255, 255, 255), font)
-                draw.text((370, 24), f'→ {round(diff["fclevel+"], 1)}.0', (0, 0, 0), font)
+                draw.text((370, 24), f'→ {round(diff["fclevel+"] * 0.95, 1)}', (0, 0, 0), font)
         r, g, b, mask = resultpic.split()
         pic.paste(resultpic, (238, 154), mask)
     pic = pic.resize((310, 120))
