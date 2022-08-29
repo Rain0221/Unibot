@@ -38,7 +38,10 @@ from modules.texttoimg import texttoimg, ycmimg
 from modules.twitter import newesttwi
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-bot = CQHttp()
+if os.path.basename(__file__) == 'bot.py':
+    bot = CQHttp()
+else:
+    bot = CQHttp(api_root='http://127.0.0.1:1988')
 botdir = os.getcwd()
 
 pjskguess = {}
@@ -52,9 +55,10 @@ requestwhitelist = []  # 邀请加群白名单 随时设置 不保存到文件
 botdebug = False
 botname = {
     1513705608: '一号机',
-    3506606538: '三号机'
+    3506606538: '三号机',
+    "9892212940143267151": '频道bot'
 }
-
+guildbot = "9892212940143267151"
 send1 = False
 send3 = False
 
@@ -67,6 +71,8 @@ async def geturl(url):
 
 @bot.on_message('group')
 async def handle_msg(event: Event):
+    if event.self_id == guildbot:
+        return
     global blacklist
     global botdebug
     if event.message == '/delete unibot':
@@ -143,6 +149,8 @@ async def handle_msg(event: Event):
 
 @bot.on_message('group')
 def sync_handle_msg(event):
+    if event.self_id == guildbot:
+        event.message = event.message[event.message.find(f"qq={guildbot}") + len(f"qq={guildbot}]"):].strip()
     global pjskguess
     global charaguess
     global ciyunlimit
@@ -231,7 +239,7 @@ def sync_handle_msg(event):
                 return
             if event.group_id in blacklist['ettm']:
                 return
-            if event.user_id not in whitelist and event.group_id not in whitelist:
+            if event.user_id not in whitelist and event.group_id not in whitelist and event.self_id != guildbot:
                 nowtime = f"{str(datetime.now().hour).zfill(2)}{str(datetime.now().minute).zfill(2)}"
                 lasttime = gachalimit['lasttime']
                 count = gachalimit['count']
@@ -524,7 +532,10 @@ def sync_handle_msg(event):
         if event.message[:10] == 'grcharaset' and 'to' in event.message:
             event.message = event.message[10:]
             para = event.message.split('to')
-            sendmsg(event, grcharaset(para[0], para[1], event.group_id))
+            if event.self_id == guildbot:
+                sendmsg(event, grcharaset(para[0], para[1], event.guild_id))
+            else:
+                sendmsg(event, grcharaset(para[0], para[1], event.group_id))
             return
         if event.message[:8] == 'charadel':
             if event.user_id in aliasblock:
@@ -541,7 +552,10 @@ def sync_handle_msg(event):
             return
         if event.message[:10] == 'grcharadel':
             event.message = event.message[10:]
-            sendmsg(event, grcharadel(event.message, event.group_id))
+            if event.self_id == guildbot:
+                sendmsg(event, grcharadel(event.message, event.guild_id))
+            else:
+                sendmsg(event, grcharadel(event.message, event.group_id))
             return
         if event.message[:9] == 'charainfo':
             event.message = event.message[9:]
@@ -555,7 +569,7 @@ def sync_handle_msg(event):
             sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\ycm.png,cache=0]")
             return
         if event.message[:4] == 'homo':
-            if event.self_id not in mainbot:
+            if event.self_id not in mainbot and event.self_id != guildbot:
                 return
             if event.group_id in blacklist['ettm']:
                 return
@@ -586,7 +600,7 @@ def sync_handle_msg(event):
             sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{now}.png,cache=0]")
             return
         if event.message[:3] == "ccf":
-            if event.self_id not in mainbot:
+            if event.self_id not in mainbot and event.self_id != guildbot:
                 return
             if event.group_id in blacklist['ettm']:
                 return
@@ -610,7 +624,7 @@ def sync_handle_msg(event):
             sendmsg(event, tasseiritsu(para))
             return
         if event.message[:2] == '机翻' and event.message[-2:] == '推特':
-            if event.self_id not in mainbot:
+            if event.self_id not in mainbot and event.self_id != guildbot:
                 return
             if '最新' in event.message:
                 event.message = event.message.replace('最新', '')
@@ -622,7 +636,7 @@ def sync_handle_msg(event):
                 sendmsg(event, '查不到捏，可能是你id有问题或者bot卡了')
             return
         if event.message[-4:] == '最新推特':
-            if event.self_id not in mainbot:
+            if event.self_id not in mainbot and event.self_id != guildbot:
                 return
             try:
                 twiid = newesttwi(event.message.replace('最新推特', '').replace(' ', ''))
@@ -652,7 +666,7 @@ def sync_handle_msg(event):
                     uploadkk(url, filename, foldername)
                     sendmsg(event, "上传成功")
         if event.message[:1] == '看' or event.message[:2] == '来点':
-            if event.user_id not in whitelist and event.group_id not in whitelist:
+            if event.user_id not in whitelist and event.group_id not in whitelist and event.self_id != guildbot:
                 return
             event.message = event.message.replace('看', '', 1)
             event.message = event.message.replace('来点', '', 1)
@@ -664,7 +678,7 @@ def sync_handle_msg(event):
                 sendmsg(event, fr"[CQ:image,file=file:///{botdir}\{cardurl},cache=0]")
             return
         if 'pjsk抽卡' in event.message or 'sekai抽卡' in event.message:
-            if event.user_id not in whitelist and event.group_id not in whitelist:
+            if event.user_id not in whitelist and event.group_id not in whitelist and event.self_id != guildbot:
                 return
             gachaid = event.message[event.message.find("抽卡") + len("抽卡"):].strip()
             gachaid = re.sub(r'\D', "", gachaid)
@@ -676,7 +690,7 @@ def sync_handle_msg(event):
             sendmsg(event, msg[0] + fr"[CQ:image,file=file:///{botdir}\{msg[1]},cache=0]")
             return
         if 'pjsk反抽卡' in event.message or 'sekai反抽卡' in event.message:
-            if event.user_id not in whitelist and event.group_id not in whitelist:
+            if event.user_id not in whitelist and event.group_id not in whitelist and event.self_id != guildbot:
                 return
             gachaid = event.message[event.message.find("抽卡") + len("抽卡"):].strip()
             gachaid = re.sub(r'\D', "", gachaid)
@@ -688,7 +702,7 @@ def sync_handle_msg(event):
             sendmsg(event, msg[0] + fr"[CQ:image,file=file:///{botdir}\{msg[1]},cache=0]")
             return
         if (event.message[0:5] == 'sekai' or event.message[0:4] == 'pjsk') and '连' in event.message:
-            if event.user_id not in whitelist and event.group_id not in whitelist:
+            if event.user_id not in whitelist and event.group_id not in whitelist and event.self_id != guildbot:
                 return
             gachaid = event.message[event.message.find("连") + len("连"):].strip()
             num = event.message[:event.message.find('连')].replace('sekai', '').replace('pjsk', '')
@@ -964,8 +978,12 @@ def sync_handle_msg(event):
 
         # 猜曲
         if event.message[-2:] == '猜曲' and event.message[:4] == 'pjsk':
-            if event.user_id not in whitelist and event.group_id not in whitelist:
+            if event.user_id not in whitelist and event.group_id not in whitelist and event.self_id != guildbot:
                 return
+            if event.self_id == guildbot:
+                if '听歌猜曲' in event.message or '倒放猜曲' in event.message:
+                    sendmsg(event, "由于暂无好的频道bot发送语音的办法，请在群聊中使用该功能")
+                    return
             try:
                 isgoing = charaguess[event.group_id]['isgoing']
                 if isgoing:
@@ -1015,7 +1033,7 @@ def sync_handle_msg(event):
                     + fr"[CQ:image,file=file:///{botdir}/piccache/{event.group_id}.png,cache=0]")
             return
         if event.message == 'pjsk猜谱面':
-            if event.user_id not in whitelist and event.group_id not in whitelist:
+            if event.user_id not in whitelist and event.group_id not in whitelist and event.self_id != guildbot:
                 return
             try:
                 isgoing = charaguess[event.group_id]['isgoing']
@@ -1042,7 +1060,7 @@ def sync_handle_msg(event):
                     + fr"[CQ:image,file=file:///{botdir}\piccache/{event.group_id}.png,cache=0]")
             return
         if event.message == 'pjsk猜卡面':
-            if event.user_id not in whitelist and event.group_id not in whitelist:
+            if event.user_id not in whitelist and event.group_id not in whitelist and event.self_id != guildbot:
                 return
             try:
                 isgoing = pjskguess[event.group_id]['isgoing']
@@ -1104,7 +1122,7 @@ def sync_handle_msg(event):
                 pass
             return
         # 判断艾特自己
-        if event.message[:len(f'[CQ:at,qq={event.self_id}]')] == f'[CQ:at,qq={event.self_id}]':
+        if event.message[:len(f'[CQ:at,qq={event.self_id}]')] == f'[CQ:at,qq={event.self_id}]' or event.self_id == guildbot:
             # 判断有没有猜曲
             try:
                 isgoing = pjskguess[event.group_id]['isgoing']
@@ -1136,7 +1154,10 @@ def sync_handle_msg(event):
                 if isgoing:
                     # {'isgoing', 'charaid', 'assetbundleName', 'prefix', 'starttime'}
                     answer = event.message[event.message.find("]") + len("]"):].strip()
-                    resp = aliastocharaid(answer)
+                    if event.self_id == guildbot:
+                        resp = aliastocharaid(answer, event.guild_id)
+                    else:
+                        resp = aliastocharaid(answer, event.group_id)
                     if resp[0] == 0:
                         sendmsg(event, '没有找到你说的角色哦')
                         return
@@ -1182,7 +1203,10 @@ def sendmsg(event, msg):
         print('测试bot发送群消息', event.group_id, msg.replace('\n', ''))
 
     try:
-        bot.sync.send_group_msg(self_id=event.self_id, group_id=event.group_id, message=msg)
+        if event.self_id == guildbot:
+            bot.sync.send_group_msg(self_id=event.self_id, group_id=event.group_id, message=f'[CQ:reply,id={event.message_id}]' + msg)
+        else:
+            bot.sync.send_group_msg(self_id=event.self_id, group_id=event.group_id, message=msg)
         if event.self_id == 1513705608:
             send1 = False
         elif event.self_id == 3506606538:
@@ -1208,6 +1232,8 @@ def sendmsg(event, msg):
 
 @bot.on_notice('group_increase')  # 群人数增加事件
 async def handle_group_increase(event: Event):
+    if event.self_id == guildbot:
+        return
     if event.user_id == event.self_id:  # 自己被邀请进群
         if event.group_id in requestwhitelist:
             await bot.send_group_msg(self_id=event.self_id, group_id=msggroup, message=f'我已加入群{event.group_id}')
@@ -1220,6 +1246,8 @@ async def handle_group_increase(event: Event):
 
 @bot.on_request('group')  # 加群请求或被拉群
 async def handle_group_request(event: Event):
+    if event.self_id == guildbot:
+        return
     print(event.sub_type, event.message)
     if event.sub_type == 'invite':  # 被邀请加群
         if event.group_id in requestwhitelist:
@@ -1269,6 +1297,8 @@ async def handle_group_request(event: Event):
 
 @bot.on_notice('group_ban')
 async def handle_group_ban(event: Event):
+    if event.self_id == guildbot:
+        return
     print(event.group_id, event.operator_id, event.user_id, event.duration)
     if event.user_id == event.self_id:
         await bot.set_group_leave(self_id=event.self_id, group_id=event.group_id)
@@ -1277,6 +1307,8 @@ async def handle_group_ban(event: Event):
 
 @bot.on_notice()
 async def handle_poke(event: Event):
+    if event.self_id == guildbot:
+        return
     if event.sub_type == 'poke' and event.target_id == event.self_id:
         if event.self_id in mainbot:
             global pokelimit
@@ -1333,6 +1365,10 @@ with open('yamls/blacklist.yaml', "r") as f:
 loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
 scheduler = AsyncIOScheduler()
-scheduler.add_job(autopjskguess, 'interval', seconds=4)
+if os.path.basename(__file__) == 'bot.py':
+    scheduler.add_job(autopjskguess, 'interval', seconds=4)
 scheduler.start()
-bot.run(host='127.0.0.1', port=1234, debug=False, loop=loop)
+if os.path.basename(__file__) == 'bot.py':
+    bot.run(host='127.0.0.1', port=1234, debug=False, loop=loop)
+else:
+    bot.run(host='127.0.0.1', port=11416, debug=False, loop=loop)
