@@ -201,6 +201,9 @@ def sync_handle_msg(event):
                         text + fr"[CQ:image,file=file:///{botdir}\piccache\pjskinfo\{resp['musicid']}.png,cache=0]")
             return
         if event.message[:7] == 'pjskset' and 'to' in event.message:
+            if event.self_id == guildbot:
+                sendmsg(event, '功能维护中，请暂时在群内设置')
+                return
             if event.user_id in aliasblock:
                 sendmsg(event, '你因乱设置昵称已无法使用此功能')
                 return
@@ -516,6 +519,9 @@ def sync_handle_msg(event):
                 sendmsg(event, '你这id有问题啊')
             return
         if event.message[:8] == 'charaset' and 'to' in event.message:
+            if event.self_id == guildbot:
+                sendmsg(event, '功能维护中，请暂时在群内设置')
+                return
             if event.user_id in aliasblock:
                 sendmsg(event, '你因乱设置昵称已无法使用此功能')
                 return
@@ -559,7 +565,10 @@ def sync_handle_msg(event):
             return
         if event.message[:9] == 'charainfo':
             event.message = event.message[9:]
-            sendmsg(event, charainfo(event.message, event.group_id))
+            if event.self_id == guildbot:
+                sendmsg(event, charainfo(event.message, event.guild_id))
+            else:
+                sendmsg(event, charainfo(event.message, event.group_id))
             return
         if event.message == '看33':
             sendmsg(event, fr"[CQ:image,file=file:///{botdir}\pics/33{random.randint(0, 1)}.gif,cache=0]")
