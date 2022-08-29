@@ -456,7 +456,7 @@ def sync_handle_msg(event):
             pjskprofile(bind[1], bind[2])
             sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}profile.png,cache=0]")
             return
-        if event.message[:7] == 'pjskbpm':
+        if event.message[:7] == 'pjskbpm' or (event.message[:3] == 'bpm' and event.self_id == guildbot):
             parm = event.message[event.message.find("bpm") + len("bpm"):].strip()
             resp = aliastomusicid(parm)
             if resp['musicid'] == 0:
@@ -986,7 +986,66 @@ def sync_handle_msg(event):
             return
 
         # 猜曲
-        if event.message[-2:] == '猜曲' and event.message[:4] == 'pjsk':
+        if event.message == 'pjsk猜谱面' or event.message == 'pjsk猜曲 3':
+            if event.user_id not in whitelist and event.group_id not in whitelist and event.self_id != guildbot:
+                return
+            try:
+                isgoing = charaguess[event.group_id]['isgoing']
+                if isgoing:
+                    sendmsg(event, '已经开启猜卡面！')
+                    return
+            except KeyError:
+                pass
+
+            try:
+                isgoing = pjskguess[event.group_id]['isgoing']
+                if isgoing:
+                    sendmsg(event, '已经开启猜曲！')
+                    return
+                else:
+                    musicid = getrandomchart()
+                    pjskguess[event.group_id] = {'isgoing': True, 'musicid': musicid,
+                                                 'starttime': int(time.time()), 'selfid': event.self_id}
+            except KeyError:
+                musicid = getrandomchart()
+                pjskguess[event.group_id] = {'isgoing': True, 'musicid': musicid, 'starttime': int(time.time()), 'selfid': event.self_id}
+            cutchartimg(musicid, event.group_id)
+            sendmsg(event, 'PJSK谱面竞猜（随机裁切）\n艾特我+你的答案以参加猜曲（不要使用回复）\n\n你有50秒的时间回答\n可手动发送“结束猜曲”来结束猜曲'
+                    + fr"[CQ:image,file=file:///{botdir}\piccache/{event.group_id}.png,cache=0]")
+            return
+        if event.message == 'pjsk猜卡面' or event.message == 'pjsk猜曲 4':
+            if event.user_id not in whitelist and event.group_id not in whitelist and event.self_id != guildbot:
+                return
+            try:
+                isgoing = pjskguess[event.group_id]['isgoing']
+                if isgoing:
+                    sendmsg(event, '已经开启猜曲！')
+                    return
+            except KeyError:
+                pass
+            # getrandomcard() return characterId, assetbundleName, prefix, cardRarityType
+            try:
+                isgoing = charaguess[event.group_id]['isgoing']
+                if isgoing:
+                    sendmsg(event, '已经开启猜曲！')
+                    return
+                else:
+                    cardinfo = getrandomcard()
+                    charaguess[event.group_id] = {'isgoing': True, 'charaid': cardinfo[0],
+                                                  'assetbundleName': cardinfo[1], 'prefix': cardinfo[2],
+                                                  'starttime': int(time.time()), 'selfid': event.self_id}
+            except KeyError:
+                cardinfo = getrandomcard()
+                charaguess[event.group_id] = {'isgoing': True, 'charaid': cardinfo[0],
+                                              'assetbundleName': cardinfo[1],
+                                              'prefix': cardinfo[2], 'starttime': int(time.time()), 'selfid': event.self_id}
+
+            charaguess[event.group_id]['istrained'] = cutcard(cardinfo[1], cardinfo[3], event.group_id)
+            sendmsg(event, 'PJSK猜卡面\n你有30秒的时间回答\n艾特我+你的答案（只猜角色）以参加猜曲（不要使用回复）\n发送「结束猜卡面」可退出猜卡面模式'
+                    + fr"[CQ:image,file=file:///{botdir}\piccache/{event.group_id}.png,cache=0]")
+            print(charaguess)
+            return
+        if (event.message[-2:] == '猜曲' or event.message[-4:-2] == '猜曲') and event.message[:4] == 'pjsk':
             if event.user_id not in whitelist and event.group_id not in whitelist and event.self_id != guildbot:
                 return
             if event.self_id == guildbot:
@@ -1022,7 +1081,7 @@ def sync_handle_msg(event):
 
             if event.message == 'pjsk猜曲':
                 cutjacket(musicid, event.group_id, size=140, isbw=False)
-            elif event.message == 'pjsk阴间猜曲':
+            elif event.message == 'pjsk阴间猜曲' or event.message == 'pjsk猜曲 2':
                 cutjacket(musicid, event.group_id, size=140, isbw=True)
             elif event.message == 'pjsk非人类猜曲':
                 cutjacket(musicid, event.group_id, size=30, isbw=False)
@@ -1041,65 +1100,7 @@ def sync_handle_msg(event):
             sendmsg(event, 'PJSK曲绘竞猜 （随机裁切）\n艾特我+你的答案以参加猜曲（不要使用回复）\n\n你有50秒的时间回答\n可手动发送“结束猜曲”来结束猜曲'
                     + fr"[CQ:image,file=file:///{botdir}/piccache/{event.group_id}.png,cache=0]")
             return
-        if event.message == 'pjsk猜谱面':
-            if event.user_id not in whitelist and event.group_id not in whitelist and event.self_id != guildbot:
-                return
-            try:
-                isgoing = charaguess[event.group_id]['isgoing']
-                if isgoing:
-                    sendmsg(event, '已经开启猜卡面！')
-                    return
-            except KeyError:
-                pass
 
-            try:
-                isgoing = pjskguess[event.group_id]['isgoing']
-                if isgoing:
-                    sendmsg(event, '已经开启猜曲！')
-                    return
-                else:
-                    musicid = getrandomchart()
-                    pjskguess[event.group_id] = {'isgoing': True, 'musicid': musicid,
-                                                 'starttime': int(time.time()), 'selfid': event.self_id}
-            except KeyError:
-                musicid = getrandomchart()
-                pjskguess[event.group_id] = {'isgoing': True, 'musicid': musicid, 'starttime': int(time.time()), 'selfid': event.self_id}
-            cutchartimg(musicid, event.group_id)
-            sendmsg(event, 'PJSK谱面竞猜（随机裁切）\n艾特我+你的答案以参加猜曲（不要使用回复）\n\n你有50秒的时间回答\n可手动发送“结束猜曲”来结束猜曲'
-                    + fr"[CQ:image,file=file:///{botdir}\piccache/{event.group_id}.png,cache=0]")
-            return
-        if event.message == 'pjsk猜卡面':
-            if event.user_id not in whitelist and event.group_id not in whitelist and event.self_id != guildbot:
-                return
-            try:
-                isgoing = pjskguess[event.group_id]['isgoing']
-                if isgoing:
-                    sendmsg(event, '已经开启猜曲！')
-                    return
-            except KeyError:
-                pass
-            # getrandomcard() return characterId, assetbundleName, prefix, cardRarityType
-            try:
-                isgoing = charaguess[event.group_id]['isgoing']
-                if isgoing:
-                    sendmsg(event, '已经开启猜曲！')
-                    return
-                else:
-                    cardinfo = getrandomcard()
-                    charaguess[event.group_id] = {'isgoing': True, 'charaid': cardinfo[0],
-                                                  'assetbundleName': cardinfo[1], 'prefix': cardinfo[2],
-                                                  'starttime': int(time.time()), 'selfid': event.self_id}
-            except KeyError:
-                cardinfo = getrandomcard()
-                charaguess[event.group_id] = {'isgoing': True, 'charaid': cardinfo[0],
-                                              'assetbundleName': cardinfo[1],
-                                              'prefix': cardinfo[2], 'starttime': int(time.time()), 'selfid': event.self_id}
-
-            charaguess[event.group_id]['istrained'] = cutcard(cardinfo[1], cardinfo[3], event.group_id)
-            sendmsg(event, 'PJSK猜卡面\n你有30秒的时间回答\n艾特我+你的答案（只猜角色）以参加猜曲（不要使用回复）\n发送「结束猜卡面」可退出猜卡面模式'
-                    + fr"[CQ:image,file=file:///{botdir}\piccache/{event.group_id}.png,cache=0]")
-            print(charaguess)
-            return
         if event.message == '结束猜曲':
             try:
                 isgoing = pjskguess[event.group_id]['isgoing']
