@@ -228,7 +228,10 @@ def daibu(targetid=None, secret=False, server='jp'):
         text = text + f"\nLv.32AP进度：{profile.masterscore[32][0]}/{profile.masterscore[32][3]}"
     if profile.masterscore[32][1] != 0:
         text = text + f"\nLv.32FC进度：{profile.masterscore[32][1]}/{profile.masterscore[32][3]}"
-    return text + "\n\n" + rk(targetid, None, secret, True)
+    if server == 'jp':
+        return text + "\n\n" + rk(targetid, None, secret, True)
+    else:
+        return text
 
 
 def rk(targetid=None, targetrank=None, secret=False, isdaibu=False):

@@ -363,7 +363,7 @@ def sync_handle_msg(event):
                 if bind is None:
                     sendmsg(event, '查不到捏，可能是没绑定')
                     return
-                result = daibu(bind[1], bind[2])
+                result = daibu(bind[1], bind[2], server)
                 sendmsg(event, result)
             else:
                 userid = event.message.replace("逮捕", "")
@@ -377,7 +377,7 @@ def sync_handle_msg(event):
                         sendmsg(event, '查不到捏，可能是不给看')
                         return
                     else:
-                        result = daibu(bind[1], bind[2])
+                        result = daibu(bind[1], bind[2], server)
                         sendmsg(event, result)
                         return
                 userid = re.sub(r'\D', "", userid)
@@ -385,9 +385,9 @@ def sync_handle_msg(event):
                     sendmsg(event, '你这id有问题啊')
                     return
                 if int(userid) > 10000000:
-                    result = daibu(userid)
+                    result = daibu(userid, False, server)
                 else:
-                    result = daibu(userid)
+                    result = daibu(userid, False, server)
                 sendmsg(event, result)
             return
         if event.message == "pjsk进度":
