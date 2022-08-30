@@ -103,7 +103,8 @@
 - 交流群:`883721511`
 - Unibot频道: [点击进入](https://qun.qq.com/qqweb/qunpro/share?_wv=3&_wwv=128&appChannel=share&inviteCode=7Pe26&appChannel=share&businessType=9&from=181074&biz=ka&shareSource=5)
 ### 使用框架
-- SDK: [chinosk114514/QQ-official-guild-bot](https://github.com/chinosk114514/QQ-official-guild-bot)
+- 框架: [chinosk114514/QQ-official-guild-bot](https://github.com/chinosk114514/QQ-official-guild-bot)（作为HTTP API使用）
+- SDK: [nonebot/aiocqhttp](https://github.com/nonebot/aiocqhttp)
 ### 数据来源
 - 预测线: [33Kit](https://3-3.dev/)
 - 歌曲达成率，难度偏差，热度等信息: [Project Sekai Profile](https://profile.pjsekai.moe/)
