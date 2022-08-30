@@ -491,24 +491,33 @@ def pjskprofile(userid, private=False, server='jp'):
     else:
         for i in profile.userProfileHonors:
             if i['seq'] == 1:
-                honorpic = generatehonor(i, True, server)
-                honorpic = honorpic.resize((266, 56))
-                r, g, b, mask = honorpic.split()
-                img.paste(honorpic, (104, 228), mask)
+                try:
+                    honorpic = generatehonor(i, True, server)
+                    honorpic = honorpic.resize((266, 56))
+                    r, g, b, mask = honorpic.split()
+                    img.paste(honorpic, (104, 228), mask)
+                except:
+                    pass
 
         for i in profile.userProfileHonors:
             if i['seq'] == 2:
-                honorpic = generatehonor(i, False, server)
-                honorpic = honorpic.resize((126, 56))
-                r, g, b, mask = honorpic.split()
-                img.paste(honorpic, (375, 228), mask)
+                try:
+                    honorpic = generatehonor(i, False, server)
+                    honorpic = honorpic.resize((126, 56))
+                    r, g, b, mask = honorpic.split()
+                    img.paste(honorpic, (375, 228), mask)
+                except:
+                    pass
 
         for i in profile.userProfileHonors:
             if i['seq'] == 3:
-                honorpic = generatehonor(i, False, server)
-                honorpic = honorpic.resize((126, 56))
-                r, g, b, mask = honorpic.split()
-                img.paste(honorpic, (508, 228), mask)
+                try:
+                    honorpic = generatehonor(i, False, server)
+                    honorpic = honorpic.resize((126, 56))
+                    r, g, b, mask = honorpic.split()
+                    img.paste(honorpic, (508, 228), mask)
+                except:
+                    pass
 
     img.save(fr'piccache\{userid}profile.png')
     return
@@ -867,24 +876,34 @@ def pjskb30(userid, private=False, returnpic=False, server='jp'):
     else:
         for i in userProfileHonors:
             if i['seq'] == 1:
-                honorpic = generatehonor(i, True, server)
-                honorpic = honorpic.resize((226, 48))
-                r, g, b, mask = honorpic.split()
-                pic.paste(honorpic, (59, 226), mask)
+                try:
+                    honorpic = generatehonor(i, True, server)
+                    honorpic = honorpic.resize((226, 48))
+                    r, g, b, mask = honorpic.split()
+                    pic.paste(honorpic, (59, 226), mask)
+                except:
+                    pass
 
         for i in userProfileHonors:
             if i['seq'] == 2:
-                honorpic = generatehonor(i, False, server)
-                honorpic = honorpic.resize((107, 48))
-                r, g, b, mask = honorpic.split()
-                pic.paste(honorpic, (290, 226), mask)
+                try:
+                    honorpic = generatehonor(i, False, server)
+                    honorpic = honorpic.resize((107, 48))
+                    r, g, b, mask = honorpic.split()
+                    pic.paste(honorpic, (290, 226), mask)
+                except:
+                    pass
 
         for i in userProfileHonors:
             if i['seq'] == 3:
-                honorpic = generatehonor(i, False, server)
-                honorpic = honorpic.resize((107, 48))
-                r, g, b, mask = honorpic.split()
-                pic.paste(honorpic, (403, 226), mask)
+                try:
+                    honorpic = generatehonor(i, False, server)
+                    honorpic = honorpic.resize((107, 48))
+                    r, g, b, mask = honorpic.split()
+                    pic.paste(honorpic, (403, 226), mask)
+                except:
+                    pass
+                
     with open(r'masterdata/realtime/musicDifficulties.json', 'r', encoding='utf-8') as f:
         diff = json.load(f)
     for i in range(0, len(diff)):
