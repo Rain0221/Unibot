@@ -19,12 +19,8 @@ from modules.chara import charaset, grcharaset, charadel, charainfo, grcharadel,
     findcard
 from modules.config import whitelist, block, msggroup, aliasblock, groupban, asseturl, verifyurl, distributedurl
 from modules.cyo5000 import cyo5000
-from modules.enmodules import engetqqbind, ensk, enbindid, ensetprivate, enaliastomusicid, endrawpjskinfo, endaibu, \
-    enpjskjindu, enpjskb30, enpjskprofile
 from modules.kk import kkwhitelist, kankan, uploadkk
 from modules.otherpics import geteventpic
-from modules.twmodules import twgetqqbind, twsk, twbindid, twsetprivate, twaliastomusicid, twdrawpjskinfo, twdaibu, \
-    twpjskjindu, twpjskb30, twpjskprofile
 from modules.gacha import getcharaname, getallcurrentgacha, getcurrentgacha, fakegacha
 from modules.homo import generate_homo
 from modules.musics import hotrank, levelrank, parse_bpm, aliastochart, idtoname, notecount, tasseiritsu, findbpm
@@ -299,16 +295,24 @@ def sync_handle_msg(event):
             else:
                 sendmsg(event, '找不到你说的角色哦')
             return
-
+        # ---------------------- 服务器判断 -------------------------
+        server = 'jp'
+        if event.message[:2] == "tw":
+            event.message = event.message[2:]
+            server = 'tw'
+        elif event.message[:2] == "en":
+            event.message = event.message[2:]
+            server = 'en'
+        # -------------------- 多服共用功能区 -----------------------
         if event.message[:2] == "sk":
             if event.group_id in blacklist['sk']:
                 return
             if event.message == "sk":
-                bind = getqqbind(event.user_id)
+                bind = getqqbind(event.user_id, server)
                 if bind is None:
                     sendmsg(event, '你没有绑定id！')
                     return
-                result = sk(bind[1], None, bind[2])
+                result = sk(bind[1], None, bind[2], server)
                 sendmsg(event, result)
             else:
                 userid = event.message.replace("sk", "")
@@ -317,44 +321,24 @@ def sync_handle_msg(event):
                     sendmsg(event, '你这id有问题啊')
                     return
                 if int(userid) > 10000000:
-                    result = sk(userid)
+                    result = sk(userid, None, False, server)
                 else:
-                    result = sk(None, userid)
+                    result = sk(None, userid, True, server)
                 sendmsg(event, result)
                 return
-        if event.message[:2] == "rk":
-            if event.message == "rk":
-                bind = getqqbind(event.user_id)
-                if bind is None:
-                    sendmsg(event, '你没有绑定id！')
-                    return
-                result = rk(bind[1], None, bind[2])
-                sendmsg(event, result)
-            else:
-                userid = event.message.replace("rk", "")
-                userid = re.sub(r'\D', "", userid)
-                if userid == '':
-                    sendmsg(event, '你这id有问题啊')
-                    return
-                if int(userid) > 10000000:
-                    result = rk(userid)
-                else:
-                    result = rk(None, userid)
-                sendmsg(event, result)
-            return
         if event.message[:2] == "绑定":
             userid = event.message.replace("绑定", "")
             userid = re.sub(r'\D', "", userid)
-            sendmsg(event, bindid(event.user_id, userid))
+            sendmsg(event, bindid(event.user_id, userid, server))
             return
         if event.message == "不给看":
-            if setprivate(event.user_id, 1):
+            if setprivate(event.user_id, 1, server):
                 sendmsg(event, '不给看！')
             else:
                 sendmsg(event, '你还没有绑定哦')
             return
         if event.message == "给看":
-            if setprivate(event.user_id, 0):
+            if setprivate(event.user_id, 0, server):
                 sendmsg(event, '给看！')
             else:
                 sendmsg(event, '你还没有绑定哦')
@@ -363,7 +347,7 @@ def sync_handle_msg(event):
             if event.group_id in blacklist['sk']:
                 return
             if event.message == "逮捕":
-                bind = getqqbind(event.user_id)
+                bind = getqqbind(event.user_id, server)
                 if bind is None:
                     sendmsg(event, '查不到捏，可能是没绑定')
                     return
@@ -373,7 +357,7 @@ def sync_handle_msg(event):
                 userid = event.message.replace("逮捕", "")
                 if '[CQ:at' in userid:
                     qq = re.sub(r'\D', "", userid)
-                    bind = getqqbind(qq)
+                    bind = getqqbind(qq, server)
                     if bind is None:
                         sendmsg(event, '查不到捏，可能是没绑定')
                         return
@@ -395,28 +379,79 @@ def sync_handle_msg(event):
                 sendmsg(event, result)
             return
         if event.message == "pjsk进度":
-            bind = getqqbind(event.user_id)
+            bind = getqqbind(event.user_id, server)
             if bind is None:
                 sendmsg(event, '查不到捏，可能是没绑定')
                 return
-            pjskjindu(bind[1], bind[2])
+            pjskjindu(bind[1], bind[2], 'master', server)
             sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}jindu.png,cache=0]")
             return
         if event.message == "pjsk进度ex":
-            bind = getqqbind(event.user_id)
+            bind = getqqbind(event.user_id, server)
             if bind is None:
                 sendmsg(event, '查不到捏，可能是没绑定')
                 return
-            pjskjindu(bind[1], bind[2], 'expert')
+            pjskjindu(bind[1], bind[2], 'expert', server)
             sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}jindu.png,cache=0]")
             return
         if event.message == "pjsk b30":
-            bind = getqqbind(event.user_id)
+            bind = getqqbind(event.user_id, server)
             if bind is None:
                 sendmsg(event, '查不到捏，可能是没绑定')
                 return
-            pjskb30(bind[1], bind[2])
+            pjskb30(bind[1], bind[2], False, server)
             sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}b30.png,cache=0]")
+            return
+        if event.message == "pjskprofile" or event.message == "个人信息":
+            bind = getqqbind(event.user_id, server)
+            if bind is None:
+                sendmsg(event, '查不到捏，可能是没绑定')
+                return
+            pjskprofile(bind[1], bind[2], server)
+            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}profile.png,cache=0]")
+            return
+
+        # ----------------------- 恢复原命令 ---------------------------
+        if server == 'tw' or server == 'en':
+            event.message = server + event.message
+        # -------------------- 结束多服共用功能区 -----------------------
+
+        if event.message[:5] == 'event':
+            eventid = event.message[event.message.find("event") + len("event"):].strip()
+            eventid = re.sub(r'\D', "", eventid)
+            try:
+                if eventid == '':
+                    picdir = geteventpic(None)
+                else:
+                    picdir = geteventpic(int(eventid))
+            except FileNotFoundError:
+                traceback.print_exc()
+                sendmsg(event, f"未找到活动资源图片，请等待更新")
+                return
+            if picdir:
+                sendmsg(event, fr"[CQ:image,file=file:///{botdir}\{picdir},cache=0]")
+            else:
+                sendmsg(event, f"未找到活动或生成失败")
+            return
+        if event.message[:2] == "rk":
+            if event.message == "rk":
+                bind = getqqbind(event.user_id, 'jp')
+                if bind is None:
+                    sendmsg(event, '你没有绑定id！')
+                    return
+                result = rk(bind[1], None, bind[2])
+                sendmsg(event, result)
+            else:
+                userid = event.message.replace("rk", "")
+                userid = re.sub(r'\D', "", userid)
+                if userid == '':
+                    sendmsg(event, '你这id有问题啊')
+                    return
+                if int(userid) > 10000000:
+                    result = rk(userid)
+                else:
+                    result = rk(None, userid)
+                sendmsg(event, result)
             return
         try:
             if event.message == "热度排行":
@@ -448,14 +483,7 @@ def sync_handle_msg(event):
         except:
             sendmsg(event, '参数错误，指令：/难度排行 定数 难度，'
                            '难度支持的输入: easy, normal, hard, expert, master，如/难度排行 28 expert')
-        if event.message == "pjskprofile" or event.message == "个人信息":
-            bind = getqqbind(event.user_id)
-            if bind is None:
-                sendmsg(event, '查不到捏，可能是没绑定')
-                return
-            pjskprofile(bind[1], bind[2])
-            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}profile.png,cache=0]")
-            return
+
         if event.message[:7] == 'pjskbpm' or (event.message[:3] == 'bpm' and event.self_id == guildbot):
             parm = event.message[event.message.find("bpm") + len("bpm"):].strip()
             resp = aliastomusicid(parm)
@@ -500,10 +528,10 @@ def sync_handle_msg(event):
             else:  # 匹配不到歌曲
                 sendmsg(event, "没有找到你说的歌曲哦")
             return
-        if "查时间" in event.message:
+        if event.message[:3] == "查时间":
             userid = event.message[event.message.find("查时间") + len("查时间"):].strip()
             if userid == '':
-                bind = getqqbind(event.user_id)
+                bind = getqqbind(event.user_id, server)
                 if bind is None:
                     sendmsg(event, '你没有绑定id！')
                     return
@@ -724,265 +752,6 @@ def sync_handle_msg(event):
                 sendmsg(event, fakegacha(int(currentgacha['id']), int(num), False))
             else:
                 sendmsg(event, fakegacha(int(gachaid), int(num), False))
-            return
-        if event.message[:5] == 'event':
-            eventid = event.message[event.message.find("event") + len("event"):].strip()
-            eventid = re.sub(r'\D', "", eventid)
-            try:
-                if eventid == '':
-                    picdir = geteventpic()
-                else:
-                    picdir = geteventpic(int(eventid))
-            except FileNotFoundError:
-                sendmsg(event, f"未找到活动资源图片，请等待更新")
-                return
-            if picdir:
-                sendmsg(event, fr"[CQ:image,file=file:///{botdir}\{picdir},cache=0]")
-            else:
-                sendmsg(event, f"未找到活动或生成失败")
-            return
-        # 以下为台服内容
-        if event.message[:4] == "twsk":
-            if event.message == "twsk":
-                bind = twgetqqbind(event.user_id)
-                if bind is None:
-                    sendmsg(event, '你没有绑定id！')
-                    return
-                result = twsk(bind[1], None, bind[2])
-                sendmsg(event, result)
-            else:
-                userid = event.message.replace("sk", "")
-                userid = re.sub(r'\D', "", userid)
-                if userid == '':
-                    sendmsg(event, '你这id有问题啊')
-                    return
-                if int(userid) > 10000000:
-                    result = twsk(userid)
-                else:
-                    result = twsk(None, userid)
-                sendmsg(event, result)
-                return
-        if event.message[:6] == "twbind" or event.message[:4] == "tw绑定":
-            userid = event.message.replace("twbind", "").replace("tw绑定", "")
-            userid = re.sub(r'\D', "", userid)
-            sendmsg(event, twbindid(event.user_id, userid))
-            return
-        if event.message == "tw不给看":
-            if twsetprivate(event.user_id, 1):
-                sendmsg(event, '不给看！')
-            else:
-                sendmsg(event, '你还没有绑定哦')
-            return
-        if event.message == "tw给看":
-            if twsetprivate(event.user_id, 0):
-                sendmsg(event, '给看！')
-            else:
-                sendmsg(event, '你还没有绑定哦')
-            return
-        if event.message[:10] == 'twpjskinfo':
-            resp = twaliastomusicid(event.message[event.message.find("pjskinfo") + len("pjskinfo"):].strip())
-            if resp['musicid'] == 0:
-                sendmsg(event, '没有找到你要的歌曲哦')
-                return
-            else:
-                leak = twdrawpjskinfo(resp['musicid'])
-                if resp['match'] < 0.8:
-                    text = '你要找的可能是：'
-                else:
-                    text = ""
-                if leak:
-                    text = text + f"匹配度:{round(resp['match'], 4)}\n⚠该内容为剧透内容"
-                else:
-                    if resp['translate'] == '':
-                        text = text + f"{resp['name']}\n匹配度:{round(resp['match'], 4)}"
-                    else:
-                        text = text + f"{resp['name']} ({resp['translate']})\n匹配度:{round(resp['match'], 4)}"
-                sendmsg(event,
-                        text + fr"[CQ:image,file=file:///{botdir}\piccache\enpjskinfo{resp['musicid']}.png,cache=0]")
-            return
-        if event.message[:4] == "tw逮捕":
-            if event.message == "tw逮捕":
-                bind = twgetqqbind(event.user_id)
-                if bind is None:
-                    sendmsg(event, '查不到捏，可能是没绑定')
-                    return
-                result = twdaibu(bind[1], bind[2])
-                sendmsg(event, result)
-            else:
-                userid = event.message.replace("逮捕", "")
-                if '[CQ:at' in userid:
-                    qq = re.sub(r'\D', "", userid)
-                    bind = twgetqqbind(qq)
-                    if bind is None:
-                        sendmsg(event, '查不到捏，可能是没绑定')
-                        return
-                    elif bind[2] and qq != str(event.user_id):
-                        sendmsg(event, '查不到捏，可能是不给看')
-                        return
-                    else:
-                        result = twdaibu(bind[1], bind[2])
-                        sendmsg(event, result)
-                        return
-                userid = re.sub(r'\D', "", userid)
-                if userid == '':
-                    sendmsg(event, '你这id有问题啊')
-                    return
-                result = twdaibu(userid)
-                sendmsg(event, result)
-            return
-        if event.message == "twpjsk进度":
-            bind = twgetqqbind(event.user_id)
-            if bind is None:
-                sendmsg(event, '查不到捏，可能是没绑定')
-                return
-            twpjskjindu(bind[1], bind[2])
-            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}jindu.png,cache=0]")
-            return
-        if event.message == "twpjsk进度ex":
-            bind = twgetqqbind(event.user_id)
-            if bind is None:
-                sendmsg(event, '查不到捏，可能是没绑定')
-                return
-            twpjskjindu(bind[1], bind[2], 'expert')
-            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}jindu.png,cache=0]")
-            return
-        if event.message == "twpjsk b30":
-            bind = twgetqqbind(event.user_id)
-            if bind is None:
-                sendmsg(event, '查不到捏，可能是没绑定')
-                return
-            twpjskb30(bind[1], bind[2])
-            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}b30.png,cache=0]")
-            return
-        if event.message == "twpjskprofile":
-            bind = twgetqqbind(event.user_id)
-            if bind is None:
-                sendmsg(event, '查不到捏，可能是没绑定')
-                return
-            twpjskprofile(bind[1], bind[2])
-            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}profile.png,cache=0]")
-            return
-        # 以下为国际服内容
-
-        if event.message[:4] == "ensk":
-            if event.message == "ensk":
-                bind = engetqqbind(event.user_id)
-                if bind is None:
-                    sendmsg(event, '你没有绑定id！')
-                    return
-                result = ensk(bind[1], None, bind[2])
-                sendmsg(event, result)
-            else:
-                userid = event.message.replace("sk", "")
-                userid = re.sub(r'\D', "", userid)
-                if userid == '':
-                    sendmsg(event, '你这id有问题啊')
-                    return
-                if int(userid) > 10000000:
-                    result = ensk(userid)
-                else:
-                    result = ensk(None, userid)
-                sendmsg(event, result)
-                return
-        if event.message[:6] == "enbind" or event.message[:4] == "en绑定":
-            userid = event.message.replace("enbind", "").replace("en绑定", "")
-            userid = re.sub(r'\D', "", userid)
-            sendmsg(event, enbindid(event.user_id, userid))
-            return
-        if event.message == "en不给看":
-            if ensetprivate(event.user_id, 1):
-                sendmsg(event, '不给看！')
-            else:
-                sendmsg(event, '你还没有绑定哦')
-            return
-        if event.message == "en给看":
-            if ensetprivate(event.user_id, 0):
-                sendmsg(event, '给看！')
-            else:
-                sendmsg(event, '你还没有绑定哦')
-            return
-        if event.message[:10] == 'enpjskinfo':
-            resp = enaliastomusicid(event.message[event.message.find("pjskinfo") + len("pjskinfo"):].strip())
-            if resp['musicid'] == 0:
-                sendmsg(event, '没有找到你要的歌曲哦')
-                return
-            else:
-                leak = endrawpjskinfo(resp['musicid'])
-                if resp['match'] < 0.8:
-                    text = '你要找的可能是：'
-                else:
-                    text = ""
-                if leak:
-                    text = text + f"匹配度:{round(resp['match'], 4)}\n⚠该内容为剧透内容"
-                else:
-                    if resp['translate'] == '':
-                        text = text + f"{resp['name']}\n匹配度:{round(resp['match'], 4)}"
-                    else:
-                        text = text + f"{resp['name']} ({resp['translate']})\n匹配度:{round(resp['match'], 4)}"
-                sendmsg(event,
-                        text + fr"[CQ:image,file=file:///{botdir}\piccache\enpjskinfo{resp['musicid']}.png,cache=0]")
-            return
-        if event.message[:4] == "en逮捕":
-            if event.message == "en逮捕":
-                bind = engetqqbind(event.user_id)
-                if bind is None:
-                    sendmsg(event, '查不到捏，可能是没绑定')
-                    return
-                result = endaibu(bind[1], bind[2])
-                sendmsg(event, result)
-            else:
-                userid = event.message.replace("逮捕", "")
-                if '[CQ:at' in userid:
-                    qq = re.sub(r'\D', "", userid)
-                    bind = engetqqbind(qq)
-                    if bind is None:
-                        sendmsg(event, '查不到捏，可能是没绑定')
-                        return
-                    elif bind[2] and qq != str(event.user_id):
-                        sendmsg(event, '查不到捏，可能是不给看')
-                        return
-                    else:
-                        result = endaibu(bind[1], bind[2])
-                        sendmsg(event, result)
-                        return
-                userid = re.sub(r'\D', "", userid)
-                if userid == '':
-                    sendmsg(event, '你这id有问题啊')
-                    return
-                result = endaibu(userid)
-                sendmsg(event, result)
-            return
-        if event.message == "enpjsk进度":
-            bind = engetqqbind(event.user_id)
-            if bind is None:
-                sendmsg(event, '查不到捏，可能是没绑定')
-                return
-            enpjskjindu(bind[1], bind[2])
-            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}jindu.png,cache=0]")
-            return
-        if event.message == "enpjsk进度ex":
-            bind = engetqqbind(event.user_id)
-            if bind is None:
-                sendmsg(event, '查不到捏，可能是没绑定')
-                return
-            enpjskjindu(bind[1], bind[2], 'expert')
-            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}jindu.png,cache=0]")
-            return
-        if event.message == "enpjsk b30":
-            bind = engetqqbind(event.user_id)
-            if bind is None:
-                sendmsg(event, '查不到捏，可能是没绑定')
-                return
-            enpjskb30(bind[1], bind[2])
-            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}b30.png,cache=0]")
-            return
-        if event.message == "enpjskprofile":
-            bind = engetqqbind(event.user_id)
-            if bind is None:
-                sendmsg(event, '查不到捏，可能是没绑定')
-                return
-            enpjskprofile(bind[1], bind[2])
-            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}profile.png,cache=0]")
             return
 
         # 猜曲

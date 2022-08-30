@@ -3,7 +3,7 @@ import time
 from PIL import Image, ImageFont, ImageDraw, ImageFilter
 import requests
 
-from modules.config import apiurl
+from modules.config import apiurl, enapiurl, twapiurl
 from modules.sk import verifyid
 assetpath = 'data/assets/sekai/assetbundle/resources'
 rankmatchgrades = {
@@ -43,15 +43,34 @@ class userprofile(object):
         for i in range(21, 32):
             self.expertscore[i] = [0, 0, 0, 0]
 
-    def getprofile(self, userid):
-        resp = requests.get(f'{apiurl}/user/{userid}/profile')
+    def getprofile(self, userid, server):
+        if server == 'jp':
+            url = apiurl
+            masterdatadir = 'masterdata'
+        elif server == 'en':
+            url = enapiurl
+            masterdatadir = '../enapi/masterdata'
+        elif server == 'tw':
+            url = twapiurl
+            masterdatadir = '../twapi/masterdata'
+        resp = requests.get(f'{url}/user/{userid}/profile')
         data = json.loads(resp.content)
         # with open('piccache\profile.json', 'r', encoding='utf-8') as f:
         #     data = json.load(f)
         self.name = data['user']['userGamedata']['name']
-        self.twitterId = data['userProfile']['twitterId']
+
+        try:
+            self.twitterId = data['userProfile']['twitterId']
+        except:
+            pass
+
         self.userid = userid
-        self.word = data['userProfile']['word']
+
+        try:
+            self.word = data['userProfile']['word']
+        except:
+            pass
+
         self.rank = data['user']['userGamedata']['rank']
         try:
             self.characterId = data['userChallengeLiveSoloResults'][0]['characterId']
@@ -59,11 +78,22 @@ class userprofile(object):
         except:
             pass
         self.characterRank = data['userCharacters']
-        self.userProfileHonors = data['userProfileHonors']
+        if server == 'en':
+            self.userProfileHonors = [{}, {}, {}]
+            for i in range(0, 3):
+                try:
+                    honorid = data['userProfile'][f'honorId{i + 1}']
+                    for honor in data['userHonors']:
+                        if honor['honorId'] == honorid:
+                            self.userProfileHonors[i] = honor
+                except:
+                    pass
+        else:
+            self.userProfileHonors = data['userProfileHonors']
         # print(self.userProfileHonors)
-        with open('masterdata/musics.json', 'r', encoding='utf-8') as f:
+        with open(f'{masterdatadir}/musics.json', 'r', encoding='utf-8') as f:
             allmusic = json.load(f)
-        with open('masterdata/musicDifficulties.json', 'r', encoding='utf-8') as f:
+        with open(f'{masterdatadir}/musicDifficulties.json', 'r', encoding='utf-8') as f:
             musicDifficulties = json.load(f)
         result = {}
         now = int(time.time() * 1000)
@@ -168,12 +198,12 @@ def currentrankmatch():
     return data[len(data) - 1]['id']
 
 
-def daibu(targetid=None, secret=False):
-    if not verifyid(targetid):
+def daibu(targetid=None, secret=False, server='jp'):
+    if not verifyid(targetid, server):
         return '你这ID有问题啊'
     try:
         profile = userprofile()
-        profile.getprofile(targetid)
+        profile.getprofile(targetid, server)
     except (json.decoder.JSONDecodeError, IndexError):
         return '未找到玩家'
     if secret:
@@ -248,9 +278,9 @@ def rk(targetid=None, targetrank=None, secret=False, isdaibu=False):
     return text
 
 
-def pjskjindu(userid, private=False, diff='master'):
+def pjskjindu(userid, private=False, diff='master', server='jp'):
     profile = userprofile()
-    profile.getprofile(userid)
+    profile.getprofile(userid, server)
     if private:
         id = '保密'
     else:
@@ -326,9 +356,9 @@ def pjskjindu(userid, private=False, diff='master'):
     img.save(fr'piccache\{userid}jindu.png')
 
 
-def pjskprofile(userid, private=False):
+def pjskprofile(userid, private=False, server='jp'):
     profile = userprofile()
-    profile.getprofile(userid)
+    profile.getprofile(userid, server)
     if private:
         id = '保密'
     else:
@@ -436,39 +466,65 @@ def pjskprofile(userid, private=False):
         draw.text((1032, 315), str(profile.highScore), fill=(0, 0, 0), font=font_style)
     except:
         pass
-
-    for i in profile.userProfileHonors:
-        if i['seq'] == 1:
-            honorpic = generatehonor(i, True)
+    if server == 'en':
+        try:
+            honorpic = generatehonor(profile.userProfileHonors[0], True, server)
             honorpic = honorpic.resize((266, 56))
             r, g, b, mask = honorpic.split()
             img.paste(honorpic, (104, 228), mask)
-
-    for i in profile.userProfileHonors:
-        if i['seq'] == 2:
-            honorpic = generatehonor(i, False)
+        except:
+            pass
+        try:
+            honorpic = generatehonor(profile.userProfileHonors[1], False, server)
             honorpic = honorpic.resize((126, 56))
             r, g, b, mask = honorpic.split()
             img.paste(honorpic, (375, 228), mask)
-
-    for i in profile.userProfileHonors:
-        if i['seq'] == 3:
-            honorpic = generatehonor(i, False)
+        except:
+            pass
+        try:
+            honorpic = generatehonor(profile.userProfileHonors[2], False, server)
             honorpic = honorpic.resize((126, 56))
             r, g, b, mask = honorpic.split()
             img.paste(honorpic, (508, 228), mask)
+        except:
+            pass
+    else:
+        for i in profile.userProfileHonors:
+            if i['seq'] == 1:
+                honorpic = generatehonor(i, True, server)
+                honorpic = honorpic.resize((266, 56))
+                r, g, b, mask = honorpic.split()
+                img.paste(honorpic, (104, 228), mask)
+
+        for i in profile.userProfileHonors:
+            if i['seq'] == 2:
+                honorpic = generatehonor(i, False, server)
+                honorpic = honorpic.resize((126, 56))
+                r, g, b, mask = honorpic.split()
+                img.paste(honorpic, (375, 228), mask)
+
+        for i in profile.userProfileHonors:
+            if i['seq'] == 3:
+                honorpic = generatehonor(i, False, server)
+                honorpic = honorpic.resize((126, 56))
+                r, g, b, mask = honorpic.split()
+                img.paste(honorpic, (508, 228), mask)
 
     img.save(fr'piccache\{userid}profile.png')
     return
 
 
-def generatehonor(honor, ismain=True):
+def generatehonor(honor, ismain=True, server='jp'):
     star = False
     backgroundAssetbundleName = ''
     assetbundleName = ''
     groupId = 0
     honorRarity = 0
     honorType = ''
+    try:
+        honor['profileHonorType']
+    except:
+        honor['profileHonorType'] = 'normal'
     if honor['profileHonorType'] == 'normal':
         # 普通牌子
         with open('masterdata/honors.json', 'r', encoding='utf-8') as f:
@@ -520,7 +576,7 @@ def generatehonor(honor, ismain=True):
                     pic.paste(frame, (0, 0), mask)
                 if rankpic is not None:
                     r, g, b, mask = rankpic.split()
-                    pic.paste(rankpic, (0, 0), mask)
+                    pic.paste(rankpic, (190, 0), mask)
             else:
                 pic = Image.open(r'data\assets\sekai\assetbundle\resources'
                                  fr'\startapp\honor\{backgroundAssetbundleName}\degree_main.png')
@@ -534,8 +590,12 @@ def generatehonor(honor, ismain=True):
                 r, g, b, mask = rankpic.split()
                 pic.paste(rankpic, (190, 0), mask)
             if honorType == 'character' or honorType == 'achievement':
+                if server == 'en':
+                    honorlevel = honor['level']
+                else:
+                    honorlevel = honor['honorLevel']
                 if star is True:
-                    for i in range(0, honor['honorLevel']):
+                    for i in range(0, honorlevel):
                         lv = Image.open(r'pics/icon_degreeLv.png')
                         r, g, b, mask = lv.split()
                         pic.paste(lv, (54 + 16 * i, 63), mask)
@@ -565,7 +625,7 @@ def generatehonor(honor, ismain=True):
                     pic.paste(frame, (0, 0), mask)
                 if rankpic is not None:
                     r, g, b, mask = rankpic.split()
-                    pic.paste(rankpic, (0, 0), mask)
+                    pic.paste(rankpic, (34, 42), mask)
             else:
                 pic = Image.open(r'data\assets\sekai\assetbundle\resources'
                                  fr'\startapp\honor\{backgroundAssetbundleName}\degree_sub.png')
@@ -580,8 +640,12 @@ def generatehonor(honor, ismain=True):
                 pic.paste(rankpic, (34, 42), mask)
             if honorType == 'character' or honorType == 'achievement':
                 if star is True:
-                    if honor['honorLevel'] < 5:
-                        for i in range(0, honor['honorLevel']):
+                    if server == 'en':
+                        honorlevel = honor['level']
+                    else:
+                        honorlevel = honor['honorLevel']
+                    if honorlevel < 5:
+                        for i in range(0, honorlevel):
                             lv = Image.open(r'pics/icon_degreeLv.png')
                             r, g, b, mask = lv.split()
                             pic.paste(lv, (54 + 16 * i, 63), mask)
@@ -590,7 +654,7 @@ def generatehonor(honor, ismain=True):
                             lv = Image.open(r'pics/icon_degreeLv.png')
                             r, g, b, mask = lv.split()
                             pic.paste(lv, (54 + 16 * i, 63), mask)
-                        for i in range(0, honor['honorLevel'] - 5):
+                        for i in range(0, honorlevel - 5):
                             lv = Image.open(r'pics/icon_degreeLv6.png')
                             r, g, b, mask = lv.split()
                             pic.paste(lv, (54 + 16 * i, 63), mask)
@@ -709,13 +773,30 @@ def bondsbackground(chara1, chara2, ismain=True):
         pic1.paste(pic2, (90, 0))
     return pic1
 
-def pjskb30(userid, private=False, returnpic=False):
-    resp = requests.get(f'{apiurl}/user/{userid}/profile')
+def pjskb30(userid, private=False, returnpic=False, server='jp'):
+    if server == 'jp':
+        url = apiurl
+    elif server == 'en':
+        url = enapiurl
+    elif server == 'tw':
+        url = twapiurl
+    resp = requests.get(f'{url}/user/{userid}/profile')
     data = json.loads(resp.content)
     # with open('piccache\profile.json', 'r', encoding='utf-8') as f:
     #     data = json.load(f)
     name = data['user']['userGamedata']['name']
-    userProfileHonors = data['userProfileHonors']
+    if server == 'en':
+        userProfileHonors = [{}, {}, {}]
+        for i in range(0, 3):
+            try:
+                honorid = data['userProfile'][f'honorId{i + 1}']
+                for honor in data['userHonors']:
+                    if honor['honorId'] == honorid:
+                        userProfileHonors[i] = honor
+            except:
+                pass
+    else:
+        userProfileHonors = data['userProfileHonors']
     rank = data['user']['userGamedata']['rank']
     userDecks = [0, 0, 0, 0, 0]
     special_training = [False, False, False, False, False]
@@ -761,27 +842,49 @@ def pjskb30(userid, private=False, returnpic=False):
     font_style = ImageFont.truetype(r"fonts\FOT-RodinNTLGPro-DB.ttf", 28)
     draw.text((314, 150), str(rank), fill=(255, 255, 255), font=font_style)
 
-
-    for i in userProfileHonors:
-        if i['seq'] == 1:
-            honorpic = generatehonor(i, True)
+    if server == 'en':
+        try:
+            honorpic = generatehonor(userProfileHonors[0], True, server)
             honorpic = honorpic.resize((226, 48))
             r, g, b, mask = honorpic.split()
             pic.paste(honorpic, (59, 226), mask)
-
-    for i in userProfileHonors:
-        if i['seq'] == 2:
-            honorpic = generatehonor(i, False)
+        except:
+            pass
+        try:
+            honorpic = generatehonor(userProfileHonors[1], False, server)
             honorpic = honorpic.resize((107, 48))
             r, g, b, mask = honorpic.split()
             pic.paste(honorpic, (290, 226), mask)
-
-    for i in userProfileHonors:
-        if i['seq'] == 3:
-            honorpic = generatehonor(i, False)
+        except:
+            pass
+        try:
+            honorpic = generatehonor(userProfileHonors[2], False, server)
             honorpic = honorpic.resize((107, 48))
             r, g, b, mask = honorpic.split()
             pic.paste(honorpic, (403, 226), mask)
+        except:
+            pass
+    else:
+        for i in userProfileHonors:
+            if i['seq'] == 1:
+                honorpic = generatehonor(i, True, server)
+                honorpic = honorpic.resize((226, 48))
+                r, g, b, mask = honorpic.split()
+                pic.paste(honorpic, (59, 226), mask)
+
+        for i in userProfileHonors:
+            if i['seq'] == 2:
+                honorpic = generatehonor(i, False, server)
+                honorpic = honorpic.resize((107, 48))
+                r, g, b, mask = honorpic.split()
+                pic.paste(honorpic, (290, 226), mask)
+
+        for i in userProfileHonors:
+            if i['seq'] == 3:
+                honorpic = generatehonor(i, False, server)
+                honorpic = honorpic.resize((107, 48))
+                r, g, b, mask = honorpic.split()
+                pic.paste(honorpic, (403, 226), mask)
     with open(r'masterdata/realtime/musicDifficulties.json', 'r', encoding='utf-8') as f:
         diff = json.load(f)
     for i in range(0, len(diff)):
@@ -796,11 +899,12 @@ def pjskb30(userid, private=False, returnpic=False):
         diff[i]['rank'] = 0
         diff[i]['fclevel+'] = diff[i]['playLevel'] + diff[i]['fullComboAdjust']
         diff[i]['aplevel+'] = diff[i]['playLevel'] + diff[i]['fullPerfectAdjust']
-    diff.sort(key=lambda x: x["aplevel+"], reverse=True)
-    highest = 0
-    for i in range(0, 30):
-        highest = highest + diff[i]['aplevel+']
-    highest = round(highest / 30, 2)
+    if server == 'jp':
+        diff.sort(key=lambda x: x["aplevel+"], reverse=True)
+        highest = 0
+        for i in range(0, 30):
+            highest = highest + diff[i]['aplevel+']
+        highest = round(highest / 30, 2)
     with open(r'masterdata/realtime/musics.json', 'r', encoding='utf-8') as f:
         musics = json.load(f)
     for music in data['userMusicResults']:
@@ -808,21 +912,28 @@ def pjskb30(userid, private=False, returnpic=False):
         musicId = music['musicId']
         musicDifficulty = music['musicDifficulty']
         i = 0
+        found = False
         for i in range(0, len(diff)):
             if diff[i]['musicId'] == musicId and diff[i]['musicDifficulty'] == musicDifficulty:
+                found = True
                 break
-        if playResult == 'full_perfect':
-            diff[i]['result'] = 2
-            diff[i]['rank'] = diff[i]['aplevel+']
-        elif playResult == 'full_combo':
-            if diff[i]['result'] < 1:
-                diff[i]['result'] = 1
-                diff[i]['rank'] = diff[i]['fclevel+'] * 0.95
+        if found:
+            if playResult == 'full_perfect':
+                diff[i]['result'] = 2
+                diff[i]['rank'] = diff[i]['aplevel+']
+            elif playResult == 'full_combo':
+                if diff[i]['result'] < 1:
+                    diff[i]['result'] = 1
+                    diff[i]['rank'] = diff[i]['fclevel+'] * 0.95
+
     diff.sort(key=lambda x: x["rank"], reverse=True)
     rank = 0
     shadow = Image.new("RGBA", (320, 130), (0, 0, 0, 0))
     shadow.paste(Image.new("RGBA", (310, 120), (0, 0, 0, 50)), (5, 5))
     shadow = shadow.filter(ImageFilter.GaussianBlur(3))
+    if server == 'en':
+        with open(r'../enapi/masterdata/musics.json', 'r', encoding='utf-8') as f:
+            musics = json.load(f)
     for i in range(0, 30):
         rank = rank + diff[i]['rank']
         single = b30single(diff[i], musics)
@@ -832,7 +943,11 @@ def pjskb30(userid, private=False, returnpic=False):
     rank = round(rank / 30, 2)
 
     font_style = ImageFont.truetype("fonts/SourceHanSansCN-Medium.otf", 16)
-    draw.text((50, 1722), f'注：FC权重为0.95，非官方算法，仅供参考娱乐，当前理论值为{highest}', fill='#00CCBB',
+    if server == 'jp':
+        textadd = f'，当前理论值为{highest}'
+    else:
+        textadd = ''
+    draw.text((50, 1722), f'注：FC权重为0.95，非官方算法，仅供参考娱乐{textadd}', fill='#00CCBB',
               font=font_style)
     draw.text((50, 1752), '定数来源：https://profile.pjsekai.moe/  ※定数每次统计时可能会改变', fill='#00CCBB',
               font=font_style)

@@ -5,7 +5,7 @@ import time
 import requests
 import yaml
 
-from modules.config import apiurl, predicturl, proxies, ispredict
+from modules.config import apiurl, predicturl, proxies, ispredict, enapiurl, twapiurl
 
 rankline = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 100, 200, 300, 400, 500, 1000, 2000, 3000, 4000, 5000,
             10000, 20000, 30000, 40000, 50000, 100000, 100000000]
@@ -26,9 +26,16 @@ def timeremain(time):
         return f'{int(days)}天{timeremain(remain)}'
 
 
-def currentevent():
-    with open('masterdata/events.json', 'r', encoding='utf-8') as f:
-        data = json.load(f)
+def currentevent(server):
+    if server == 'jp':
+        with open('masterdata/events.json', 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    elif server == 'tw':
+        with open('../twapi/masterdata/events.json', 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    elif server == 'en':
+        with open('../enapi/masterdata/events.json', 'r', encoding='utf-8') as f:
+            data = json.load(f)
     for i in range(0, len(data)):
         startAt = data[i]['startAt']
         endAt = data[i]['closedAt']
@@ -46,16 +53,23 @@ def currentevent():
         return {'id': data[i]['id'], 'status': status, 'remain': remain}
 
 
-def gettime(userid):
-    try:
-        passtime = int(userid[:-3]) / 1024 / 4096
-    except ValueError:
-        return 0
-    return 1600218000 + int(passtime)
+def gettime(userid, server='jp'):
+    if server == 'jp' or server == 'en':
+        try:
+            passtime = int(userid[:-3]) / 1024 / 4096
+        except ValueError:
+            return 0
+        return 1600218000 + int(passtime)
+    elif server == 'tw':
+        try:
+            passtime = int(userid) / 1024 / 1024 / 4096
+        except ValueError:
+            return 0
+        return int(passtime)
 
 
-def verifyid(userid):
-    registertime = gettime(userid)
+def verifyid(userid, server='jp'):
+    registertime = gettime(userid, server)
     now = int(time.time())
     if registertime <= 1601438400 or registertime >= now:
         return False
@@ -92,7 +106,7 @@ def ssyc(targetrank, eventid):
 
 def skyc():
     text = ''
-    event = currentevent()
+    event = currentevent('jp')
     eventid = event['id']
     if event['status'] != 'going':
         return '预测暂时不可用'
@@ -133,23 +147,29 @@ def skyc():
     text = text + '\n预测线来自xfl03(3-3.dev)\n预测生成时间为' + time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
     return text
 
-def sk(targetid=None, targetrank=None, secret=False):
-    event = currentevent()
+def sk(targetid=None, targetrank=None, secret=False, server='jp'):
+    event = currentevent(server)
     eventid = event['id']
     if event['status'] == 'counting':
         return '活动分数统计中，不要着急哦！'
+    if server == 'jp':
+        url = apiurl
+    elif server == 'en':
+        url = enapiurl
+    elif server == 'tw':
+        url = twapiurl
     if targetid is not None:
-        if not verifyid(targetid):
-            bind = getqqbind(targetid)
+        if not verifyid(targetid, server):
+            bind = getqqbind(targetid, server)
             if bind is None:
                 return '查不到捏'
             elif bind[2]:
                 return '查不到捏，可能是不给看'
             else:
                 targetid = bind[1]
-        resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetUserId={targetid}')
+        resp = requests.get(f'{url}/user/%7Buser_id%7D/event/{eventid}/ranking?targetUserId={targetid}')
     else:
-        resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={targetrank}')
+        resp = requests.get(f'{url}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={targetrank}')
     ranking = json.loads(resp.content)
     try:
         name = ranking['rankings'][0]['name']
@@ -167,6 +187,8 @@ def sk(targetid=None, targetrank=None, secret=False):
         try:
             translate = f"({trans['cheerfulCarnivalTeams'][TeamId]})"
         except KeyError:
+            translate = ''
+        if server == 'tw':
             translate = ''
         for i in Teams:
             if i['id'] == TeamId:
@@ -203,7 +225,8 @@ def sk(targetid=None, targetrank=None, secret=False):
         linescore = ranking['rankings'][0]['score']
         deviation = (score - linescore) / 10000
         msg = msg + f'\n下一档排名{lower}的分数为{linescore/10000}W，相差{deviation}W'
-    if event['status'] == 'going' and ispredict:
+
+    if event['status'] == 'going' and ispredict and server == 'jp':
         for i in range(0, 17):
             if rank < predictline[i]:
                 break
@@ -221,45 +244,55 @@ def sk(targetid=None, targetrank=None, secret=False):
             linescore = ssyc(lower, eventid)
             if linescore != 0:
                 msg = msg + f'\n{lower}名预测{linescore/10000}W'
+    if event['status'] == 'going':
         msg = msg + '\n活动还剩' + event['remain']
     return msg
 
-def getqqbind(qqnum):
+def getqqbind(qqnum, server):
     conn = sqlite3.connect('pjsk.db')
     c = conn.cursor()
-    cursor = c.execute(f'SELECT * from bind where qqnum=?', (qqnum,))
+    if server == 'jp':
+        cursor = c.execute(f'SELECT * from bind where qqnum=?', (qqnum,))
+    elif server == 'tw':
+        cursor = c.execute(f'SELECT * from twbind where qqnum=?', (qqnum,))
+    elif server == 'en':
+        cursor = c.execute(f'SELECT * from enbind where qqnum=?', (qqnum,))
     for row in cursor:
         conn.close()
         return row
 
 
-def bindid(qqnum, userid):
-    if not verifyid(userid):
+def bindid(qqnum, userid, server):
+    if not verifyid(userid, server):
         return '你这ID有问题啊'
+    if server == 'jp':
+        server = ''
     conn = sqlite3.connect('pjsk.db')
     c = conn.cursor()
-    cursor = c.execute(f'SELECT * from bind where qqnum=?', (qqnum,))
+    cursor = c.execute(f'SELECT * from {server}bind where qqnum=?', (qqnum,))
     alreadyin = False
     for raw in cursor:
         alreadyin = True
     if alreadyin:
-        c.execute(f'UPDATE bind SET userid=? WHERE qqnum=?', (userid, qqnum))
+        c.execute(f'UPDATE {server}bind SET userid=? WHERE qqnum=?', (userid, qqnum))
     else:
-        sql_add = 'insert into bind(qqnum,userid,isprivate) values(?, ?, ?)'
+        sql_add = f'insert into {server}bind(qqnum,userid,isprivate) values(?, ?, ?)'
         c.execute(sql_add, (str(qqnum), str(userid), 0))
     conn.commit()
     conn.close()
     return "绑定成功！"
 
-def setprivate(qqnum, isprivate):
+def setprivate(qqnum, isprivate, server):
+    if server == 'jp':
+        server = ''
     conn = sqlite3.connect('pjsk.db')
     c = conn.cursor()
-    cursor = c.execute(f'SELECT * from bind where qqnum=?', (qqnum,))
+    cursor = c.execute(f'SELECT * from {server}bind where qqnum=?', (qqnum,))
     alreadyin = False
     for raw in cursor:
         alreadyin = True
     if alreadyin:
-        c.execute(f'UPDATE bind SET isprivate=? WHERE qqnum=?', (isprivate, qqnum))
+        c.execute(f'UPDATE {server}bind SET isprivate=? WHERE qqnum=?', (isprivate, qqnum))
     else:
         conn.close()
         return False
