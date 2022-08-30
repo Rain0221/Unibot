@@ -8,21 +8,8 @@
 </div>
 
 ## 已实现功能
+
 具体可参考[使用文档](https://docs.unipjsk.com/)
-- [x] 歌曲信息查询
-- [x] 谱面预览查询
-- [x] 别名系统
-- [x] 玩家排名查询
-- [x] 注册时间查询
-- [x] 推歌进度查询
-- [x] 生成MASTER难度进度图片
-- [x] 生成profile图片
-- [x] 隐私模式
-- [x] 模拟抽卡
-- [x] 猜曲/猜谱面/猜卡面游戏
-- [x] 抽卡
-- [x] 随机卡图
-- [x] 推车查询
 
 ## 关于本项目
 
@@ -53,9 +40,9 @@ masterDB（项目内放在`masterdata`文件夹下） 可使用 [Sekai-World/sek
 - [fuqiuai/wordCloud](https://github.com/fuqiuai/wordCloud): 用python进行文本分词并生成词云
 - [pcrbot/5000choyen](https://github.com/pcrbot/5000choyen): 适用hoshino的5000兆円欲しい! style图片生成器插件
 - [nonebot/aiocqhttp](https://github.com/nonebot/aiocqhttp): A Python SDK with async I/O for CQHTTP (OneBot).
-- 
+
 ## 许可 License
 
 AGPL-3.0 license
 
-词云、成分查询器、emoji2pic 等不是我自己做的功能使用源协议开源，不受AGPL协议限制。
+成分查询器、emoji2pic 等不是我自己做的功能使用源协议开源，不受AGPL协议限制。
