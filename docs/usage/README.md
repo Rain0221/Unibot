@@ -9,8 +9,12 @@
 该bot没有开放任何私聊功能
 
 由于风控严重，猜曲，猜卡面，看卡图，模拟抽卡功能已开启白名单模式。如你所在的群未开启以上功能，请使用官方平台的频道bot游玩
+:::
 
-由于风控严重不再接受新群邀请，如需要可使用[分布式客户端](/distributed/)自行部署
+::: tip 关于bot分布式部署
+
+群bot由于风控严重不再接受新群邀请，如需要可使用[分布式客户端](/distributed/)自行部署
+
 :::
 
 ::: tip 关于频道版
@@ -18,7 +22,7 @@ bot频道版已上线，[点击进入](https://qun.qq.com/qqweb/qunpro/share?_wv
 :::
 
 ## 查询pjsk歌曲信息
->玩家游玩，热度，难度偏差等统计信息来自 [profile.pjsekai.moe](https://profile.pjsekai.moe/)
+>热度，难度偏差等统计信息来自 [profile.pjsekai.moe](https://profile.pjsekai.moe/)
 
 ### pjskinfo
 - `pjskinfo+曲名` 查看当前歌曲详细信息，玩家游玩，热度等信息(图片版)，并列出当前歌曲所有昵
@@ -45,8 +49,6 @@ bot频道版已上线，[点击进入](https://qun.qq.com/qqweb/qunpro/share?_wv
 - `charainfo昵称` 查看该角色群内和全群昵称
 
 ::: warning 注意
-由于角色昵称用到的场景（猜卡面，看卡图等）在群Bot内因为风控被砍，实际用处不大，所以新分布式客户端不支持角色昵称相关操作
-
 如使用pjskdel命令，请仅删除确实不合适的昵称，很多猜曲用的快捷昵称删除后会造成诸多不便
 
 所有歌曲昵称设置，角色昵称设置的日志内容将会在[实时日志](/dailylog/)页面按日公示

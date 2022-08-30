@@ -9,10 +9,12 @@
 
 ::: warning 注意
 使用机器人功能必须艾特机器人（不支持复制艾特信息）
+
+频道bot与群bot共用同一套消息处理程序，一些新功能可能没有在此页面更新但已经可以使用，可配合[群bot帮助文档](/usage/)查看
 :::
 
 ## 查询pjsk歌曲信息
->玩家游玩，热度，难度偏差等统计信息来自 [profile.pjsekai.moe](https://profile.pjsekai.moe/)
+>热度，难度偏差等统计信息来自 [profile.pjsekai.moe](https://profile.pjsekai.moe/)
 
 ### pjskinfo
 - `pjskinfo+曲名` 或 `song+曲名` 查看当前歌曲详细信息，玩家游玩，热度等信息(图片版)，并列出当前歌曲所有昵
