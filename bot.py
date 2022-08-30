@@ -26,7 +26,7 @@ from modules.homo import generate_homo
 from modules.musics import hotrank, levelrank, parse_bpm, aliastochart, idtoname, notecount, tasseiritsu, findbpm
 from modules.pjskguess import getrandomjacket, cutjacket, getrandomchart, cutchartimg, getrandomcard, cutcard, \
     getrandommusic, cutmusic
-from modules.pjskinfo import aliastomusicid, pjskset, pjskdel, pjskalias, pjskinfo
+from modules.pjskinfo import aliastomusicid, pjskset, pjskdel, pjskalias, pjskinfo, writelog
 from modules.profileanalysis import daibu, rk, pjskjindu, pjskprofile, pjskb30
 from modules.sendmail import sendemail
 from modules.sk import sk, getqqbind, bindid, setprivate, skyc, verifyid, gettime
@@ -37,7 +37,8 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 if os.path.basename(__file__) == 'bot.py':
     bot = CQHttp()
 else:
-    bot = CQHttp(api_root='http://127.0.0.1:1988')
+    guildhttpport = 1988
+    bot = CQHttp(api_root=f'http://127.0.0.1:{guildhttpport}')
 botdir = os.getcwd()
 
 pjskguess = {}
@@ -169,6 +170,10 @@ def sync_handle_msg(event):
     if event.message[0:1] == '/':
         event.message = event.message[1:]
     try:
+        # -----------------------功能测试-----------------------------
+        # if event.message == 'test':
+        #     sendmsg(event, event.sender['nickname'] + event.sender['card'])
+        # -----------------------结束测试-----------------------------
         if event.message == 'help':
             sendmsg(event, 'bot帮助文档：https://docs.unipjsk.com/')
             return
@@ -197,36 +202,43 @@ def sync_handle_msg(event):
                         text + fr"[CQ:image,file=file:///{botdir}\piccache\pjskinfo\{resp['musicid']}.png,cache=0]")
             return
         if event.message[:7] == 'pjskset' and 'to' in event.message:
-            if event.self_id == guildbot:
-                sendmsg(event, '功能维护中，请暂时在群内设置')
-                return
             if event.user_id in aliasblock:
                 sendmsg(event, '你因乱设置昵称已无法使用此功能')
                 return
             event.message = event.message[7:]
             para = event.message.split('to')
-            info = bot.sync.get_group_member_info(self_id=event.self_id, group_id=event.group_id, user_id=event.user_id)
-            if info['card'] == '':
-                username = info['nickname']
+            if event.sender['card'] == '':
+                username = event.sender['nickname']
             else:
-                username = info['card']
-            qun = bot.sync.get_group_info(self_id=event.self_id, group_id=event.group_id)
-            resp = pjskset(para[0], para[1], event.user_id, username, f"{qun['group_name']}({event.group_id})内")
-            sendmsg(event, resp)
+                username = event.sender['card']
+            if event.self_id == guildbot:
+                resp = requests.get(f'http://127.0.0.1:{guildhttpport}/get_guild_info?guild_id={event.guild_id}')
+                qun = resp.json()
+                resp = pjskset(para[0], para[1], event.user_id, username, f"{qun['name']}({event.guild_id})内")
+                sendmsg(event, resp)
+            else:
+                qun = bot.sync.get_group_info(self_id=event.self_id, group_id=event.group_id)
+                resp = pjskset(para[0], para[1], event.user_id, username, f"{qun['group_name']}({event.group_id})内")
+                sendmsg(event, resp)
             return
         if event.message[:7] == 'pjskdel':
             if event.user_id in aliasblock:
                 sendmsg(event, '你因乱设置昵称已无法使用此功能')
                 return
             event.message = event.message[7:]
-            info = bot.sync.get_group_member_info(self_id=event.self_id, group_id=event.group_id, user_id=event.user_id)
-            if info['card'] == '':
-                username = info['nickname']
+            if event.sender['card'] == '':
+                username = event.sender['nickname']
             else:
-                username = info['card']
-            qun = bot.sync.get_group_info(self_id=event.self_id, group_id=event.group_id)
-            resp = pjskdel(event.message, event.user_id, username, f"{qun['group_name']}({event.group_id})内")
-            sendmsg(event, resp)
+                username = event.sender['card']
+            if event.self_id == guildbot:
+                resp = requests.get(f'http://127.0.0.1:{guildhttpport}/get_guild_info?guild_id={event.guild_id}')
+                qun = resp.json()
+                resp = pjskdel(event.message, event.user_id, username, f"{qun['name']}({event.guild_id})内")
+                sendmsg(event, resp)
+            else:
+                qun = bot.sync.get_group_info(self_id=event.self_id, group_id=event.group_id)
+                resp = pjskdel(event.message, event.user_id, username, f"{qun['group_name']}({event.group_id})内")
+                sendmsg(event, resp)
             return
         if event.message[:9] == 'pjskalias':
             event.message = event.message[9:]
@@ -547,21 +559,23 @@ def sync_handle_msg(event):
                 sendmsg(event, '你这id有问题啊')
             return
         if event.message[:8] == 'charaset' and 'to' in event.message:
-            if event.self_id == guildbot:
-                sendmsg(event, '功能维护中，请暂时在群内设置')
-                return
             if event.user_id in aliasblock:
                 sendmsg(event, '你因乱设置昵称已无法使用此功能')
                 return
             event.message = event.message[8:]
             para = event.message.split('to')
-            info = bot.sync.get_group_member_info(self_id=event.self_id, group_id=event.group_id, user_id=event.user_id)
-            if info['card'] == '':
-                username = info['nickname']
+            if event.sender['card'] == '':
+                username = event.sender['nickname']
             else:
-                username = info['card']
-            qun = bot.sync.get_group_info(self_id=event.self_id, group_id=event.group_id)
-            sendmsg(event, charaset(para[0], para[1], event.user_id, username, f"{qun['group_name']}({event.group_id})内"))
+                username = event.sender['card']
+            if event.self_id == guildbot:
+                resp = requests.get(f'http://127.0.0.1:{guildhttpport}/get_guild_info?guild_id={event.guild_id}')
+                qun = resp.json()
+                sendmsg(event,
+                        charaset(para[0], para[1], event.user_id, username, f"{qun['name']}({event.guild_id})内"))
+            else:
+                qun = bot.sync.get_group_info(self_id=event.self_id, group_id=event.group_id)
+                sendmsg(event, charaset(para[0], para[1], event.user_id, username, f"{qun['group_name']}({event.group_id})内"))
             return
         if event.message[:10] == 'grcharaset' and 'to' in event.message:
             event.message = event.message[10:]
@@ -576,13 +590,18 @@ def sync_handle_msg(event):
                 sendmsg(event, '你因乱设置昵称已无法使用此功能')
                 return
             event.message = event.message[8:]
-            info = bot.sync.get_group_member_info(self_id=event.self_id, group_id=event.group_id, user_id=event.user_id)
-            if info['card'] == '':
-                username = info['nickname']
+            if event.sender['card'] == '':
+                username = event.sender['nickname']
             else:
-                username = info['card']
-            qun = bot.sync.get_group_info(self_id=event.self_id, group_id=event.group_id)
-            sendmsg(event, charadel(event.message, event.user_id, username, f"{qun['group_name']}({event.group_id})内"))
+                username = event.sender['card']
+            if event.self_id == guildbot:
+                resp = requests.get(f'http://127.0.0.1:{guildhttpport}/get_guild_info?guild_id={event.guild_id}')
+                qun = resp.json()
+                sendmsg(event,
+                        charadel(event.message, event.user_id, username, f"{qun['name']}({event.guild_id})内"))
+            else:
+                qun = bot.sync.get_group_info(self_id=event.self_id, group_id=event.group_id)
+                sendmsg(event, charadel(event.message, event.user_id, username, f"{qun['group_name']}({event.group_id})内"))
             return
         if event.message[:10] == 'grcharadel':
             event.message = event.message[10:]
@@ -752,6 +771,10 @@ def sync_handle_msg(event):
                 sendmsg(event, fakegacha(int(currentgacha['id']), int(num), False))
             else:
                 sendmsg(event, fakegacha(int(gachaid), int(num), False))
+            return
+        if event.message == '更新日志' and event.user_id in admin:
+            writelog()
+            sendmsg(event, '更新成功')
             return
 
         # 猜曲
