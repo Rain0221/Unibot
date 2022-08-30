@@ -605,10 +605,11 @@ def txt2html(txt):
     txt = ''.join(lines)
     return r'<!doctype html><html><head><meta charset="utf-8"><title>日志</title></head><body>' + txt + '</body></html>'
 
-def writelog(text):
+def writelog(text=None):
     today = datetime.datetime.today()
-    with open(f'logs/{today.year}{str(today.month).zfill(2)}.txt', 'a', encoding='utf-8') as f:
-        print(text, file=f)
+    if text is not None:
+        with open(f'logs/{today.year}{str(today.month).zfill(2)}.txt', 'a', encoding='utf-8') as f:
+            print(text, file=f)
     logtohtml(f'logs/{today.year}{str(today.month).zfill(2)}.txt')
 
 def logtohtml(dir):

@@ -903,7 +903,7 @@ def pjskb30(userid, private=False, returnpic=False, server='jp'):
                     pic.paste(honorpic, (403, 226), mask)
                 except:
                     pass
-                
+
     with open(r'masterdata/realtime/musicDifficulties.json', 'r', encoding='utf-8') as f:
         diff = json.load(f)
     for i in range(0, len(diff)):

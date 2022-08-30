@@ -210,7 +210,7 @@ def sk(targetid=None, targetrank=None, secret=False, server='jp'):
             upper = rankline[i - 2]
         else:
             upper = rankline[i - 1]
-        resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={upper}')
+        resp = requests.get(f'{url}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={upper}')
         ranking = json.loads(resp.content)
         linescore = ranking['rankings'][0]['score']
         deviation = (linescore - score) / 10000
@@ -220,7 +220,7 @@ def sk(targetid=None, targetrank=None, secret=False, server='jp'):
             lower = rankline[i + 1]
         else:
             lower = rankline[i]
-        resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={lower}')
+        resp = requests.get(f'{url}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={lower}')
         ranking = json.loads(resp.content)
         linescore = ranking['rankings'][0]['score']
         deviation = (score - linescore) / 10000
