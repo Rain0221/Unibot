@@ -308,7 +308,7 @@ def gachapic(charas, filename):
 
 def geteventpic(eventid=None):
     if eventid is None:
-        eventid = currentevent()['id']
+        eventid = currentevent('jp')['id']
     if os.path.exists(f'{botpath}/piccache/event/{eventid}.jpg'):
         return f'piccache/event/{eventid}.jpg'
     eventinfo = event()
