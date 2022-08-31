@@ -143,12 +143,12 @@ def chafang(targetid=None, targetrank=None):
                 text += f'本小时周回数: {hourcount}\n'
             stop = getstoptime(targetid, None, True)
             if len(stop) != 0:
-                if stop[len(stop)-1]['end'] == 0:
+                if stop[len(stop)]['end'] != 0:
                     text += '开车中\n'
-                    text += f"连续开车时间: {timeremain(int(time.time()) - stop[len(stop)-1]['start'])}\n"
+                    text += f"连续开车时间: {timeremain(int(time.time()) - stop[len(stop)]['start'])}\n"
                 else:
                     text += '停车中\n'
-                    text += f"已停车: {timeremain(int(time.time()) - stop[len(stop) - 1]['end'])}\n"
+                    text += f"已停车: {timeremain(int(time.time()) - stop[len(stop)]['end'])}\n"
             else:
                 for times in userscores:
                     firsttime = times
@@ -259,6 +259,34 @@ def getranks():
         time_printer('时速抓取完成')
     else:
         time_printer('无正在进行的活动')
+
+def ss():
+    event = currentevent('jp')
+    eventid = event['id']
+    if event['status'] == 'going':
+        try:
+            with open(f'yamls/event/{eventid}/ss.yaml') as f:
+                ss = yaml.load(f, Loader=yaml.FullLoader)
+        except FileNotFoundError:
+            return '无数据'
+        text = ''
+        hourago = 0
+        for times in ss:
+            lasttime = times
+        for times in ss:
+            if -120 < times - (lasttime - 60 * 60) < 120:
+                hourago = times
+                break
+        if hourago != 0:
+            for rank in rankline:
+                if rank != 100000000:
+                    speed = ss[lasttime][rank] - ss[hourago][rank]
+                    text += f'{rank}: {speed/10000}W\n'
+            Time = datetime.datetime.fromtimestamp(lasttime,
+                                                   pytz.timezone('Asia/Shanghai')).strftime('%m/%d %H:%M:%S')
+            return '一小时内实时时速\n' + text + '数据更新时间\n' + Time
+    else:
+        return '活动未开始'
 
 def gettime(userid, server='jp'):
     if server == 'jp' or server == 'en':
@@ -456,6 +484,8 @@ def sk(targetid=None, targetrank=None, secret=False, server='jp', simple=False):
     if event['status'] == 'going':
         msg = msg + '\n活动还剩' + event['remain']
     return msg
+
+
 
 def teamcount():
     event = currentevent('jp')

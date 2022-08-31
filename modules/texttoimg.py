@@ -26,11 +26,12 @@ def ycmimg():
     img.save('piccache/ycm.png')
 
 def texttoimg(text, width, savefilename):
-    IMG_SIZE = (width, 40 + (text.count('\n') + 1) * 34)
+    IMG_SIZE = (width, 40 + (text.count('\n') + 1) * 50)
     img_1 = Image.new('RGB', IMG_SIZE, (255, 255, 255))
     draw = ImageDraw.Draw(img_1)
     font = ImageFont.truetype(r'fonts\SourceHanSansCN-Medium.otf', 25)
     draw.text((20, 20), text, '#000000', font)
+    img_1 = img_1.crop((0, 0, width, font.getsize(str(text))[1] * (text.count('\n') + 1) + 40))
     img_1.save(fr'piccache\{savefilename}.png')
 
 if __name__ == '__main__':

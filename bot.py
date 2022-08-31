@@ -30,7 +30,7 @@ from modules.pjskinfo import aliastomusicid, pjskset, pjskdel, pjskalias, pjskin
 from modules.profileanalysis import daibu, rk, pjskjindu, pjskprofile, pjskb30
 from modules.sendmail import sendemail
 from modules.sk import sk, getqqbind, bindid, setprivate, skyc, verifyid, gettime, teamcount, currentevent, chafang, \
-    getstoptime
+    getstoptime, ss
 from modules.texttoimg import texttoimg, ycmimg
 from modules.twitter import newesttwi
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -283,6 +283,10 @@ def sync_handle_msg(event):
                     result = gacha(targetgacha)
             sendmsg(event, result)
             return
+        if event.message == "时速":
+            texttoimg(ss(), 300, 'ss')
+            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\ss.png,cache=0]")
+            return
         if event.message == "sk预测":
             texttoimg(skyc(), 500, 'skyc')
             sendmsg(event, 'sk预测' + fr"[CQ:image,file=file:///{botdir}\piccache\skyc.png,cache=0]")
@@ -313,6 +317,8 @@ def sync_handle_msg(event):
             return
         # ---------------------- 服务器判断 -------------------------
         server = 'jp'
+        if event.message[:2] == "jp":
+            event.message = event.message[2:]
         if event.message[:2] == "tw":
             event.message = event.message[2:]
             server = 'tw'
@@ -331,13 +337,13 @@ def sync_handle_msg(event):
                 result = sk(bind[1], None, bind[2], server)
                 sendmsg(event, result)
             else:
+                event.message = event.message[event.message.find("sk") + len("sk"):].strip()
                 userids = event.message.split(' ')
                 if len(userids) > 8:
                     sendmsg(event, '少查一点吧')
                     return
                 if len(userids) == 1:
-                    userid = event.message.replace("sk", "")
-                    userid = re.sub(r'\D', "", userid)
+                    userid = re.sub(r'\D', "", event.message)
                     if userid == '':
                         sendmsg(event, '你这id有问题啊')
                         return
@@ -450,6 +456,10 @@ def sync_handle_msg(event):
         if server == 'tw' or server == 'en':
             event.message = server + event.message
         # -------------------- 结束多服共用功能区 -----------------------
+        if event.message[:2] == "cf":
+            event.message = '查房' + event.message[2:]
+        if event.message[:3] == "csb":
+            event.message = '查水表' + event.message[3:]
         if event.message[:2] == "查房":
             if event.group_id in blacklist['sk']:
                 return
