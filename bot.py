@@ -331,17 +331,36 @@ def sync_handle_msg(event):
                 result = sk(bind[1], None, bind[2], server)
                 sendmsg(event, result)
             else:
-                userid = event.message.replace("sk", "")
-                userid = re.sub(r'\D', "", userid)
-                if userid == '':
-                    sendmsg(event, '你这id有问题啊')
+                userids = event.message.split(' ')
+                if len(userids) > 8:
+                    sendmsg(event, '少查一点吧')
                     return
-                if int(userid) > 10000000:
-                    result = sk(userid, None, False, server)
+                if len(userids) == 1:
+                    userid = event.message.replace("sk", "")
+                    userid = re.sub(r'\D', "", userid)
+                    if userid == '':
+                        sendmsg(event, '你这id有问题啊')
+                        return
+                    if int(userid) > 10000000:
+                        result = sk(userid, None, False, server)
+                    else:
+                        result = sk(None, userid, True, server)
+                    sendmsg(event, result)
+                    return
                 else:
-                    result = sk(None, userid, True, server)
-                sendmsg(event, result)
-                return
+                    result = ''
+                    for userid in userids:
+                        userid = re.sub(r'\D', "", userid)
+                        if userid == '':
+                            sendmsg(event, '你这id有问题啊')
+                            return
+                        if int(userid) > 10000000:
+                            result += sk(userid, None, False, server, True)
+                        else:
+                            result += sk(None, userid, True, server, True)
+                        result += '\n\n'
+                    sendmsg(event, result[:-2])
+                    return
         if event.message[:2] == "绑定":
             userid = event.message.replace("绑定", "")
             userid = re.sub(r'\D', "", userid)

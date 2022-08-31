@@ -354,7 +354,7 @@ def skyc():
     text = text + '\n预测线来自xfl03(3-3.dev)\n预测生成时间为' + time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
     return text
 
-def sk(targetid=None, targetrank=None, secret=False, server='jp'):
+def sk(targetid=None, targetrank=None, secret=False, server='jp', simple=False):
     event = currentevent(server)
     eventid = event['id']
     if event['status'] == 'counting':
@@ -408,6 +408,8 @@ def sk(targetid=None, targetrank=None, secret=False, server='jp'):
     else:
         userId = ''
     msg = f'{name}{userId}\n{teamname}分数{score / 10000}W，排名{rank}'
+    if simple:
+        return msg
     for i in range(0, 31):
         if rank < rankline[i]:
             break
