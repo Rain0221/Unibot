@@ -2,6 +2,11 @@
 sidebar: false
 ---
 # 更新日志
+
+::: tip
+该页面可能更新比较缓慢，最新更新信息可查看[Github Commit记录](https://github.com/watagashi-uni/Unibot/commits/main)
+:::
+
 ### 2022-08-31
 新增`5v5人数`命令，可查看5v5实时人数
 
