@@ -29,7 +29,8 @@ from modules.pjskguess import getrandomjacket, cutjacket, getrandomchart, cutcha
 from modules.pjskinfo import aliastomusicid, pjskset, pjskdel, pjskalias, pjskinfo, writelog
 from modules.profileanalysis import daibu, rk, pjskjindu, pjskprofile, pjskb30
 from modules.sendmail import sendemail
-from modules.sk import sk, getqqbind, bindid, setprivate, skyc, verifyid, gettime, teamcount
+from modules.sk import sk, getqqbind, bindid, setprivate, skyc, verifyid, gettime, teamcount, currentevent, chafang, \
+    getstoptime
 from modules.texttoimg import texttoimg, ycmimg
 from modules.twitter import newesttwi
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -175,7 +176,10 @@ def sync_handle_msg(event):
         #     sendmsg(event, event.sender['nickname'] + event.sender['card'])
         # -----------------------结束测试-----------------------------
         if event.message == 'help':
-            sendmsg(event, 'bot帮助文档：https://docs.unipjsk.com/')
+            if event.self_id == guildbot:
+                sendmsg(event, 'bot帮助文档：https://docs.unipjsk.com/guild/')
+            else:
+                sendmsg(event, 'bot帮助文档：https://docs.unipjsk.com/')
             return
         if event.message[:8] == 'pjskinfo' or event.message[:4] == 'song':
             if event.message[:8] == 'pjskinfo':
@@ -427,6 +431,62 @@ def sync_handle_msg(event):
         if server == 'tw' or server == 'en':
             event.message = server + event.message
         # -------------------- 结束多服共用功能区 -----------------------
+        if event.message[:2] == "查房":
+            if event.group_id in blacklist['sk']:
+                return
+            userid = event.message.replace("查房", "")
+            userid = re.sub(r'\D', "", userid)
+            if userid == '':
+                sendmsg(event, '你这id有问题啊')
+                return
+            if int(userid) > 10000000:
+                result = chafang(userid)
+            else:
+                result = chafang(None, userid)
+            sendmsg(event, result)
+            return
+        if event.message[:3] == "查水表":
+            if event.group_id in blacklist['sk']:
+                return
+            userid = event.message.replace("查水表", "")
+            userid = re.sub(r'\D', "", userid)
+            if userid == '':
+                sendmsg(event, '你这id有问题啊')
+                return
+            if int(userid) > 10000000:
+                result = getstoptime(userid)
+            else:
+                result = getstoptime(None, userid)
+            sendmsg(event, result)
+            return
+        if event.message[:4] == '冲榜跟踪':
+            if event.user_id in whitelist:
+                nowtevent = currentevent('jp')
+                if nowtevent['status'] == 'going':
+                    eventid = nowtevent['id']
+                    userid = event.message.replace("冲榜跟踪", "")
+                    userid = re.sub(r'\D', "", userid)
+                    if userid == '':
+                        sendmsg(event, '你这id有问题啊')
+                        return
+                    if not verifyid(userid, 'jp'):
+                        sendmsg(event, '你这id有问题啊')
+                        return
+                    if not os.path.exists(f'yamls/event/{eventid}'):
+                        os.makedirs(f'yamls/event/{eventid}')
+                    try:
+                        with open(f'yamls/event/{eventid}/chafang.yaml') as f:
+                            users = yaml.load(f, Loader=yaml.FullLoader)
+                    except FileNotFoundError:
+                        users = []
+                    if userid in users:
+                        sendmsg(event, "该id已经存在")
+                        return
+                    users.append(userid)
+                    with open(f'yamls/event/{eventid}/chafang.yaml', 'w', encoding='utf-8') as f:
+                        yaml.dump(users, f)
+                    sendmsg(event, "添加成功")
+                    return
         if event.message == '5v5人数':
             sendmsg(event, teamcount())
         if event.message[:5] == 'event':

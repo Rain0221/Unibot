@@ -1,7 +1,11 @@
+import datetime
 import json
+import os.path
 import sqlite3
 import time
+import traceback
 
+import pytz
 import requests
 import yaml
 
@@ -51,6 +55,138 @@ def currentevent(server):
         else:
             status = 'end'
         return {'id': data[i]['id'], 'status': status, 'remain': remain}
+
+
+def eventtrack():
+    event = currentevent('jp')
+    if event['status'] == 'going':
+        eventid = event['id']
+        if not os.path.exists(f'yamls/event/{eventid}'):
+            os.makedirs(f'yamls/event/{eventid}')
+        try:
+            with open(f'yamls/event/{eventid}/chafang.yaml') as f:
+                users = yaml.load(f, Loader=yaml.FullLoader)
+        except FileNotFoundError:
+            return
+        for targetid in users:
+            try:
+                resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetUserId={targetid}')
+                ranking = json.loads(resp.content)
+                now = int(time.time())
+                try:
+                    with open(f'yamls/event/{eventid}/{targetid}.yaml') as f:
+                        userscores = yaml.load(f, Loader=yaml.FullLoader)
+                except FileNotFoundError:
+                    userscores = {}
+                userscores[now] = ranking['rankings'][0]['score']
+                with open(f'yamls/event/{eventid}/{targetid}.yaml', 'w', encoding='utf-8') as f:
+                    yaml.dump(userscores, f)
+            except:
+                traceback.print_exc()
+
+def chafang(targetid=None, targetrank=None):
+    event = currentevent('jp')
+    eventid = event['id']
+    if targetid is None:
+        resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={targetrank}')
+        ranking = json.loads(resp.content)
+        targetid = ranking['rankings'][0]['userId']
+    else:
+        resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetUserId={targetid}')
+        ranking = json.loads(resp.content)
+    username = ranking['rankings'][0]['name']
+    if event['status'] == 'going':
+        try:
+            with open(f'yamls/event/{eventid}/{targetid}.yaml') as f:
+                userscores = yaml.load(f, Loader=yaml.FullLoader)
+            lasttime = 0
+            twentybefore = 0
+            hourbefore = 0
+            text = f'{username} - {targetid}\n'
+            for time in userscores:
+                lasttime = time
+            for time in userscores:
+                if -20 < time - (lasttime - 20 * 60) < 20:
+                    twentybefore = time
+            for time in userscores:
+                if -20 < time - (lasttime - 60 * 60) < 20:
+                    hourbefore = time
+            lastupdate = 0
+            count = 0
+            pts = []
+            for time in userscores:
+                count += 1
+                if count == 1:
+                    lastupdate = userscores[time]
+                else:
+                    if userscores[time] != lastupdate:
+                        pts.append(userscores[time]-lastupdate)
+                        lastupdate = userscores[time]
+            if len(pts) >= 10:
+                ptsum = 0
+                for i in range(len(pts)-10, len(pts)):
+                    ptsum += pts[i]
+                text += f'近10次平均pt：{(ptsum / 10)/10000}W\n'
+            if hourbefore != 0:
+                text += f'时速: {(userscores[lasttime] - userscores[hourbefore])/10000}W\n'
+            if twentybefore != 0:
+                text += f'20min*3时速: {((userscores[lasttime] - userscores[twentybefore])*3)/10000}W\n'
+            return text
+        except FileNotFoundError:
+            return '该玩家没有加入查询'
+
+def getstoptime(targetid=None, targetrank=None):
+    event = currentevent('jp')
+    eventid = event['id']
+    if targetid is None:
+        resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={targetrank}')
+        ranking = json.loads(resp.content)
+        targetid = ranking['rankings'][0]['userId']
+    else:
+        resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetUserId={targetid}')
+        ranking = json.loads(resp.content)
+    username = ranking['rankings'][0]['name']
+    try:
+        with open(f'yamls/event/{eventid}/{targetid}.yaml') as f:
+            userscores = yaml.load(f, Loader=yaml.FullLoader)
+        lastupdate = 0
+        count = 0
+        stop = {}
+        stopcount = 0
+        stopping = False
+        for time in userscores:
+            count += 1
+            if count == 1:
+                lastupdate = time
+            else:
+                if userscores[time] == userscores[lastupdate]:
+                    if time - lastupdate > 5 * 60:
+                        if not stopping:
+                            stopcount += 1
+                            stopping = True
+                            stop[stopcount] = {'start': 0, 'end': 0}
+                            stop[stopcount]['start'] = lastupdate
+                else:
+                    lastupdate = time
+                    if stopping:
+                        stop[stopcount]['end'] = time
+                        stopping = False
+        text = f'{username} - {targetid}\n'
+        if len(stop) != 0:
+            for count in stop:
+                start = stop[count]['start']
+                starttime = datetime.datetime.fromtimestamp(start,
+                                           pytz.timezone('Asia/Shanghai')).strftime('%m/%d %H:%M:%S')
+                end = stop[count]['end']
+                endtime = datetime.datetime.fromtimestamp(end,
+                                           pytz.timezone('Asia/Shanghai')).strftime('%m/%d %H:%M:%S')
+                text += f'{count}. {starttime} ~ {endtime}\n'
+            return text
+        else:
+            return text + '未停车'
+
+    except FileNotFoundError:
+        return '该玩家没有加入查询'
 
 
 def gettime(userid, server='jp'):
