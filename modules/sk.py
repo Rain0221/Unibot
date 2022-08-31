@@ -391,10 +391,13 @@ def sk(targetid=None, targetrank=None, secret=False, server='jp', simple=False):
         return '活动分数统计中，不要着急哦！'
     if server == 'jp':
         url = apiurl
+        masterdatadir = 'masterdata'
     elif server == 'en':
         url = enapiurl
+        masterdatadir = '../enapi/masterdata'
     elif server == 'tw':
         url = twapiurl
+        masterdatadir = '../twapi/masterdata'
     if targetid is not None:
         if not verifyid(targetid, server):
             bind = getqqbind(targetid, server)
@@ -417,7 +420,7 @@ def sk(targetid=None, targetrank=None, secret=False, server='jp', simple=False):
         return '查不到数据捏，可能这期活动没打'
     try:
         TeamId = ranking['rankings'][0]['userCheerfulCarnival']['cheerfulCarnivalTeamId']
-        with open('masterdata/cheerfulCarnivalTeams.json', 'r', encoding='utf-8') as f:
+        with open(f'{masterdatadir}/cheerfulCarnivalTeams.json', 'r', encoding='utf-8') as f:
             Teams = json.load(f)
         with open('yamls/translate.yaml', encoding='utf-8') as f:
             trans = yaml.load(f, Loader=yaml.FullLoader)
