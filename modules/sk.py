@@ -248,6 +248,30 @@ def sk(targetid=None, targetrank=None, secret=False, server='jp'):
         msg = msg + '\n活动还剩' + event['remain']
     return msg
 
+def teamcount():
+    event = currentevent('jp')
+    eventid = event['id']
+    resp = requests.get(f'{apiurl}/api/cheerful-carnival-team-count/{eventid}')
+    data = json.loads(resp.content)
+
+    with open('masterdata/cheerfulCarnivalTeams.json', 'r', encoding='utf-8') as f:
+        Teams = json.load(f)
+    with open('yamls/translate.yaml', encoding='utf-8') as f:
+        trans = yaml.load(f, Loader=yaml.FullLoader)
+    text = ''
+    for Counts in data['cheerfulCarnivalTeamMemberCounts']:
+        TeamId = Counts['cheerfulCarnivalTeamId']
+        memberCount = Counts['memberCount']
+        try:
+            translate = f"({trans['cheerfulCarnivalTeams'][TeamId]})"
+        except KeyError:
+            translate = ''
+        for i in Teams:
+            if i['id'] == TeamId:
+                text += i['teamName'] + translate + " " + str(memberCount)+ '人\n'
+                break
+    return text
+
 def getqqbind(qqnum, server):
     conn = sqlite3.connect('pjsk.db')
     c = conn.cursor()

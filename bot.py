@@ -29,7 +29,7 @@ from modules.pjskguess import getrandomjacket, cutjacket, getrandomchart, cutcha
 from modules.pjskinfo import aliastomusicid, pjskset, pjskdel, pjskalias, pjskinfo, writelog
 from modules.profileanalysis import daibu, rk, pjskjindu, pjskprofile, pjskb30
 from modules.sendmail import sendemail
-from modules.sk import sk, getqqbind, bindid, setprivate, skyc, verifyid, gettime
+from modules.sk import sk, getqqbind, bindid, setprivate, skyc, verifyid, gettime, teamcount
 from modules.texttoimg import texttoimg, ycmimg
 from modules.twitter import newesttwi
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -427,7 +427,8 @@ def sync_handle_msg(event):
         if server == 'tw' or server == 'en':
             event.message = server + event.message
         # -------------------- 结束多服共用功能区 -----------------------
-
+        if event.message == '5v5人数':
+            sendmsg(event, teamcount())
         if event.message[:5] == 'event':
             eventid = event.message[event.message.find("event") + len("event"):].strip()
             eventid = re.sub(r'\D', "", eventid)
@@ -667,7 +668,7 @@ def sync_handle_msg(event):
                            f"注意: 由于b站限制, bot最多只能拉取到最近250个关注。因此可能存在数据统计不全的问题。"
                     + fr"[CQ:image,file=file:///{image_path},cache=0]")
             return
-        if event.message[:5] == "白名单添加" and event.user_id in admin:
+        if event.message[:5] == "白名单添加" and event.user_id in whitelist:
             event.message = event.message[event.message.find("白名单添加") + len("白名单添加"):].strip()
             requestwhitelist.append(int(event.message))
             sendmsg(event, '添加成功: ' + event.message)
