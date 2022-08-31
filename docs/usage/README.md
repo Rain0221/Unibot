@@ -25,8 +25,8 @@ bot频道版已上线，[点击进入](https://qun.qq.com/qqweb/qunpro/share?_wv
 >热度，难度偏差等统计信息来自 [profile.pjsekai.moe](https://profile.pjsekai.moe/)
 
 ### pjskinfo
-- `pjskinfo+曲名` 查看当前歌曲详细信息，玩家游玩，热度等信息(图片版)，并列出当前歌曲所有昵
-- `pjskbpm+曲名` 查看当前歌曲的bpm
+- `pjskinfo+曲名` 查看当前歌曲详细信息，玩家游玩，热度等信息(图片版)，并列出当前歌曲所有昵称（可使用`song+曲名`）
+- `pjskbpm+曲名` 查看当前歌曲的bpm（频道可直接使用`bpm+曲名`）
 - `查bpm+数字` 查询对应bpm所有歌曲
 ### 谱面预览
 - `谱面预览 曲名 难度` 查询对应曲名，难度的谱面预览（来源：[Sekai Viewer](https://sekai.best/)）
@@ -68,35 +68,42 @@ bot频道版已上线，[点击进入](https://qun.qq.com/qqweb/qunpro/share?_wv
 - >由于和其他bot命令重合，`sk`功能可由管理员在群内发送`关闭sk` `开启sk`来开关该功能
 - `sk+id` 查询排名（此命令不会绑定id）
 - `sk+排名` 查询对应排名分数
+- `时速` 查询档线近一小时的实时时速
+- `5v5人数` 可查看5v5实时人数
 - `sk预测` 查看预测线，预测信息来自[3-3.dev](https://3-3.dev/)
 ### 打歌情况查询
 - `逮捕@[xxx]` 如果此人绑定过id，就可以看TA的ex与master难度fc，ap数，排位信息
 - `逮捕+id` 查看对应id的ex与master难度fc，ap数，排位信息
 - `pjsk进度` 生成绑定id的master打歌进度图片（fc/ap/clear/all)
-- `pjskprofile` 生成绑定id的profile图片
+- `pjskprofile` 生成绑定id的profile图片（可使用`个人信息`）
 - `pjsk b30` 生成绑定id的best30图片
 ### 隐私相关
 - `不给看` 不允许他人逮捕自己，但自己还是可以逮捕自己，使用sk查分和逮捕自己时不会显示id
 - `给看`
 
-
 ## pjsk竞猜
 ::: warning 注意
 由于风控问题，猜曲，猜卡面，看卡图，模拟抽卡功能已开启白名单模式。如你所在的群未开启以上功能，请使用官方平台的频道bot游玩
-[频道版使用文档](/guild/)
 :::
+
+::: warning 关于频道版猜曲
+请在规定时间内回答，由于主动消息限制，bot不会自动结束猜曲，如果回答超时会自动结束并提示超时
+
+设置猜曲234指令旨在频道内方便通过斜杠指令+数字方便触发功能，无需每次输入完整指令
+:::
+
 - pjsk猜曲（截彩色曲绘）：`pjsk猜曲`
-- pjsk阴间猜曲（截黑白曲绘）：`pjsk阴间猜曲`
+- pjsk阴间猜曲（截黑白曲绘）：`pjsk阴间猜曲` 或 `/pjsk猜曲 2`
 - pjsk非人类猜曲（截30*30）：`pjsk非人类猜曲`
-- pjsk猜谱面：`pjsk猜谱面`
-- pjsk猜卡面：`pjsk猜卡面`
-- pjsk听歌猜曲：`pjsk听歌猜曲`
-- pjsk倒放猜曲：`pjsk倒放猜曲`
+- pjsk猜谱面：`pjsk猜谱面` 或 `/pjsk猜曲 3`
+- pjsk猜卡面：`pjsk猜卡面` 或 `/pjsk猜曲 4`
+- pjsk听歌猜曲（频道不可用）：`pjsk听歌猜曲`
+- pjsk倒放猜曲（频道不可用）：`pjsk倒放猜曲`
 
 ## pjsk模拟抽卡
 > 十连抽卡模拟会生成图片
 - `sekai抽卡` 模拟十连
-- `sekaiXX连` 模拟`XX`抽（只显示四星）,`XX`接受的输入为`1-200`
+- `sekaiXX连` 模拟`XX`抽（只显示四星）,`XX`接受的输入为`1-200`（频道内`1-400`）
 - `sekai反抽卡` 反转2星4星概率
 - `sekai抽卡+卡池id` 对应卡池模拟十连
 - `sekai100连+卡池id` 对应卡池模拟100抽（只显示四星）
