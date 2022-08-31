@@ -17,7 +17,7 @@ from chachengfen import dd_query
 from modules.api import gacha
 from modules.chara import charaset, grcharaset, charadel, charainfo, grcharadel, aliastocharaid, get_card, cardidtopic, \
     findcard
-from modules.config import whitelist, block, msggroup, aliasblock, groupban, asseturl, verifyurl, distributedurl
+from modules.config import whitelist, block, msggroup, aliasblock, groupban, asseturl, verifyurl, distributedurl, apiurl
 from modules.cyo5000 import cyo5000
 from modules.kk import kkwhitelist, kankan, uploadkk
 from modules.otherpics import geteventpic
@@ -469,9 +469,22 @@ def sync_handle_msg(event):
                     if userid == '':
                         sendmsg(event, '你这id有问题啊')
                         return
-                    if not verifyid(userid, 'jp'):
-                        sendmsg(event, '你这id有问题啊')
-                        return
+                    if int(userid) <= 100:
+                        resp = requests.get(
+                            f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={userid}')
+                        ranking = json.loads(resp.content)
+                        userid = str(ranking['rankings'][0]['userId'])
+                    else:
+                        if not verifyid(userid, 'jp'):
+                            sendmsg(event, '你这id有问题啊')
+                            return
+                        resp = requests.get(
+                            f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetUserId={userid}')
+                        ranking = json.loads(resp.content)
+                        rank = ranking['rankings'][0]['rank']
+                        if rank > 100:
+                            sendmsg(event, '仅支持前跟踪100')
+                            return
                     if not os.path.exists(f'yamls/event/{eventid}'):
                         os.makedirs(f'yamls/event/{eventid}')
                     try:
@@ -487,6 +500,9 @@ def sync_handle_msg(event):
                         yaml.dump(users, f)
                     sendmsg(event, "添加成功")
                     return
+            else:
+                sendmsg(event, "该功能仅对熟人开放")
+                return
         if event.message == '5v5人数':
             sendmsg(event, teamcount())
         if event.message[:5] == 'event':

@@ -58,6 +58,7 @@ def currentevent(server):
 
 
 def eventtrack():
+    time_printer('开始抓取冲榜查询id')
     event = currentevent('jp')
     if event['status'] == 'going':
         eventid = event['id']
@@ -71,6 +72,7 @@ def eventtrack():
         for targetid in users:
             try:
                 resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetUserId={targetid}')
+                # time_printer(f'抓取{targetid}')
                 ranking = json.loads(resp.content)
                 now = int(time.time())
                 try:
@@ -81,8 +83,11 @@ def eventtrack():
                 userscores[now] = ranking['rankings'][0]['score']
                 with open(f'yamls/event/{eventid}/{targetid}.yaml', 'w', encoding='utf-8') as f:
                     yaml.dump(userscores, f)
+                time_printer('抓取完成')
             except:
                 traceback.print_exc()
+    else:
+        time_printer('无正在进行的活动')
 
 def chafang(targetid=None, targetrank=None):
     event = currentevent('jp')
@@ -103,25 +108,28 @@ def chafang(targetid=None, targetrank=None):
             twentybefore = 0
             hourbefore = 0
             text = f'{username} - {targetid}\n'
-            for time in userscores:
-                lasttime = time
-            for time in userscores:
-                if -20 < time - (lasttime - 20 * 60) < 20:
-                    twentybefore = time
-            for time in userscores:
-                if -20 < time - (lasttime - 60 * 60) < 20:
-                    hourbefore = time
+            for times in userscores:
+                lasttime = times
+            for times in userscores:
+                if times - (lasttime - 20 * 60) < 60:
+                    twentybefore = times
+            for times in userscores:
+                if times - (lasttime - 60 * 60) < 60:
+                    hourbefore = times
             lastupdate = 0
             count = 0
+            hourcount = 0
             pts = []
-            for time in userscores:
+            for times in userscores:
                 count += 1
                 if count == 1:
-                    lastupdate = userscores[time]
+                    lastupdate = userscores[times]
                 else:
-                    if userscores[time] != lastupdate:
-                        pts.append(userscores[time]-lastupdate)
-                        lastupdate = userscores[time]
+                    if userscores[times] != lastupdate:
+                        if hourbefore != 0 and times >= hourbefore:
+                            hourcount += 1
+                        pts.append(userscores[times]-lastupdate)
+                        lastupdate = userscores[times]
             if len(pts) >= 10:
                 ptsum = 0
                 for i in range(len(pts)-10, len(pts)):
@@ -131,21 +139,45 @@ def chafang(targetid=None, targetrank=None):
                 text += f'时速: {(userscores[lasttime] - userscores[hourbefore])/10000}W\n'
             if twentybefore != 0:
                 text += f'20min*3时速: {((userscores[lasttime] - userscores[twentybefore])*3)/10000}W\n'
+            if hourcount != 0:
+                text += f'本小时周回数: {hourcount}\n'
+            stop = getstoptime(targetid, None, True)
+            if len(stop) != 0:
+                if stop[len(stop)-1]['end'] == 0:
+                    text += '开车中\n'
+                    text += f"连续开车时间: {timeremain(int(time.time()) - stop[len(stop)-1]['start'])}\n"
+                else:
+                    text += '停车中\n'
+                    text += f"已停车: {timeremain(int(time.time()) - stop[len(stop) - 1]['end'])}\n"
+            else:
+                for times in userscores:
+                    firsttime = times
+                    break
+                text += '开车中\n'
+                text += f"连续开车时间: {timeremain(int(time.time()) - firsttime)}\n"
             return text
         except FileNotFoundError:
             return '该玩家没有加入查询'
 
-def getstoptime(targetid=None, targetrank=None):
+
+def time_printer(str):
+    timeArray = time.localtime(time.time())
+    Time = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
+    print(Time, str)
+
+def getstoptime(targetid=None, targetrank=None, returnjson=False):
     event = currentevent('jp')
     eventid = event['id']
-    if targetid is None:
-        resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={targetrank}')
-        ranking = json.loads(resp.content)
-        targetid = ranking['rankings'][0]['userId']
-    else:
-        resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetUserId={targetid}')
-        ranking = json.loads(resp.content)
-    username = ranking['rankings'][0]['name']
+    username = ''
+    if not returnjson:
+        if targetid is None:
+            resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={targetrank}')
+            ranking = json.loads(resp.content)
+            targetid = ranking['rankings'][0]['userId']
+        else:
+            resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetUserId={targetid}')
+            ranking = json.loads(resp.content)
+        username = ranking['rankings'][0]['name']
     try:
         with open(f'yamls/event/{eventid}/{targetid}.yaml') as f:
             userscores = yaml.load(f, Loader=yaml.FullLoader)
@@ -154,40 +186,79 @@ def getstoptime(targetid=None, targetrank=None):
         stop = {}
         stopcount = 0
         stopping = False
-        for time in userscores:
+        stoplength = 0
+        for times in userscores:
             count += 1
             if count == 1:
-                lastupdate = time
+                lastupdate = times
             else:
-                if userscores[time] == userscores[lastupdate]:
-                    if time - lastupdate > 5 * 60:
+                if userscores[times] == userscores[lastupdate]:
+                    if times - lastupdate > 5 * 60:
                         if not stopping:
                             stopcount += 1
                             stopping = True
                             stop[stopcount] = {'start': 0, 'end': 0}
                             stop[stopcount]['start'] = lastupdate
                 else:
-                    lastupdate = time
+                    lastupdate = times
                     if stopping:
-                        stop[stopcount]['end'] = time
+                        stop[stopcount]['end'] = times
                         stopping = False
         text = f'{username} - {targetid}\n'
+        if returnjson:
+            return stop
         if len(stop) != 0:
             for count in stop:
                 start = stop[count]['start']
                 starttime = datetime.datetime.fromtimestamp(start,
                                            pytz.timezone('Asia/Shanghai')).strftime('%m/%d %H:%M:%S')
                 end = stop[count]['end']
+                if end == 0:
+                    end = int(time.time())
                 endtime = datetime.datetime.fromtimestamp(end,
                                            pytz.timezone('Asia/Shanghai')).strftime('%m/%d %H:%M:%S')
+                stoplength += end - start
                 text += f'{count}. {starttime} ~ {endtime}\n'
+            text += f'总停车时间：{timeremain(stoplength)}'
             return text
         else:
+            if returnjson:
+                return stop
             return text + '未停车'
 
     except FileNotFoundError:
+        if returnjson:
+            return {}
         return '该玩家没有加入查询'
 
+def getranks():
+    time_printer('抓取时速')
+    event = currentevent('jp')
+    if event['status'] == 'going':
+        eventid = event['id']
+        if not os.path.exists(f'yamls/event/{eventid}'):
+            os.makedirs(f'yamls/event/{eventid}')
+        try:
+            with open(f'yamls/event/{eventid}/ss.yaml') as f:
+                ss = yaml.load(f, Loader=yaml.FullLoader)
+        except FileNotFoundError:
+            ss = {}
+        now = int(time.time())
+        ss[now] = {}
+        for rank in rankline:
+            if rank != 100000000:
+                try:
+                    resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={rank}')
+                    ranking = json.loads(resp.content)
+                    ss[now][rank] = ranking['rankings'][0]['score']
+                except:
+                    traceback.print_exc()
+                    ss[now][rank] = 0
+        with open(f'yamls/event/{eventid}/ss.yaml', 'w', encoding='utf-8') as f:
+            yaml.dump(ss, f)
+        time_printer('时速抓取完成')
+    else:
+        time_printer('无正在进行的活动')
 
 def gettime(userid, server='jp'):
     if server == 'jp' or server == 'en':
