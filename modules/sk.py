@@ -268,7 +268,7 @@ def ss():
             with open(f'yamls/event/{eventid}/ss.yaml') as f:
                 ss = yaml.load(f, Loader=yaml.FullLoader)
         except FileNotFoundError:
-            return '无数据'
+            return '暂无数据'
         text = ''
         hourago = 0
         for times in ss:
@@ -285,6 +285,8 @@ def ss():
             Time = datetime.datetime.fromtimestamp(lasttime,
                                                    pytz.timezone('Asia/Shanghai')).strftime('%m/%d %H:%M:%S')
             return '一小时内实时时速\n' + text + '数据更新时间\n' + Time
+        else:
+            return '暂无数据'
     else:
         return '活动未开始'
 
