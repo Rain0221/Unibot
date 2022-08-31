@@ -113,7 +113,7 @@ def matchname(alias):
     return match
 
 def get_filectime(file):
-    return datetime.datetime.fromtimestamp(os.path.getctime(file))
+    return datetime.datetime.fromtimestamp(os.path.getmtime(file))
 
 def isleak(musicid):
     with open(r'masterdata/musics.json', 'r', encoding='utf-8') as f:

@@ -49,7 +49,7 @@ def detectplaydata():
             f.write(jsondata.content)
 
 def get_filectime(file):
-    return datetime.datetime.fromtimestamp(os.path.getctime(file))
+    return datetime.datetime.fromtimestamp(os.path.getmtime(file))
 
 
 def cleancache(path='piccache/'):
