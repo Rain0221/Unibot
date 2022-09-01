@@ -396,9 +396,10 @@ def pjskprofile(userid, private=False, server='jp'):
     draw.text((182, 318), str(profile.twitterId), fill=(0, 0, 0), font=font_style)
 
     font_style = ImageFont.truetype(r"fonts\SourceHanSansCN-Medium.otf", 24)
-    if len(profile.word) > 17:
-        draw.text((132, 388), profile.word[:17], fill=(0, 0, 0), font=font_style)
-        draw.text((132, 424), profile.word[17:], fill=(0, 0, 0), font=font_style)
+    size = font_style.getsize(profile.word)
+    if size[0] > 480:
+        draw.text((132, 388), profile.word[:int(len(profile.word) * (460 / size[0]))], fill=(0, 0, 0), font=font_style)
+        draw.text((132, 424), profile.word[int(len(profile.word) * (460 / size[0])):], fill=(0, 0, 0), font=font_style)
     else:
         draw.text((132, 388), profile.word, fill=(0, 0, 0), font=font_style)
 

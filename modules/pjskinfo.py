@@ -228,13 +228,12 @@ def drawpjskinfo(musicid, olddir=True):
         img.paste(jacket, (80, 47))
     except FileNotFoundError:
         pass
-
-    if len(info.title) < 12:
-        size = 90
-        font_style = ImageFont.truetype(r"fonts\KOZGOPRO-BOLD.OTF", size)
+    font_style = ImageFont.truetype(r"fonts\KOZGOPRO-BOLD.OTF", 90)
+    size = font_style.getsize(info.title)
+    if size[0] < 1150:
         highplus = 0
     else:
-        size = int(90 - (len(info.title) - 12) * 4.5)
+        size = int(90 * (1150 / size[0]))
         font_style = ImageFont.truetype(r"fonts\KOZGOPRO-BOLD.OTF", size)
         text_width = font_style.getsize(info.title)
         if text_width[1] != 90:
