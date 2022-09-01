@@ -456,39 +456,59 @@ def sync_handle_msg(event):
         if server == 'tw' or server == 'en':
             event.message = server + event.message
         # -------------------- 结束多服共用功能区 -----------------------
-        if event.message[:2] == "cf":
-            event.message = '查房' + event.message[2:]
-        if event.message[:3] == "csb":
-            event.message = '查水表' + event.message[3:]
-        if event.message[:2] == "查房":
-            if event.group_id in blacklist['sk']:
+        if event.message[:2] == "查房" or event.message[:2] == "cf":
+            if event.group_id in blacklist['sk'] and event.message[:2] == "查房":
                 return
-            userid = event.message.replace("查房", "")
-            userid = re.sub(r'\D', "", userid)
+            if event.message[:2] == "cf":
+                event.message = '查房' + event.message[2:]
+            private = False
+            if event.message == "查房":
+                bind = getqqbind(event.user_id, 'jp')
+                if bind is None:
+                    sendmsg(event, '你没有绑定id！')
+                    return
+                userid = bind[0]
+                private = bind[1]
+            else:
+                userid = event.message.replace("查房", "")
+                userid = re.sub(r'\D', "", userid)
             if userid == '':
                 sendmsg(event, '你这id有问题啊')
                 return
             if int(userid) > 10000000:
-                result = chafang(userid)
+                result = chafang(userid, None, private)
             else:
                 result = chafang(None, userid)
             sendmsg(event, result)
             return
-        if event.message[:3] == "查水表":
-            if event.group_id in blacklist['sk']:
+        if event.message[:3] == "查水表" or event.message[:3] == "csb":
+            if event.group_id in blacklist['sk'] and event.message[:3] == "查水表":
                 return
-            userid = event.message.replace("查水表", "")
-            userid = re.sub(r'\D', "", userid)
+            if event.message[:3] == "csb":
+                event.message = '查水表' + event.message[3:]
+            private = False
+            if event.message == "查水表":
+                bind = getqqbind(event.user_id, 'jp')
+                if bind is None:
+                    sendmsg(event, '你没有绑定id！')
+                    return
+                userid = bind[0]
+                private = bind[1]
+            else:
+                userid = event.message.replace("查水表", "")
+                userid = re.sub(r'\D', "", userid)
             if userid == '':
                 sendmsg(event, '你这id有问题啊')
                 return
             if int(userid) > 10000000:
-                result = getstoptime(userid)
+                result = getstoptime(userid, None, False, private)
             else:
                 result = getstoptime(None, userid)
             if result:
                 texttoimg(result, 500, f'csb{userid}')
                 sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\csb{userid}.png,cache=0]")
+            else:
+                sendmsg(event, "你要查询的玩家未进入前200，暂无数据")
             return
         # if event.message[:4] == '冲榜跟踪':
         #     if event.user_id in whitelist:

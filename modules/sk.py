@@ -99,13 +99,14 @@ def eventtrack():
     else:
         time_printer('无正在进行的活动')
 
-def chafang(targetid=None, targetrank=None):
+def chafang(targetid=None, targetrank=None, private=False):
     event = currentevent('jp')
     eventid = event['id']
     if targetid is None:
         resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={targetrank}')
         ranking = json.loads(resp.content)
         targetid = ranking['rankings'][0]['userId']
+        private = True
     if event['status'] == 'going':
         try:
             with open(f'yamls/event/{eventid}/{targetid}.yaml') as f:
@@ -114,7 +115,10 @@ def chafang(targetid=None, targetrank=None):
             twentybefore = 0
             hourbefore = 0
             username = userscores['name']
-            text = f'{username} - {targetid}\n'
+            if private:
+                text = f'{username}\n'
+            else:
+                text = f'{username} - {targetid}\n'
             for times in userscores:
                 if times == 'name':
                     continue
@@ -172,9 +176,12 @@ def chafang(targetid=None, targetrank=None):
                     break
                 text += '周回中\n'
                 text += f"连续周回时间: {timeremain(int(time.time()) - firsttime)}\n"
+                updatetime = datetime.datetime.fromtimestamp(lasttime,
+                                           pytz.timezone('Asia/Shanghai')).strftime('%m/%d %H:%M')
+                text += f"仅记录在200名以内时的数据，数据更新于{updatetime}"
             return text
         except FileNotFoundError:
-            return '该玩家没有加入查询'
+            return '你要查询的玩家未进入前200，暂无数据'
 
 
 def time_printer(str):
@@ -182,7 +189,7 @@ def time_printer(str):
     Time = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
     print(Time, str)
 
-def getstoptime(targetid=None, targetrank=None, returnjson=False):
+def getstoptime(targetid=None, targetrank=None, returnjson=False, private=False):
     event = currentevent('jp')
     eventid = event['id']
     if not returnjson:
@@ -190,6 +197,7 @@ def getstoptime(targetid=None, targetrank=None, returnjson=False):
             resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={targetrank}')
             ranking = json.loads(resp.content)
             targetid = ranking['rankings'][0]['userId']
+            private = True
     try:
         with open(f'yamls/event/{eventid}/{targetid}.yaml') as f:
             userscores = yaml.load(f, Loader=yaml.FullLoader)
@@ -219,7 +227,11 @@ def getstoptime(targetid=None, targetrank=None, returnjson=False):
                     if stopping:
                         stop[stopcount]['end'] = times
                         stopping = False
-        text = f'{username} - {targetid}\n'
+
+        if private:
+            text = f'{username}\n'
+        else:
+            text = f'{username} - {targetid}\n'
         if returnjson:
             return stop
         if len(stop) != 0:
@@ -235,11 +247,12 @@ def getstoptime(targetid=None, targetrank=None, returnjson=False):
                 stoplength += end - start
                 text += f'{count}. {starttime} ~ {endtime}\n'
             text += f'总停车时间：{timeremain(stoplength)}'
+            text += f"仅记录在200名以内时的数据"
             return text
         else:
             if returnjson:
                 return stop
-            return text + '未停车'
+            return text + '未停车' + "\n仅记录在200名以内时的数据"
 
     except FileNotFoundError:
         if returnjson:
