@@ -298,6 +298,8 @@ def drawpjskinfo(musicid, olddir=True):
         font_style = ImageFont.truetype(r"fonts\SourceHanSansCN-Bold.otf", 28)
         text_width = font_style.getsize(str(hot))
         text_coordinate = (int(1760 - text_width[0]), int(805 - text_width[1] / 2))
+        if hot == '最新最热':
+            text_coordinate = (1680, 786)
         draw.text(text_coordinate, hot, fill=(67, 70, 101), font=font_style)
         if info.hotAdjust > 0.5:
             if info.hotAdjust > 2:
