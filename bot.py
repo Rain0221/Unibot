@@ -30,7 +30,7 @@ from modules.pjskinfo import aliastomusicid, pjskset, pjskdel, pjskalias, pjskin
 from modules.profileanalysis import daibu, rk, pjskjindu, pjskprofile, pjskb30
 from modules.sendmail import sendemail
 from modules.sk import sk, getqqbind, bindid, setprivate, skyc, verifyid, gettime, teamcount, currentevent, chafang, \
-    getstoptime, ss
+    getstoptime, ss, drawscoreline
 from modules.texttoimg import texttoimg, ycmimg
 from modules.twitter import newesttwi
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -480,6 +480,28 @@ def sync_handle_msg(event):
             else:
                 result = chafang(None, userid)
             sendmsg(event, result)
+            return
+        if event.message[:3] == "分数线":
+            if event.message == "分数线":
+                bind = getqqbind(event.user_id, 'jp')
+                if bind is None:
+                    sendmsg(event, '你没有绑定id！')
+                    return
+                userid = bind[0]
+            else:
+                userid = event.message.replace("分数线", "")
+                userid = re.sub(r'\D', "", userid)
+            if userid == '':
+                sendmsg(event, '你这id有问题啊')
+                return
+            if int(userid) > 10000000:
+                result = drawscoreline(userid, None)
+            else:
+                result = drawscoreline(None, userid)
+            if result:
+                sendmsg(event, fr"[CQ:image,file=file:///{botdir}\{result},cache=0]")
+            else:
+                sendmsg(event, "你要查询的玩家未进入前200，暂无数据")
             return
         if event.message[:3] == "查水表" or event.message[:3] == "csb":
             if event.group_id in blacklist['sk'] and event.message[:3] == "查水表":
