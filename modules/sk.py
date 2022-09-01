@@ -246,7 +246,7 @@ def getstoptime(targetid=None, targetrank=None, returnjson=False, private=False)
                                            pytz.timezone('Asia/Shanghai')).strftime('%m/%d %H:%M:%S')
                 stoplength += end - start
                 text += f'{count}. {starttime} ~ {endtime}\n'
-            text += f'总停车时间：{timeremain(stoplength)}'
+            text += f'总停车时间：{timeremain(stoplength)}\n'
             text += f"仅记录在200名以内时的数据"
             return text
         else:
