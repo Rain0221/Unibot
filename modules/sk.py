@@ -229,9 +229,9 @@ def getstoptime(targetid=None, targetrank=None, returnjson=False, private=False)
                         stopping = False
 
         if private:
-            text = f'{username}\n'
+            text = f'{username}\n停车时间段:\n'
         else:
-            text = f'{username} - {targetid}\n'
+            text = f'{username} - {targetid}\n停车时间段:\n'
         if returnjson:
             return stop
         if len(stop) != 0:
@@ -240,10 +240,11 @@ def getstoptime(targetid=None, targetrank=None, returnjson=False, private=False)
                 starttime = datetime.datetime.fromtimestamp(start,
                                            pytz.timezone('Asia/Shanghai')).strftime('%m/%d %H:%M:%S')
                 end = stop[count]['end']
-                if end == 0:
-                    end = int(time.time())
                 endtime = datetime.datetime.fromtimestamp(end,
                                            pytz.timezone('Asia/Shanghai')).strftime('%m/%d %H:%M:%S')
+                if end == 0:
+                    endtime = ''
+                    end = int(time.time())
                 stoplength += end - start
                 text += f'{count}. {starttime} ~ {endtime}\n'
             text += f'总停车时间：{timeremain(stoplength)}\n'
