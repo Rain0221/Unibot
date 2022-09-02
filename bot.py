@@ -16,7 +16,7 @@ from aiocqhttp import CQHttp, Event
 from chachengfen import dd_query
 from modules.api import gacha
 from modules.chara import charaset, grcharaset, charadel, charainfo, grcharadel, aliastocharaid, get_card, cardidtopic, \
-    findcard
+    findcard, getvits
 from modules.config import whitelist, block, msggroup, aliasblock, groupban, asseturl, verifyurl, distributedurl, apiurl
 from modules.cyo5000 import cyo5000
 from modules.kk import kkwhitelist, kankan, uploadkk
@@ -47,6 +47,7 @@ charaguess = {}
 ciyunlimit = {}
 gachalimit = {'lasttime': '', 'count': 0}
 pokelimit = {'lasttime': '', 'count': 0}
+vitslimit = {'lasttime': '', 'count': 0}
 admin = [1103479519]
 mainbot = [1513705608]
 requestwhitelist = []  # 邀请加群白名单 随时设置 不保存到文件
@@ -73,6 +74,9 @@ async def handle_msg(event: Event):
         return
     global blacklist
     global botdebug
+    if event.user_id in block:
+        # print('黑名单成员已拦截')
+        return
     if event.message == '/delete unibot':
         info = await bot.get_group_member_info(self_id=event.self_id, group_id=event.group_id, user_id=event.user_id)
         if info['role'] == 'owner' or info['role'] == 'admin':
@@ -144,6 +148,32 @@ async def handle_msg(event: Event):
         if resp == 'token验证成功':
             await geturl(f'{distributedurl}refresh')
         await bot.send(event, resp)
+    if event.message[:5] == '/vits':
+        if event.self_id not in mainbot:
+            return
+        global vitslimit
+        nowtime = f"{str(datetime.now().hour).zfill(2)}{str(datetime.now().minute).zfill(2)}"
+        lasttime = vitslimit['lasttime']
+        count = vitslimit['count']
+        if nowtime == lasttime and count >= 7:
+            print(vitslimit)
+            await bot.send(event, '达到每分钟调用上限')
+            return
+        if nowtime != lasttime:
+            count = 0
+        vitslimit['lasttime'] = nowtime
+        vitslimit['count'] = count + 1
+        print(vitslimit)
+        para = event.message[event.message.find("/vits") + len("/vits"):].strip().split(' ')
+        wavdir = await getvits(para[0], para[1])
+        if wavdir[0]:
+            await bot.send(event, fr"[CQ:record,file={wavdir[1]},cache=0]")
+        else:
+            if wavdir[1] != '':
+                await bot.send(event, wavdir[1])
+            else:
+                await bot.send(event, '疑似内存占用太高自动结束了')
+        return
 
 @bot.on_message('group')
 def sync_handle_msg(event):

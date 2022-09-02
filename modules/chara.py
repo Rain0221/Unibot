@@ -4,8 +4,11 @@ import random
 import sqlite3
 import time
 
+import aiohttp
 from PIL import Image
+from aiofile import AIOFile
 
+from modules.config import vitsapiurl, proxy, vitsvoiceurl
 from modules.gacha import getcharaname
 from modules.pjskinfo import writelog
 from modules.texttoimg import texttoimg
@@ -97,6 +100,16 @@ def charainfo(alias, qunnum=''):
 
     conn.close()
     return f"{resp[1]}\n全群昵称：{allalias[:-1]}\n本群昵称：{qunalias[:-1]}"
+
+async def getvits(chara, word):
+    # 因为某些库Window水土不服装不了所以弄成api部署在linux上了
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f'{vitsapiurl}gen?word={word}&chara={chara}', proxy=f'http://{proxy}') as r:
+            result = await r.text()
+    if 'playSounds' in result:
+        return True, vitsvoiceurl + result.replace('playSounds/', '')
+    else:
+        return False, result
 
 def charadel(alias, qqnum=None, username='', qun='群与用户名未知，可能来自分布式'):
     resp = aliastocharaid(alias)
