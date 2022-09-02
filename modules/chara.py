@@ -3,10 +3,10 @@ import os
 import random
 import sqlite3
 import time
+from urllib.parse import quote
 
 import aiohttp
 from PIL import Image
-from aiofile import AIOFile
 
 from modules.config import vitsapiurl, proxy, vitsvoiceurl
 from modules.gacha import getcharaname
@@ -107,7 +107,7 @@ async def getvits(chara, word):
         async with session.get(f'{vitsapiurl}gen?word={word}&chara={chara}', proxy=f'http://{proxy}') as r:
             result = await r.text()
     if 'playSounds' in result:
-        return True, vitsvoiceurl + result.replace('playSounds/', '')
+        return True, vitsvoiceurl + quote(result.replace('playSounds/', ''), 'utf-8')
     else:
         return False, result
 
