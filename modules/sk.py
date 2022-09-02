@@ -216,7 +216,7 @@ def drawscoreline(targetid=None, targetrank=None):
         userscores[raw[0]] = raw[1]
     if userscores == {}:
         conn.close()
-        return '你要查询的玩家未进入前200，暂无数据'
+        return False
     cursor = c.execute(f'SELECT * from names where userid=?', (targetid,))
     for raw in cursor:
         name = raw[1]
