@@ -67,39 +67,42 @@ def eventtrack():
         if not os.path.exists(f'yamls/event/{eventid}'):
             os.makedirs(f'yamls/event/{eventid}')
         try:
+            conn = sqlite3.connect('data/events.db')
+            c = conn.cursor()
             resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank=1&lowerLimit=99')
             ranking = json.loads(resp.content)
             now = int(time.time())
             for rank in ranking['rankings']:
                 targetid = rank['userId']
+                score = rank['score']
+                name= rank['name']
+                c.execute(f'insert into "{eventid}" (time, score, userid) values(?, ?, ?)', (now, score, str(targetid)))
                 try:
-                    with open(f'yamls/event/{eventid}/{targetid}.yaml') as f:
-                        userscores = yaml.load(f, Loader=yaml.FullLoader)
-                except FileNotFoundError:
-                    userscores = {}
-                userscores[now] = rank['score']
-                userscores['name'] = rank['name']
-                with open(f'yamls/event/{eventid}/{targetid}.yaml', 'w', encoding='utf-8') as f:
-                    yaml.dump(userscores, f)
+                    c.execute(f'insert into names (userid, name) values(?, ?)', (str(targetid), name))
+                except sqlite3.IntegrityError:
+                    c.execute(f'update names set name=? where userid=?', (name, str(targetid)))
 
             resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank=101&lowerLimit=99')
             ranking = json.loads(resp.content)
+            now = int(time.time())
             for rank in ranking['rankings']:
                 targetid = rank['userId']
+                score = rank['score']
+                name = rank['name']
+                c.execute(f'insert into "{eventid}" (time, score, userid) values(?, ?, ?)', (now, score, str(targetid)))
                 try:
-                    with open(f'yamls/event/{eventid}/{targetid}.yaml') as f:
-                        userscores = yaml.load(f, Loader=yaml.FullLoader)
-                except FileNotFoundError:
-                    userscores = {}
-                userscores[now] = rank['score']
-                userscores['name'] = rank['name']
-                with open(f'yamls/event/{eventid}/{targetid}.yaml', 'w', encoding='utf-8') as f:
-                    yaml.dump(userscores, f)
+                    c.execute(f'insert into names (userid, name) values(?, ?)', (str(targetid), name))
+                except sqlite3.IntegrityError:
+                    c.execute(f'update names set name=? where userid=?', (name, str(targetid)))
+
+            conn.commit()
+            conn.close()
             time_printer('抓取完成')
         except:
             traceback.print_exc()
     else:
         time_printer('无正在进行的活动')
+
 
 def chafang(targetid=None, targetrank=None, private=False):
     event = currentevent('jp')
@@ -110,80 +113,80 @@ def chafang(targetid=None, targetrank=None, private=False):
         targetid = ranking['rankings'][0]['userId']
         private = True
     if event['status'] == 'going':
-        try:
-            with open(f'yamls/event/{eventid}/{targetid}.yaml') as f:
-                userscores = yaml.load(f, Loader=yaml.FullLoader)
-            lasttime = 0
-            twentybefore = 0
-            hourbefore = 0
-            username = userscores['name']
-            if private:
-                text = f'{username}\n'
-            else:
-                text = f'{username} - {targetid}\n'
-            for times in userscores:
-                if times == 'name':
-                    continue
-                lasttime = times
-            for times in userscores:
-                if times == 'name':
-                    continue
-                if -60 < times - (lasttime - 20 * 60) < 60:
-                    twentybefore = times
-            for times in userscores:
-                if times == 'name':
-                    continue
-                if -60 < times - (lasttime - 60 * 60) < 60:
-                    hourbefore = times
-            lastupdate = 0
-            count = 0
-            hourcount = 0
-            pts = []
-            for times in userscores:
-                if times == 'name':
-                    continue
-                count += 1
-                if count == 1:
-                    lastupdate = userscores[times]
-                else:
-                    if userscores[times] != lastupdate:
-                        if hourbefore != 0 and times >= hourbefore:
-                            hourcount += 1
-                        pts.append(userscores[times]-lastupdate)
-                        lastupdate = userscores[times]
-            if len(pts) >= 10:
-                ptsum = 0
-                for i in range(len(pts)-10, len(pts)):
-                    ptsum += pts[i]
-                text += f'近10次平均pt：{(ptsum / 10)/10000}W\n'
-            if hourbefore != 0:
-                text += f'时速: {(userscores[lasttime] - userscores[hourbefore])/10000}W\n'
-            if twentybefore != 0:
-                text += f'20min*3时速: {((userscores[lasttime] - userscores[twentybefore])*3)/10000}W\n'
-            if hourcount != 0:
-                text += f'本小时周回数: {hourcount}\n'
-            stop = getstoptime(targetid, None, True)
-            if len(stop) != 0:
-                if stop[len(stop)]['end'] != 0:
-                    text += '周回中\n'
-                    text += f"连续周回时间: {timeremain(int(time.time()) - stop[len(stop)]['end'])}\n"
-                else:
-                    text += '停车中\n'
-                    text += f"已停车: {timeremain(int(time.time()) - stop[len(stop)]['start'])}\n"
-            else:
-                for times in userscores:
-                    if times == 'name':
-                        continue
-                    firsttime = times
-                    break
-                text += '周回中\n'
-                text += f"连续周回时间: {timeremain(int(time.time()) - firsttime)}\n"
-                updatetime = datetime.datetime.fromtimestamp(lasttime,
-                                           pytz.timezone('Asia/Shanghai')).strftime('%m/%d %H:%M')
-                text += f"仅记录在200名以内时的数据，数据更新于{updatetime}"
-            return text
-        except FileNotFoundError:
+        conn = sqlite3.connect('data/events.db')
+        c = conn.cursor()
+        cursor = c.execute(f'SELECT * from "{eventid}" where userid=?', (targetid,))
+        userscores = {}
+        for raw in cursor:
+            userscores[raw[0]] = raw[1]
+        if userscores == {}:
+            conn.close()
             return '你要查询的玩家未进入前200，暂无数据'
+        lasttime = 0
+        twentybefore = 0
+        hourbefore = 0
+        cursor = c.execute(f'SELECT * from names where userid=?', (targetid,))
+        for raw in cursor:
+            username = raw[1]
+        conn.close()
+        if private:
+            text = f'{username}\n'
+        else:
+            text = f'{username} - {targetid}\n'
+        for times in userscores:
+            lasttime = times
+        for times in userscores:
+            if -60 < times - (lasttime - 20 * 60) < 60:
+                twentybefore = times
+        for times in userscores:
+            if -60 < times - (lasttime - 60 * 60) < 60:
+                hourbefore = times
+        lastupdate = 0
+        count = 0
+        hourcount = 0
+        pts = []
+        for times in userscores:
+            count += 1
+            if count == 1:
+                lastupdate = userscores[times]
+            else:
+                if userscores[times] != lastupdate:
+                    if hourbefore != 0 and times >= hourbefore:
+                        hourcount += 1
+                    pts.append(userscores[times]-lastupdate)
+                    lastupdate = userscores[times]
+        if len(pts) >= 10:
+            ptsum = 0
+            for i in range(len(pts)-10, len(pts)):
+                ptsum += pts[i]
+            text += f'近10次平均pt：{(ptsum / 10)/10000}W\n'
+        if hourbefore != 0:
+            text += f'时速: {(userscores[lasttime] - userscores[hourbefore])/10000}W\n'
+        if twentybefore != 0:
+            text += f'20min*3时速: {((userscores[lasttime] - userscores[twentybefore])*3)/10000}W\n'
+        if hourcount != 0:
+            text += f'本小时周回数: {hourcount}\n'
+        stop = getstoptime(targetid, None, True)
+        if len(stop) != 0:
+            if stop[len(stop)]['end'] != 0:
+                text += '周回中\n'
+                text += f"连续周回时间: {timeremain(int(time.time()) - stop[len(stop)]['end'])}\n"
+            else:
+                text += '停车中\n'
+                text += f"已停车: {timeremain(int(time.time()) - stop[len(stop)]['start'])}\n"
+        else:
+            for times in userscores:
+                if times == 'name':
+                    continue
+                firsttime = times
+                break
+            text += '周回中\n'
+            text += f"连续周回时间: {timeremain(int(time.time()) - firsttime)}\n"
+            updatetime = datetime.datetime.fromtimestamp(lasttime,
+                                       pytz.timezone('Asia/Shanghai')).strftime('%m/%d %H:%M')
+            text += f"仅记录在200名以内时的数据，数据更新于{updatetime}"
+        return text
+
 
 def drawscoreline(targetid=None, targetrank=None):
     x = []
@@ -195,17 +198,24 @@ def drawscoreline(targetid=None, targetrank=None):
         resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={targetrank}')
         ranking = json.loads(resp.content)
         targetid = ranking['rankings'][0]['userId']
-    try:
-        with open(f'yamls/event/69/{targetid}.yaml') as f:
-            userscores = yaml.load(f, Loader=yaml.FullLoader)
-    except FileNotFoundError:
-        return False
+
+    conn = sqlite3.connect('data/events.db')
+    c = conn.cursor()
+    cursor = c.execute(f'SELECT * from "{eventid}" where userid=?', (targetid,))
+    userscores = {}
+    for raw in cursor:
+        userscores[raw[0]] = raw[1]
+    if userscores == {}:
+        conn.close()
+        return '你要查询的玩家未进入前200，暂无数据'
+    cursor = c.execute(f'SELECT * from names where userid=?', (targetid,))
+    for raw in cursor:
+        name = raw[1]
+    conn.close()
+
     for times in userscores:
-        if times != 'name':
-            x.append(times)
-            k.append(userscores[times] / 10000)
-        else:
-            name = userscores[times]
+        x.append(times)
+        k.append(userscores[times] / 10000)
     for timestamp in x:
         timeArray = time.localtime(timestamp)
         otherStyleTime = time.strftime("%m-%d %H:%M", timeArray)
@@ -235,67 +245,71 @@ def getstoptime(targetid=None, targetrank=None, returnjson=False, private=False)
             ranking = json.loads(resp.content)
             targetid = ranking['rankings'][0]['userId']
             private = True
-    try:
-        with open(f'yamls/event/{eventid}/{targetid}.yaml') as f:
-            userscores = yaml.load(f, Loader=yaml.FullLoader)
-        username = userscores['name']
-        lastupdate = 0
-        count = 0
-        stop = {}
-        stopcount = 0
-        stopping = False
-        stoplength = 0
-        for times in userscores:
-            if times == 'name':
-                continue
-            count += 1
-            if count == 1:
-                lastupdate = times
-            else:
-                if userscores[times] == userscores[lastupdate]:
-                    if times - lastupdate > 5 * 60:
-                        if not stopping:
-                            stopcount += 1
-                            stopping = True
-                            stop[stopcount] = {'start': 0, 'end': 0}
-                            stop[stopcount]['start'] = lastupdate
-                else:
-                    lastupdate = times
-                    if stopping:
-                        stop[stopcount]['end'] = times
-                        stopping = False
-
-        if private:
-            text = f'{username}\n停车时间段:\n'
-        else:
-            text = f'{username} - {targetid}\n停车时间段:\n'
-        if returnjson:
-            return stop
-        if len(stop) != 0:
-            for count in stop:
-                start = stop[count]['start']
-                starttime = datetime.datetime.fromtimestamp(start,
-                                           pytz.timezone('Asia/Shanghai')).strftime('%m/%d %H:%M:%S')
-                end = stop[count]['end']
-                endtime = datetime.datetime.fromtimestamp(end,
-                                           pytz.timezone('Asia/Shanghai')).strftime('%m/%d %H:%M:%S')
-                if end == 0:
-                    endtime = ''
-                    end = int(time.time())
-                stoplength += end - start
-                text += f'{count}. {starttime} ~ {endtime}\n'
-            text += f'总停车时间：{timeremain(stoplength)}\n'
-            text += f"仅记录在200名以内时的数据"
-            return text
-        else:
-            if returnjson:
-                return stop
-            return text + '未停车' + "\n仅记录在200名以内时的数据"
-
-    except FileNotFoundError:
+    conn = sqlite3.connect('data/events.db')
+    c = conn.cursor()
+    cursor = c.execute(f'SELECT * from "{eventid}" where userid=?', (targetid,))
+    userscores = {}
+    for raw in cursor:
+        userscores[raw[0]] = raw[1]
+    if userscores == {}:
+        conn.close()
         if returnjson:
             return {}
         return False
+    cursor = c.execute(f'SELECT * from names where userid=?', (targetid,))
+    for raw in cursor:
+        username = raw[1]
+    conn.close()
+    lastupdate = 0
+    count = 0
+    stop = {}
+    stopcount = 0
+    stopping = False
+    stoplength = 0
+    for times in userscores:
+        count += 1
+        if count == 1:
+            lastupdate = times
+        else:
+            if userscores[times] == userscores[lastupdate]:
+                if times - lastupdate > 5 * 60:
+                    if not stopping:
+                        stopcount += 1
+                        stopping = True
+                        stop[stopcount] = {'start': 0, 'end': 0}
+                        stop[stopcount]['start'] = lastupdate
+            else:
+                lastupdate = times
+                if stopping:
+                    stop[stopcount]['end'] = times
+                    stopping = False
+
+    if private:
+        text = f'{username}\n停车时间段:\n'
+    else:
+        text = f'{username} - {targetid}\n停车时间段:\n'
+    if returnjson:
+        return stop
+    if len(stop) != 0:
+        for count in stop:
+            start = stop[count]['start']
+            starttime = datetime.datetime.fromtimestamp(start,
+                                       pytz.timezone('Asia/Shanghai')).strftime('%m/%d %H:%M:%S')
+            end = stop[count]['end']
+            endtime = datetime.datetime.fromtimestamp(end,
+                                       pytz.timezone('Asia/Shanghai')).strftime('%m/%d %H:%M:%S')
+            if end == 0:
+                endtime = ''
+                end = int(time.time())
+            stoplength += end - start
+            text += f'{count}. {starttime} ~ {endtime}\n'
+        text += f'总停车时间：{timeremain(stoplength)}\n'
+        text += f"仅记录在200名以内时的数据"
+        return text
+    else:
+        if returnjson:
+            return stop
+        return text + '未停车' + "\n仅记录在200名以内时的数据"
 
 def getranks():
     time_printer('抓取时速')

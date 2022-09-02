@@ -562,50 +562,6 @@ def sync_handle_msg(event):
             else:
                 sendmsg(event, "你要查询的玩家未进入前200，暂无数据")
             return
-        # if event.message[:4] == '冲榜跟踪':
-        #     if event.user_id in whitelist:
-        #         nowtevent = currentevent('jp')
-        #         if nowtevent['status'] == 'going':
-        #             eventid = nowtevent['id']
-        #             userid = event.message.replace("冲榜跟踪", "")
-        #             userid = re.sub(r'\D', "", userid)
-        #             if userid == '':
-        #                 sendmsg(event, '你这id有问题啊')
-        #                 return
-        #             if int(userid) <= 100:
-        #                 resp = requests.get(
-        #                     f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={userid}')
-        #                 ranking = json.loads(resp.content)
-        #                 userid = str(ranking['rankings'][0]['userId'])
-        #             else:
-        #                 if not verifyid(userid, 'jp'):
-        #                     sendmsg(event, '你这id有问题啊')
-        #                     return
-        #                 resp = requests.get(
-        #                     f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetUserId={userid}')
-        #                 ranking = json.loads(resp.content)
-        #                 rank = ranking['rankings'][0]['rank']
-        #                 if rank > 100:
-        #                     sendmsg(event, '仅支持前跟踪100')
-        #                     return
-        #             if not os.path.exists(f'yamls/event/{eventid}'):
-        #                 os.makedirs(f'yamls/event/{eventid}')
-        #             try:
-        #                 with open(f'yamls/event/{eventid}/chafang.yaml') as f:
-        #                     users = yaml.load(f, Loader=yaml.FullLoader)
-        #             except FileNotFoundError:
-        #                 users = []
-        #             if userid in users:
-        #                 sendmsg(event, "该id已经存在")
-        #                 return
-        #             users.append(userid)
-        #             with open(f'yamls/event/{eventid}/chafang.yaml', 'w', encoding='utf-8') as f:
-        #                 yaml.dump(users, f)
-        #             sendmsg(event, "添加成功")
-        #             return
-        #     else:
-        #         sendmsg(event, "该功能仅对熟人开放")
-        #         return
         if event.message == '5v5人数':
             sendmsg(event, teamcount())
         if event.message[:5] == 'event':
