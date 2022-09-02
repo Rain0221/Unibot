@@ -76,7 +76,16 @@ def eventtrack():
                 targetid = rank['userId']
                 score = rank['score']
                 name= rank['name']
-                c.execute(f'insert into "{eventid}" (time, score, userid) values(?, ?, ?)', (now, score, str(targetid)))
+                try:
+                    c.execute(f'insert into "{eventid}" (time, score, userid) values(?, ?, ?)', (now, score, str(targetid)))
+                except sqlite3.OperationalError:
+                    c.execute('''CREATE TABLE "{eventid}"
+                               ("time"   INTEGER,
+                                "score"  INTEGER,
+                                "userid" TEXT);''')
+                    c.execute(f'insert into "{eventid}" (time, score, userid) values(?, ?, ?)',
+                              (now, score, str(targetid)))
+
                 try:
                     c.execute(f'insert into names (userid, name) values(?, ?)', (str(targetid), name))
                 except sqlite3.IntegrityError:
