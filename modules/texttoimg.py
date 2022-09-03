@@ -1,8 +1,5 @@
 import datetime
-import textwrap
 from emoji2pic import Emoji2Pic
-from modules.profileanalysis import daibu
-from modules.sk import skyc
 from modules.twitter import connect_to_endpoint
 from PIL import Image, ImageDraw, ImageFont
 
