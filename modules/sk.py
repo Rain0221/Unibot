@@ -112,6 +112,17 @@ def eventtrack():
     else:
         time_printer('无正在进行的活动')
 
+def recordname(qqnum, userid, name):
+    conn = sqlite3.connect('data/names.db')
+    c = conn.cursor()
+    cursor = c.execute(f'SELECT * from names where qqnum=? and userid=? and name=?', (str(qqnum), str(userid), name))
+    for raw in cursor:
+        conn.close()
+        return
+    sql_add = f'insert into names (userid, name, qqnum, time) values(?, ?, ?, ?)'
+    c.execute(sql_add, (str(userid), name, str(qqnum), int(time.time())))
+    conn.commit()
+    conn.close()
 
 def chafang(targetid=None, targetrank=None, private=False):
     event = currentevent('jp')
@@ -473,7 +484,7 @@ def skyc():
     text = text + '\n预测线来自xfl03(3-3.dev)\n预测生成时间为' + time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
     return text
 
-def sk(targetid=None, targetrank=None, secret=False, server='jp', simple=False):
+def sk(targetid=None, targetrank=None, secret=False, server='jp', simple=False, qqnum='未知'):
     event = currentevent(server)
     eventid = event['id']
     if event['status'] == 'counting':
@@ -505,6 +516,7 @@ def sk(targetid=None, targetrank=None, secret=False, server='jp', simple=False):
         rank = ranking['rankings'][0]['rank']
         score = ranking['rankings'][0]['score']
         userId = str(ranking['rankings'][0]['userId'])
+        recordname(qqnum, userId, name)
     except IndexError:
         return '查不到数据捏，可能这期活动没打'
     try:

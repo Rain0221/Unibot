@@ -4,7 +4,10 @@ from PIL import Image, ImageFont, ImageDraw, ImageFilter
 import requests
 
 from modules.config import apiurl, enapiurl, twapiurl
-from modules.sk import verifyid
+from modules.musics import idtoname
+from modules.sk import verifyid, recordname, currentevent
+from modules.texttoimg import texttoimg
+
 assetpath = 'data/assets/sekai/assetbundle/resources'
 rankmatchgrades = {
     1: 'ビギナー(初学者)',
@@ -43,7 +46,7 @@ class userprofile(object):
         for i in range(21, 32):
             self.expertscore[i] = [0, 0, 0, 0]
 
-    def getprofile(self, userid, server):
+    def getprofile(self, userid, server, qqnum='未知'):
         if server == 'jp':
             url = apiurl
             masterdatadir = 'masterdata'
@@ -58,7 +61,7 @@ class userprofile(object):
         # with open('piccache\profile.json', 'r', encoding='utf-8') as f:
         #     data = json.load(f)
         self.name = data['user']['userGamedata']['name']
-
+        recordname(qqnum, userid, self.name)
         try:
             self.twitterId = data['userProfile']['twitterId']
         except:
@@ -197,13 +200,50 @@ def currentrankmatch():
         return data[i]['id']
     return data[len(data) - 1]['id']
 
+def r30(userid, private=False, server='jp', qqnum='未知'):
+    if server == 'jp':
+        url = apiurl
+    elif server == 'en':
+        url = enapiurl
+    elif server == 'tw':
+        url = twapiurl
+    if int(userid) < 10000000:
+        event = currentevent('jp')
+        eventid = event['id']
+        resp = requests.get(f'{url}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={userid}')
+        ranking = json.loads(resp.content)
+        userid = ranking['rankings'][0]['userId']
+        private = True
+    resp = requests.get(f'{url}/user/{userid}/profile')
+    data = json.loads(resp.content)
+    # with open('piccache\profile.json', 'r', encoding='utf-8') as f:
+    #     data = json.load(f)
+    name = data['user']['userGamedata']['name']
+    recordname(qqnum, userid, name)
+    userMusicResults = data['userMusicResults']
+    userMusicResults.sort(key=lambda x: x["updatedAt"], reverse=True)
+    text = f'{name} - {userid}\n'
+    if private:
+        text = f'{name}\n'
+    count = 0
+    for musics in userMusicResults:
+        count += 1
+        timeArray = time.localtime(musics['updatedAt'] / 1000)
+        otherStyleTime = time.strftime("%m-%d %H:%M", timeArray)
+        text += f"{otherStyleTime}: {idtoname(musics['musicId'])} [{musics['musicDifficulty'].upper()}] {musics['playType']}\n"
+        if count == 30:
+            break
+    text += '由于pjsk统计机制的问题会导致统计不全'
+    texttoimg(text, 800, f'{userid}r30')
+    return f'{userid}r30'
 
-def daibu(targetid=None, secret=False, server='jp'):
+
+def daibu(targetid=None, secret=False, server='jp', qqnum='未知'):
     if not verifyid(targetid, server):
         return '你这ID有问题啊'
     try:
         profile = userprofile()
-        profile.getprofile(targetid, server)
+        profile.getprofile(targetid, server, qqnum)
     except (json.decoder.JSONDecodeError, IndexError):
         return '未找到玩家'
     if secret:
@@ -234,7 +274,7 @@ def daibu(targetid=None, secret=False, server='jp'):
         return text
 
 
-def rk(targetid=None, targetrank=None, secret=False, isdaibu=False):
+def rk(targetid=None, targetrank=None, secret=False, isdaibu=False, qqnum="未知"):
     rankmatchid = currentrankmatch()
     if targetid is not None:
         if not verifyid(targetid):
@@ -248,6 +288,7 @@ def rk(targetid=None, targetrank=None, secret=False, isdaibu=False):
         data = json.loads(resp.content)
         ranking = data['rankings'][0]['userRankMatchSeason']
         grade = int((ranking['rankMatchTierId'] - 1) / 4) + 1
+        recordname(qqnum, data['rankings'][0]['userId'], data['rankings'][0]['name'])
     except IndexError:
         return '未参加当期排位赛'
     if grade > 7:
@@ -281,9 +322,9 @@ def rk(targetid=None, targetrank=None, secret=False, isdaibu=False):
     return text
 
 
-def pjskjindu(userid, private=False, diff='master', server='jp'):
+def pjskjindu(userid, private=False, diff='master', server='jp', qqnum='未知'):
     profile = userprofile()
-    profile.getprofile(userid, server)
+    profile.getprofile(userid, server, qqnum)
     if private:
         id = '保密'
     else:
@@ -359,9 +400,9 @@ def pjskjindu(userid, private=False, diff='master', server='jp'):
     img.save(fr'piccache\{userid}jindu.png')
 
 
-def pjskprofile(userid, private=False, server='jp'):
+def pjskprofile(userid, private=False, server='jp', qqnum='未知'):
     profile = userprofile()
-    profile.getprofile(userid, server)
+    profile.getprofile(userid, server, qqnum)
     if private:
         id = '保密'
     else:
@@ -786,7 +827,7 @@ def bondsbackground(chara1, chara2, ismain=True):
         pic1.paste(pic2, (90, 0))
     return pic1
 
-def pjskb30(userid, private=False, returnpic=False, server='jp'):
+def pjskb30(userid, private=False, returnpic=False, server='jp', qqnum='未知'):
     if server == 'jp':
         url = apiurl
     elif server == 'en':
@@ -798,6 +839,7 @@ def pjskb30(userid, private=False, returnpic=False, server='jp'):
     # with open('piccache\profile.json', 'r', encoding='utf-8') as f:
     #     data = json.load(f)
     name = data['user']['userGamedata']['name']
+    recordname(qqnum, userid, name)
     if server == 'en':
         userProfileHonors = [{}, {}, {}]
         for i in range(0, 3):

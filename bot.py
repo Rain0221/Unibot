@@ -27,7 +27,7 @@ from modules.musics import hotrank, levelrank, parse_bpm, aliastochart, idtoname
 from modules.pjskguess import getrandomjacket, cutjacket, getrandomchart, cutchartimg, getrandomcard, cutcard, \
     getrandommusic, cutmusic
 from modules.pjskinfo import aliastomusicid, pjskset, pjskdel, pjskalias, pjskinfo, writelog
-from modules.profileanalysis import daibu, rk, pjskjindu, pjskprofile, pjskb30
+from modules.profileanalysis import daibu, rk, pjskjindu, pjskprofile, pjskb30, r30
 from modules.sendmail import sendemail
 from modules.sk import sk, getqqbind, bindid, setprivate, skyc, verifyid, gettime, teamcount, currentevent, chafang, \
     getstoptime, ss, drawscoreline
@@ -364,7 +364,7 @@ def sync_handle_msg(event):
                 if bind is None:
                     sendmsg(event, '你没有绑定id！')
                     return
-                result = sk(bind[1], None, bind[2], server)
+                result = sk(bind[1], None, bind[2], server, False, event.user_id)
                 sendmsg(event, result)
             else:
                 event.message = event.message[event.message.find("sk") + len("sk"):].strip()
@@ -378,9 +378,9 @@ def sync_handle_msg(event):
                         sendmsg(event, '你这id有问题啊')
                         return
                     if int(userid) > 10000000:
-                        result = sk(userid, None, False, server)
+                        result = sk(userid, None, False, server, False, event.user_id)
                     else:
-                        result = sk(None, userid, True, server)
+                        result = sk(None, userid, True, server, False, event.user_id)
                     sendmsg(event, result)
                     return
                 else:
@@ -391,9 +391,9 @@ def sync_handle_msg(event):
                             sendmsg(event, '你这id有问题啊')
                             return
                         if int(userid) > 10000000:
-                            result += sk(userid, None, False, server, True)
+                            result += sk(userid, None, False, server, True, event.user_id)
                         else:
-                            result += sk(None, userid, True, server, True)
+                            result += sk(None, userid, True, server, True, event.user_id)
                         result += '\n\n'
                     sendmsg(event, result[:-2])
                     return
@@ -422,7 +422,7 @@ def sync_handle_msg(event):
                 if bind is None:
                     sendmsg(event, '查不到捏，可能是没绑定')
                     return
-                result = daibu(bind[1], bind[2], server)
+                result = daibu(bind[1], bind[2], server, event.user_id)
                 sendmsg(event, result)
             else:
                 userid = event.message.replace("逮捕", "")
@@ -436,7 +436,7 @@ def sync_handle_msg(event):
                         sendmsg(event, '查不到捏，可能是不给看')
                         return
                     else:
-                        result = daibu(bind[1], bind[2], server)
+                        result = daibu(bind[1], bind[2], server, event.user_id)
                         sendmsg(event, result)
                         return
                 userid = re.sub(r'\D', "", userid)
@@ -444,9 +444,9 @@ def sync_handle_msg(event):
                     sendmsg(event, '你这id有问题啊')
                     return
                 if int(userid) > 10000000:
-                    result = daibu(userid, False, server)
+                    result = daibu(userid, False, server, event.user_id)
                 else:
-                    result = daibu(userid, False, server)
+                    result = daibu(userid, False, server, event.user_id)
                 sendmsg(event, result)
             return
         if event.message == "pjsk进度":
@@ -454,7 +454,7 @@ def sync_handle_msg(event):
             if bind is None:
                 sendmsg(event, '查不到捏，可能是没绑定')
                 return
-            pjskjindu(bind[1], bind[2], 'master', server)
+            pjskjindu(bind[1], bind[2], 'master', server, event.user_id)
             sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}jindu.png,cache=0]")
             return
         if event.message == "pjsk进度ex":
@@ -462,7 +462,7 @@ def sync_handle_msg(event):
             if bind is None:
                 sendmsg(event, '查不到捏，可能是没绑定')
                 return
-            pjskjindu(bind[1], bind[2], 'expert', server)
+            pjskjindu(bind[1], bind[2], 'expert', server, event.user_id)
             sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}jindu.png,cache=0]")
             return
         if event.message == "pjsk b30":
@@ -470,15 +470,29 @@ def sync_handle_msg(event):
             if bind is None:
                 sendmsg(event, '查不到捏，可能是没绑定')
                 return
-            pjskb30(bind[1], bind[2], False, server)
+            pjskb30(bind[1], bind[2], False, server, event.user_id)
             sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}b30.png,cache=0]")
+            return
+        if event.message.startswith("pjsk r30"):
+            if event.user_id not in whitelist and event.group_id not in whitelist:
+                return
+            if event.message == "pjsk r30":
+                bind = getqqbind(event.user_id, server)
+                if bind is None:
+                    sendmsg(event, '查不到捏，可能是没绑定')
+                    return
+                sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{r30(bind[1], bind[2], server, event.user_id)}.png,cache=0]")
+            else:
+                userid = event.message[event.message.find("pjsk r30") + len("pjsk r30"):].strip()
+                sendmsg(event,
+                        fr"[CQ:image,file=file:///{botdir}\piccache\{r30(userid, False, server, event.user_id)}.png,cache=0]")
             return
         if event.message == "pjskprofile" or event.message == "个人信息":
             bind = getqqbind(event.user_id, server)
             if bind is None:
                 sendmsg(event, '查不到捏，可能是没绑定')
                 return
-            pjskprofile(bind[1], bind[2], server)
+            pjskprofile(bind[1], bind[2], server, event.user_id)
             sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}profile.png,cache=0]")
             return
 
