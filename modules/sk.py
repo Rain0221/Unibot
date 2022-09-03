@@ -95,7 +95,6 @@ def eventtrack():
 
             resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank=101&lowerLimit=99')
             ranking = json.loads(resp.content)
-            now = int(time.time())
             for rank in ranking['rankings']:
                 targetid = rank['userId']
                 score = rank['score']
