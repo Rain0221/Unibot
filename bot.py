@@ -534,19 +534,28 @@ def sync_handle_msg(event):
                 userid = bind[0]
             else:
                 userid = event.message.replace("分数线", "")
-                userid = re.sub(r'\D', "", userid)
             if userid == '':
                 sendmsg(event, '你这id有问题啊')
                 return
-            if int(userid) > 10000000:
-                result = drawscoreline(userid, None)
+            userids = userid.split(' ')
+            if len(userids) == 1:
+                userid = re.sub(r'\D', "", userid)
+                if int(userid) > 10000000:
+                    result = drawscoreline(userid, None)
+                else:
+                    result = drawscoreline(None, userid)
+                if result:
+                    sendmsg(event, fr"[CQ:image,file=file:///{botdir}\{result},cache=0]")
+                else:
+                    sendmsg(event, "你要查询的玩家未进入前200，暂无数据")
+                return
             else:
-                result = drawscoreline(None, userid)
-            if result:
-                sendmsg(event, fr"[CQ:image,file=file:///{botdir}\{result},cache=0]")
-            else:
-                sendmsg(event, "你要查询的玩家未进入前200，暂无数据")
-            return
+                result = drawscoreline(None, userids[0], userids[1])
+                if result:
+                    sendmsg(event, fr"[CQ:image,file=file:///{botdir}\{result},cache=0]")
+                else:
+                    sendmsg(event, "你要查询的玩家未进入前200，暂无数据")
+                return
         if event.message[:3] == "查水表" or event.message[:3] == "csb":
             if event.group_id in blacklist['sk'] and event.message[:3] == "查水表":
                 return
