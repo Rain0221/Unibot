@@ -364,8 +364,11 @@ def sync_handle_msg(event):
                 if bind is None:
                     sendmsg(event, '你没有绑定id！')
                     return
-                result = sk(bind[1], None, bind[2], server, False, event.user_id)
-                sendmsg(event, result)
+                result = sk(bind[1], None, bind[2], server, False, event.user_id, True)
+                if 'piccache' in result:
+                    sendmsg(event, fr"[CQ:image,file=file:///{botdir}\{result},cache=0]")
+                else:
+                    sendmsg(event, result)
             else:
                 event.message = event.message[event.message.find("sk") + len("sk"):].strip()
                 userids = event.message.split(' ')
@@ -378,10 +381,13 @@ def sync_handle_msg(event):
                         sendmsg(event, '你这id有问题啊')
                         return
                     if int(userid) > 10000000:
-                        result = sk(userid, None, False, server, False, event.user_id)
+                        result = sk(userid, None, False, server, False, event.user_id, True)
                     else:
-                        result = sk(None, userid, True, server, False, event.user_id)
-                    sendmsg(event, result)
+                        result = sk(None, userid, True, server, False, event.user_id, True)
+                    if 'piccache' in result:
+                        sendmsg(event, fr"[CQ:image,file=file:///{botdir}\{result},cache=0]")
+                    else:
+                        sendmsg(event, result)
                     return
                 else:
                     result = ''
@@ -839,7 +845,7 @@ def sync_handle_msg(event):
             sendmsg(event, tasseiritsu(para))
             return
         if event.message[:2] == '机翻' and event.message[-2:] == '推特':
-            if event.self_id not in mainbot and event.self_id != guildbot:
+            if event.user_id not in whitelist and event.group_id not in whitelist:
                 return
             if '最新' in event.message:
                 event.message = event.message.replace('最新', '')
@@ -851,7 +857,7 @@ def sync_handle_msg(event):
                 sendmsg(event, '查不到捏，可能是你id有问题或者bot卡了')
             return
         if event.message[-4:] == '最新推特':
-            if event.self_id not in mainbot and event.self_id != guildbot:
+            if event.user_id not in whitelist and event.group_id not in whitelist:
                 return
             try:
                 twiid = newesttwi(event.message.replace('最新推特', '').replace(' ', ''))

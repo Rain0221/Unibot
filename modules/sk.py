@@ -4,7 +4,7 @@ import os.path
 import sqlite3
 import time
 import traceback
-
+from PIL import Image, ImageFont, ImageDraw, ImageFilter
 import matplotlib
 import pytz
 import requests
@@ -12,7 +12,7 @@ import yaml
 from matplotlib import pyplot as plt, ticker
 from matplotlib.font_manager import FontProperties
 
-from modules.config import apiurl, predicturl, proxies, ispredict, enapiurl, twapiurl
+from modules.config import apiurl, predicturl, proxies, ispredict, enapiurl, twapiurl, piccacheurl
 
 rankline = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 100, 200, 300, 400, 500, 1000, 2000, 3000, 4000, 5000,
             10000, 20000, 30000, 40000, 50000, 100000, 100000000]
@@ -46,6 +46,7 @@ def currentevent(server):
     for i in range(0, len(data)):
         startAt = data[i]['startAt']
         endAt = data[i]['closedAt']
+        assetbundleName = data[i]['assetbundleName']
         now = int(round(time.time() * 1000))
         remain = ''
         if not startAt < now < endAt:
@@ -57,7 +58,7 @@ def currentevent(server):
             status = 'counting'
         else:
             status = 'end'
-        return {'id': data[i]['id'], 'status': status, 'remain': remain}
+        return {'id': data[i]['id'], 'status': status, 'remain': remain, 'assetbundleName': assetbundleName}
 
 
 def eventtrack():
@@ -512,7 +513,7 @@ def skyc():
     text = text + '\n预测线来自xfl03(3-3.dev)\n预测生成时间为' + time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
     return text
 
-def sk(targetid=None, targetrank=None, secret=False, server='jp', simple=False, qqnum='未知'):
+def oldsk(targetid=None, targetrank=None, secret=False, server='jp', simple=False, qqnum='未知'):
     event = currentevent(server)
     eventid = event['id']
     if event['status'] == 'counting':
@@ -575,7 +576,6 @@ def sk(targetid=None, targetrank=None, secret=False, server='jp', simple=False, 
     for i in range(0, 31):
         if rank < rankline[i]:
             break
-
     if rank > 1:
         if rank == rankline[i - 1]:
             upper = rankline[i - 2]
@@ -619,7 +619,145 @@ def sk(targetid=None, targetrank=None, secret=False, server='jp', simple=False, 
         msg = msg + '\n活动还剩' + event['remain']
     return msg
 
+def sk(targetid=None, targetrank=None, secret=False, server='jp', simple=False, qqnum='未知', ismain=False):
+    event = currentevent(server)
+    eventid = event['id']
+    if event['status'] == 'counting':
+        return '活动分数统计中，不要着急哦！'
+    if server == 'jp':
+        url = apiurl
+        masterdatadir = 'masterdata'
+    elif server == 'en':
+        url = enapiurl
+        masterdatadir = '../enapi/masterdata'
+    elif server == 'tw':
+        url = twapiurl
+        masterdatadir = '../twapi/masterdata'
+    if targetid is not None:
+        if not verifyid(targetid, server):
+            bind = getqqbind(targetid, server)
+            if bind is None:
+                return '查不到捏'
+            elif bind[2]:
+                return '查不到捏，可能是不给看'
+            else:
+                targetid = bind[1]
+        resp = requests.get(f'{url}/user/%7Buser_id%7D/event/{eventid}/ranking?targetUserId={targetid}')
+    else:
+        resp = requests.get(f'{url}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={targetrank}')
+    ranking = json.loads(resp.content)
+    try:
+        name = ranking['rankings'][0]['name']
+        rank = ranking['rankings'][0]['rank']
+        score = ranking['rankings'][0]['score']
+        userId = str(ranking['rankings'][0]['userId'])
+        targetid = userId
+        recordname(qqnum, userId, name)
+    except IndexError:
+        return '查不到数据捏，可能这期活动没打'
+    try:
+        TeamId = ranking['rankings'][0]['userCheerfulCarnival']['cheerfulCarnivalTeamId']
+        with open(f'{masterdatadir}/cheerfulCarnivalTeams.json', 'r', encoding='utf-8') as f:
+            Teams = json.load(f)
+        with open('yamls/translate.yaml', encoding='utf-8') as f:
+            trans = yaml.load(f, Loader=yaml.FullLoader)
+        try:
+            translate = f"({trans['cheerfulCarnivalTeams'][TeamId]})"
+        except KeyError:
+            translate = ''
+        if server == 'tw':
+            translate = ''
+        for i in Teams:
+            if i['id'] == TeamId:
+                teamname = i['teamName'] + translate
+                assetbundleName = i['assetbundleName']
+                break
+    except KeyError:
+        teamname = ''
+        assetbundleName = ''
+    img = Image.new('RGB', (600, 600), (255, 255, 255))
+    draw = ImageDraw.Draw(img)
+    font = ImageFont.truetype(r'fonts\SourceHanSansCN-Medium.otf', 25)
+    if not secret:
+        userId = ' - ' + userId
+    else:
+        userId = ''
+    pos = 20
+    draw.text((20, pos), name + userId, '#000000', font)
+    pos += 35
+    if teamname != '':
+        team = Image.open('data/assets/sekai/assetbundle/resources/ondemand/event/'
+                          f'{event["assetbundleName"]}/team_image/{assetbundleName}.png')
+        team = team.resize((45, 45))
+        r, g, b ,mask = team.split()
+        img.paste(team, (20, 63), mask)
+        draw.text((70, 65), teamname, '#000000', font)
+        pos += 50
+    msg = f'{name}{userId}\n{teamname}分数{score / 10000}W，排名{rank}'
+    font2 = ImageFont.truetype(r'fonts\SourceHanSansCN-Medium.otf', 38)
+    draw.text((20, pos), f'分数{score / 10000}W，排名{rank}', '#000000', font2)
+    pos += 60
+    if simple:
+        return msg
+    for i in range(0, 31):
+        if rank < rankline[i]:
+            break
 
+    if rank > 1:
+        if rank == rankline[i - 1]:
+            upper = rankline[i - 2]
+        else:
+            upper = rankline[i - 1]
+        resp = requests.get(f'{url}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={upper}')
+        ranking = json.loads(resp.content)
+        linescore = ranking['rankings'][0]['score']
+        deviation = (linescore - score) / 10000
+        draw.text((20, pos), f'{upper}名分数 {linescore/10000}W  ↑{deviation}W', '#000000', font)
+        pos += 38
+    if rank < 100000:
+        if rank == rankline[i]:
+            lower = rankline[i + 1]
+        else:
+            lower = rankline[i]
+        resp = requests.get(f'{url}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={lower}')
+        ranking = json.loads(resp.content)
+        linescore = ranking['rankings'][0]['score']
+        deviation = (score - linescore) / 10000
+        draw.text((20, pos), f'{lower}名分数 {linescore / 10000}W  ↓{deviation}W', '#000000', font)
+        pos += 38
+    pos += 10
+    if event['status'] == 'going' and ispredict and server == 'jp':
+        for i in range(0, 17):
+            if rank < predictline[i]:
+                break
+        linescore = 0
+        if rank > 100:
+            upper = predictline[i - 1]
+            linescore = ssyc(upper, eventid)
+            if linescore != 0:
+                draw.text((20, pos), f'{upper}名 预测{linescore/10000}W', '#000000', font)
+                pos += 38
+        if rank < 100000:
+            if rank == predictline[i]:
+                lower = predictline[i + 1]
+            else:
+                lower = predictline[i]
+            linescore = ssyc(lower, eventid)
+            if linescore != 0:
+                draw.text((20, pos), f'{lower}名 预测{linescore/10000}W', '#000000', font)
+                pos += 38
+        pos += 10
+        font3 = ImageFont.truetype(r'fonts\SourceHanSansCN-Medium.otf', 16)
+        draw.text((400, pos - 5), '预测线来自33（3-3.dev）\n     Generated by Unibot', (150, 150, 150), font3)
+    if event['status'] == 'going':
+        draw.text((20, pos), '活动还剩' + event['remain'], '#000000', font)
+        pos += 38
+    img = img.crop((0, 0, 600, pos + 20))
+    img.save(f"piccache/{targetid}sk.png")
+    if ismain:
+        return f"piccache/{targetid}sk.png"
+    else:
+        return f"[CQ:image,file={piccacheurl}{targetid}sk.png,cache=0]"
 
 def teamcount():
     event = currentevent('jp')
