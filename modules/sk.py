@@ -209,7 +209,7 @@ def chafang(targetid=None, targetrank=None, private=False):
         return text
 
 
-def drawscoreline(targetid=None, targetrank=None, targetrank2=None):
+def drawscoreline(targetid=None, targetrank=None, targetrank2=None, starttime=0):
     x = []
     x2 = []
     k = []
@@ -246,16 +246,18 @@ def drawscoreline(targetid=None, targetrank=None, targetrank2=None):
             name2 = raw[1]
         conn.close()
         for times in userscores:
-            try:
-                k2.append(userscores2[times] / 10000)
-            except:
-                k2.append(0)
+            if times > starttime:
+                try:
+                    k2.append(userscores2[times] / 10000)
+                except:
+                    k2.append(0)
     else:
         conn.close()
 
     for times in userscores:
-        x.append(times)
-        k.append(userscores[times] / 10000)
+        if times > starttime:
+            x.append(times)
+            k.append(userscores[times] / 10000)
     for timestamp in x:
         timeArray = time.localtime(timestamp)
         otherStyleTime = time.strftime("%m-%d %H:%M", timeArray)

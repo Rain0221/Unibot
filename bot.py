@@ -279,6 +279,10 @@ def sync_handle_msg(event):
             resp = pjskalias(event.message)
             sendmsg(event, resp)
             return
+        if event.message == '词云' and event.self_id in mainbot:
+            sendmsg(event, '发送 /今日词云、/昨日词云、/本周词云、/本月词云、/年度词云 或 /历史词云 即可获取词云。\n'
+                           '如果想获取自己的词云，可在上述指令前添加 我的，如 /我的今日词云')
+            return
         if event.message[:8] == "sekai真抽卡":
             if event.self_id not in mainbot:
                 return
@@ -531,6 +535,10 @@ def sync_handle_msg(event):
                 result = chafang(None, userid)
             sendmsg(event, result)
             return
+        graphstart = 0
+        if event.message[:4] == '24小时':
+            graphstart = time.time() - 60 * 60 * 24
+            event.message = event.message[4:]
         if event.message[:3] == "分数线":
             if event.message == "分数线":
                 bind = getqqbind(event.user_id, 'jp')
@@ -547,16 +555,16 @@ def sync_handle_msg(event):
             if len(userids) == 1:
                 userid = re.sub(r'\D', "", userid)
                 if int(userid) > 10000000:
-                    result = drawscoreline(userid, None)
+                    result = drawscoreline(userid, None, None, graphstart)
                 else:
-                    result = drawscoreline(None, userid)
+                    result = drawscoreline(None, userid, None, graphstart)
                 if result:
                     sendmsg(event, fr"[CQ:image,file=file:///{botdir}\{result},cache=0]")
                 else:
                     sendmsg(event, "你要查询的玩家未进入前200，暂无数据")
                 return
             else:
-                result = drawscoreline(None, userids[0], userids[1])
+                result = drawscoreline(None, userids[0], userids[1], graphstart)
                 if result:
                     sendmsg(event, fr"[CQ:image,file=file:///{botdir}\{result},cache=0]")
                 else:
