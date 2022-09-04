@@ -186,6 +186,8 @@ def getchart(musicid, difficulty):
             else:  # 本地无缓存
                 if downloadviewerchart(musicid, difficulty):  # sekai viewer下载成功
                     return f'charts/SekaiViewer/{musicid}/{difficulty}.png'
+                elif os.path.exists(f'charts/moe/{musicid}/{difficulty}.png'):
+                    return f'charts/moe/{musicid}/{difficulty}.png'
                 else:  # sekai viewer下载失败 尝试sdvx.in
                     if os.path.exists(f'charts/sdvxInCharts/{musicid}/{difficulty}.png'):  # sdvx.in本地有缓存
                         return f'charts/sdvxInCharts/{musicid}/{difficulty}.png'
@@ -231,6 +233,8 @@ def getchart(musicid, difficulty):
             else:  # 本地无缓存
                 if downloadviewerchart(musicid, difficulty):  # sekai viewer下载成功
                     return f'charts/SekaiViewer/{musicid}/{difficulty}.png'
+                elif os.path.exists(f'charts/moe/{musicid}/{difficulty}.png'):
+                    return f'charts/moe/{musicid}/{difficulty}.png'
                 else:  # sekai viewer下载失败
                     if os.path.exists(f'charts/sus/{musicid}/{difficulty}.png'):
                         return f'charts/sus/{musicid}/{difficulty}.png'
@@ -387,6 +391,8 @@ def aliastochart(full, sdvx=False, qun=False):
                 text = text + '\nBPM: ' + bpmtext[3:] + '\n谱面图片来自Sekai Viewer'
             elif 'sdvxInCharts' in dir:
                 text = text + '\nBPM: ' + bpmtext[3:] + '\n谱面图片来自プロセカ譜面保管所'
+            elif 'moe' in dir:
+                text = text + '\nBPM: ' + bpmtext[3:] + '\n谱面图片来自ぷろせかもえ！ (开发中)'
             else:
                 text = text + '\nBPM: ' + bpmtext[3:] + '\n该自动生成的谱面预览没有长条斜率，部分中继点位置显示不正确，仅供参考。其他谱面预览源暂未更新'
             return text, dir  # 有图 return俩
