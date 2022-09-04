@@ -1,9 +1,11 @@
+import io
 import json
+import os.path
 import time
 from PIL import Image, ImageFont, ImageDraw, ImageFilter
 import requests
 
-from modules.config import apiurl, enapiurl, twapiurl
+from modules.config import apiurl, enapiurl, twapiurl, proxies
 from modules.musics import idtoname
 from modules.sk import verifyid, recordname, currentevent
 from modules.texttoimg import texttoimg
@@ -579,11 +581,17 @@ def generatehonor(honor, ismain=True, server='jp'):
         honor['profileHonorType']
     except:
         honor['profileHonorType'] = 'normal'
+    if server == 'jp':
+        masterdatadir = 'masterdata'
+    elif server == 'en':
+        masterdatadir = '../enapi/masterdata'
+    elif server == 'tw':
+        masterdatadir = '../twapi/masterdata'
     if honor['profileHonorType'] == 'normal':
         # 普通牌子
-        with open('masterdata/honors.json', 'r', encoding='utf-8') as f:
+        with open(f'{masterdatadir}/honors.json', 'r', encoding='utf-8') as f:
             honors = json.load(f)
-        with open('masterdata/honorGroups.json', 'r', encoding='utf-8') as f:
+        with open(f'{masterdatadir}/honorGroups.json', 'r', encoding='utf-8') as f:
             honorGroups = json.load(f)
         for i in honors:
             if i['id'] == honor['honorId']:
@@ -616,10 +624,10 @@ def generatehonor(honor, ismain=True, server='jp'):
                 frame = Image.open(r'pics/frame_degree_m_4.png')
             if backgroundAssetbundleName == '':
                 rankpic = None
-                pic = Image.open(r'data\assets\sekai\assetbundle\resources'
+                pic = gethonorasset(server, r'data\assets\sekai\assetbundle\resources'
                                  fr'\startapp\honor\{assetbundleName}\degree_main.png')
                 try:
-                    rankpic = Image.open(r'data\assets\sekai\assetbundle\resources'
+                    rankpic = gethonorasset(server, r'data\assets\sekai\assetbundle\resources'
                                          fr'\startapp\honor\{assetbundleName}\rank_main.png')
                 except FileNotFoundError:
                     pass
@@ -632,9 +640,9 @@ def generatehonor(honor, ismain=True, server='jp'):
                     r, g, b, mask = rankpic.split()
                     pic.paste(rankpic, (190, 0), mask)
             else:
-                pic = Image.open(r'data\assets\sekai\assetbundle\resources'
+                pic = gethonorasset(server, r'data\assets\sekai\assetbundle\resources'
                                  fr'\startapp\honor\{backgroundAssetbundleName}\degree_main.png')
-                rankpic = Image.open(r'data\assets\sekai\assetbundle\resources'
+                rankpic = gethonorasset(server, r'data\assets\sekai\assetbundle\resources'
                                      fr'\startapp\honor\{assetbundleName}\rank_main.png')
                 r, g, b, mask = frame.split()
                 if honorRarity == 'low':
@@ -665,10 +673,10 @@ def generatehonor(honor, ismain=True, server='jp'):
                 frame = Image.open(r'pics/frame_degree_s_4.png')
             if backgroundAssetbundleName == '':
                 rankpic = None
-                pic = Image.open(r'data\assets\sekai\assetbundle\resources'
+                pic = gethonorasset(server, r'data\assets\sekai\assetbundle\resources'
                                  fr'\startapp\honor\{assetbundleName}\degree_sub.png')
                 try:
-                    rankpic = Image.open(r'data\assets\sekai\assetbundle\resources'
+                    rankpic = gethonorasset(server, r'data\assets\sekai\assetbundle\resources'
                                          fr'\startapp\honor\{assetbundleName}\rank_sub.png')
                 except FileNotFoundError:
                     pass
@@ -681,9 +689,9 @@ def generatehonor(honor, ismain=True, server='jp'):
                     r, g, b, mask = rankpic.split()
                     pic.paste(rankpic, (34, 42), mask)
             else:
-                pic = Image.open(r'data\assets\sekai\assetbundle\resources'
+                pic = gethonorasset(server, r'data\assets\sekai\assetbundle\resources'
                                  fr'\startapp\honor\{backgroundAssetbundleName}\degree_sub.png')
-                rankpic = Image.open(r'data\assets\sekai\assetbundle\resources'
+                rankpic = gethonorasset(server, r'data\assets\sekai\assetbundle\resources'
                                      fr'\startapp\honor\{assetbundleName}\rank_sub.png')
                 r, g, b, mask = frame.split()
                 if honorRarity == 'low':
@@ -714,7 +722,7 @@ def generatehonor(honor, ismain=True, server='jp'):
                             pic.paste(lv, (54 + 16 * i, 63), mask)
     else:
         # cp牌子
-        with open('masterdata/bondsHonors.json', 'r', encoding='utf-8') as f:
+        with open(f'{masterdatadir}/bondsHonors.json', 'r', encoding='utf-8') as f:
             bondsHonors = json.load(f)
             for i in bondsHonors:
                 if i['id'] == honor['honorId']:
@@ -813,6 +821,40 @@ def generatehonor(honor, ismain=True, server='jp'):
                     r, g, b, mask = lv.split()
                     pic.paste(lv, (54 + 16 * i, 63), mask)
     return pic
+
+def gethonorasset(server, path):
+    if server == 'jp':
+        return Image.open(path)
+    if 'bonds_honor' in path:  # 没解出来 之后再改
+        return Image.open(path)
+    else:
+        path = path.replace(r'startapp\honor', fr'startapp\{server}honor').replace('startapp/honor', f'startapp/{server}honor')
+        if os.path.exists(path):
+            return Image.open(path)
+        else:
+            dirs = os.path.abspath(os.path.join(path, ".."))
+            foldername = dirs[dirs.find(f'{server}honor') + len(f'{server}honor') + 1:]
+            filename = path[path.find(foldername) + len(foldername) + 1:]
+            try:
+                if server == 'tw':
+                    print(f'download from https://storage.sekai.best/sekai-tc-assets/honor/{foldername}_rip/{filename}')
+                    resp = requests.get(f"https://storage.sekai.best/sekai-tc-assets/honor/{foldername}_rip/{filename}",
+                                       proxies=proxies)
+                elif server == 'en':
+                    print(f'download from https://storage.sekai.best/sekai-en-assets/honor/{foldername}_rip/{filename}')
+                    resp = requests.get(f"https://storage.sekai.best/sekai-en-assets/honor/{foldername}_rip/{filename}",
+                                        proxies=proxies)
+            except:
+                return Image.open(path.replace(f'{server}honor', 'honor'))
+            if resp.status_code == 200:  # 下载到了
+                pic = Image.open(io.BytesIO(resp.content))
+                if not os.path.exists(dirs):
+                    os.makedirs(dirs)
+                pic.save(path)
+                return pic
+            else:
+                return Image.open(path)
+
 
 def bondsbackground(chara1, chara2, ismain=True):
     if ismain:
