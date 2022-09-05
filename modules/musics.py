@@ -9,7 +9,6 @@ from PIL import Image, ImageDraw, ImageFont
 
 from modules.config import proxies
 from modules.pjskinfo import aliastomusicid
-from modules.sus2img import sus2img
 from moesus.music_score import parse
 
 
