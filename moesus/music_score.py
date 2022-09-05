@@ -99,7 +99,7 @@ def parse(music_id, difficulty):
     with open('moesus/chart/css/sus.css', encoding='utf-8') as f:
         style_sheet = f.read()
 
-    with open('moesus/chart/css/%s.css' % difficulty) as f:
+    with open('moesus/chart/css/master.css') as f:
         style_sheet += '\n' + f.read()
 
     sus.export(file_name + '.svg', style_sheet=style_sheet)

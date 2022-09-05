@@ -179,14 +179,11 @@ def parse_bpm(music_id):
 
 
 def getchart(musicid, difficulty):
-    try:
-        if os.path.exists(f'charts/moe/{musicid}/{difficulty}.png'):  # 本地有缓存
-            return f'charts/moe/{musicid}/{difficulty}.png'
-        else:  # 本地无缓存
-            parse(musicid, difficulty)  # 生成moe
-            return f'charts/moe/{musicid}/{difficulty}.png'
-    except:
-        return None
+    if os.path.exists(f'charts/moe/{musicid}/{difficulty}.png'):  # 本地有缓存
+        return f'charts/moe/{musicid}/{difficulty}.png'
+    else:  # 本地无缓存
+        parse(musicid, difficulty)  # 生成moe
+        return f'charts/moe/{musicid}/{difficulty}.png'
 
 
 def getsdvxchart(musicid, difficulty):

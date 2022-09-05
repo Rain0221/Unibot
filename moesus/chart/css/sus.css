@@ -1,28 +1,28 @@
 .bar-line {
-    stroke: #e2e2e2;
-    stroke-width: 4;
+    stroke: #eeeeee;
+    stroke-width: 2;
 }
 
 .bar-count-line {
-    stroke: #ffffff;
-    stroke-width: 4;
+    stroke: #606060;
+    stroke-width: 2;
 }
 
 .bar-count-text {
     font-size: 12px;
     font-weight: 900;
     font-family: Avenir;
-    fill: #ffffff;
+    fill: #606060;
     text-anchor: start;
 }
 
 .beat-line {
-    stroke: #e2e2e2;
+    stroke: #eeeeee;
     stroke-width: 1;
 }
 
 .lane-line {
-    stroke: #e2e2e2;
+    stroke: #ffffff;
     stroke-width: 1;
 }
 
@@ -35,27 +35,27 @@
     font-size: 12px;
     font-weight: 900;
     font-family: Avenir;
-    fill: #7f0000;
+    fill: #808080;
     text-anchor: start;
 }
 
 .slide {
-    fill: #c9fce2cc
+    fill: #d9fbeecc
 }
 
 .slide-critical {
-    fill: #fcf1c3cc
+    fill: #fcfacdcc
 }
 
 .tick-text {
     font-size: 9px;
     font-family: Avenir;
-    fill: #e2e2e2;
+    fill: #606060;
     text-anchor: end;
 }
 
 .tick-line {
-    stroke: #e2e2e2;
+    stroke: #808080;
     stroke-width: 1;
 }
 
@@ -63,7 +63,7 @@
     font-size: 64px;
     font-weight: 900;
     font-family: FOT-RodinNTLG Pro DB;
-    fill: #ffffff;
+    fill: #000000;
     text-anchor: start;
 }
 
@@ -71,6 +71,6 @@
     font-size: 36px;
     font-weight: 700;
     font-family: FOT-RodinNTLG Pro DB;
-    fill: #ffffff;
+    fill: #000000;
     text-anchor: start;
 }
