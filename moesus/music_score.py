@@ -110,7 +110,7 @@ def parse(music_id, difficulty):
         cairosvg = Nonere
 
     if cairosvg:
-        cairosvg.svg2png(url=file_name + '.svg', write_to=file_name + '.png')
+        cairosvg.svg2png(url=file_name + '.svg', write_to=file_name + '.png', scale=1.3)
 
 
 if __name__ == '__main__':

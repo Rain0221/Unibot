@@ -55,6 +55,12 @@ class Slide(Note):
 
         return False
 
+    def is_among_note(self):
+        if self.type == 3:
+            return True
+
+        return False
+
 
 @dataclasses.dataclass
 class Event:

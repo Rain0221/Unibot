@@ -73,7 +73,10 @@ class SUS:
         note_host='https://asset3.pjsekai.moe/notes',
         **kwargs,
     ) -> None:
-
+        if 30 < kwargs['playlevel'] < 33:
+            self.pixel_per_second += (kwargs['playlevel'] - 30) * 30
+        elif kwargs['playlevel'] >= 33:
+            self.pixel_per_second = 340
         self.meta_lines: list[Line] = []
         self.score_lines: list[Line] = []
 
@@ -108,6 +111,7 @@ class SUS:
         bar_to = key.stop or int(self.score.notes[-1].bar + 1)
 
         slide_paths = []
+        among_images = []
 
         def add_slide_path(note: Slide):
             next: Slide = note.next
@@ -120,36 +124,98 @@ class SUS:
             y = self.pixel_per_second * self.score.get_time_delta(note.bar, bar_to) + self.padding
             y_next = self.pixel_per_second * self.score.get_time_delta(next.bar, bar_to) + self.padding
 
+            # Bézier curve:
+            # left: from l[0], controlled by l[1] and l[2], to l[3]
+            # right: from r[0], controlled by r[1] and r[2], to r[3]
+
+            l = [(
+                self.lane_size * (note.lane - 2) + self.padding - self.padding_slides,
+                y,
+            ), (
+                self.lane_size * (note.lane - 2) + self.padding - self.padding_slides,
+                (y + y_next) / 2 if ease_in else y,
+            ), (
+                self.lane_size * (next.lane - 2) + self.padding - self.padding_slides,
+                (y + y_next) / 2 if ease_out else y_next,
+            ), (
+                self.lane_size * (next.lane - 2) + self.padding - self.padding_slides,
+                y_next,
+            )]
+            r = [(
+                self.lane_size * (note.lane - 2 + note.width) + self.padding + self.padding_slides,
+                y,
+            ), (
+                self.lane_size * (note.lane - 2 + note.width) + self.padding + self.padding_slides,
+                (y + y_next) / 2 if ease_in else y,
+            ), (
+                self.lane_size * (next.lane - 2 + next.width) + self.padding + self.padding_slides,
+                (y + y_next) / 2 if ease_out else y_next,
+            ), (
+                self.lane_size * (next.lane - 2 + next.width) + self.padding + self.padding_slides,
+                y_next,
+            )]
+
             slide_paths.append(svgwrite.path.Path(
                 d=[
-                    ('M', (
-                        round(self.lane_size * (note.lane - 2) + self.padding - self.padding_slides),
-                        round(y),
-                    )),
-                    ('C', (
-                        round(self.lane_size * (note.lane - 2) + self.padding - self.padding_slides),
-                        round((y + y_next) / 2 if ease_in else y),
-                        round(self.lane_size * (next.lane - 2) + self.padding - self.padding_slides),
-                        round((y + y_next) / 2 if ease_out else y_next),
-                        round(self.lane_size * (next.lane - 2) + self.padding - self.padding_slides),
-                        round(y_next),
-                    )),
-                    ('L', (
-                        round(self.lane_size * (next.lane - 2 + next.width) + self.padding + self.padding_slides),
-                        round(y_next),
-                    )),
-                    ('C', (
-                        round(self.lane_size * (next.lane - 2 + next.width) + self.padding + self.padding_slides),
-                        round((y + y_next) / 2 if ease_out else y_next),
-                        round(self.lane_size * (note.lane - 2 + note.width) + self.padding + self.padding_slides),
-                        round((y + y_next) / 2 if ease_in else y),
-                        round(self.lane_size * (note.lane - 2 + note.width) + self.padding + self.padding_slides),
-                        round(y),
-                    )),
+                    ('M', list(map(round, [*l[0]]))),
+                    ('C', list(map(round, [*l[1], *l[2], *l[3]]))),
+                    ('L', list(map(round, [*r[3]]))),
+                    ('C', list(map(round, [*r[2], *r[1], *r[0]]))),
                     ('z'),
                 ],
                 class_='slide' if not note.head.tap or note.head.tap.type == 1 else 'slide-critical'),
             )
+
+            def binary_solution_for_x(y, curve: list[tuple], s: slice = None, e=0.1):
+                if s is None:
+                    s = slice(0, 1)
+
+                t = (s.start + s.stop) / 2
+                p = [(
+                    curve[0][k] * (1 - t) ** 3 * t ** 0 * 1 +
+                    curve[1][k] * (1 - t) ** 2 * t ** 1 * 3 +
+                    curve[2][k] * (1 - t) ** 1 * t ** 2 * 3 +
+                    curve[3][k] * (1 - t) ** 0 * t ** 3 * 1
+                ) for k in range(2)]
+
+                # print(y, s, p)
+
+                if y - e < p[1] < y + e:
+                    return p[0]
+                elif p[1] > y:
+                    return binary_solution_for_x(y, curve, slice(t, s.stop))
+                elif p[1] < y:
+                    return binary_solution_for_x(y, curve, slice(s.start, t))
+                else:
+                    raise NotImplementedError
+
+            among: Slide = note.next
+            while True:
+                if not among or among.type == 2 or among.bar > next.bar:
+                    break
+
+                if among.is_among_note():
+                    y = self.pixel_per_second * self.score.get_time_delta(among.bar, bar_to) + self.padding
+                    x_l = binary_solution_for_x(y, l)
+                    x_r = binary_solution_for_x(y, r)
+                    x = (x_l + x_r) / 2
+
+                    among_images.append(svgwrite.image.Image(
+                        href='%s/notes_long_among%s.png' % (
+                            self.note_host,
+                            '' if not note.head.tap or note.head.tap.type == 1 else '_crtcl',
+                        ),
+                        insert=(
+                            round(x - self.lane_size / 2),
+                            round(y - self.lane_size / 2),
+                        ),
+                        size=(
+                            round(self.lane_size),
+                            round(self.lane_size),
+                        ),
+                    ))
+
+                among = among.next
 
         tap_images = []
 
@@ -491,6 +557,9 @@ class SUS:
 
         for slide_path in slide_paths:
             drawing.add(slide_path)
+
+        for among_image in among_images:
+            drawing.add(among_image)
 
         for tap_image in tap_images:
             drawing.add(tap_image)
