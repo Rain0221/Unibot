@@ -10,6 +10,7 @@ from PIL import Image, ImageDraw, ImageFont
 from modules.config import proxies
 from modules.pjskinfo import aliastomusicid
 from modules.sus2img import sus2img
+from moesus.music_score import parse
 
 
 def hotrank():
@@ -180,67 +181,11 @@ def parse_bpm(music_id):
 
 def getchart(musicid, difficulty):
     try:
-        if difficulty == 'master' or difficulty == 'expert':
-            if os.path.exists(f'charts/SekaiViewer/{musicid}/{difficulty}.png'):  # 本地有缓存
-                return f'charts/SekaiViewer/{musicid}/{difficulty}.png'
-            else:  # 本地无缓存
-                if downloadviewerchart(musicid, difficulty):  # sekai viewer下载成功
-                    return f'charts/SekaiViewer/{musicid}/{difficulty}.png'
-                elif os.path.exists(f'charts/moe/{musicid}/{difficulty}.png'):
-                    return f'charts/moe/{musicid}/{difficulty}.png'
-                else:  # sekai viewer下载失败 尝试sdvx.in
-                    if os.path.exists(f'charts/sdvxInCharts/{musicid}/{difficulty}.png'):  # sdvx.in本地有缓存
-                        return f'charts/sdvxInCharts/{musicid}/{difficulty}.png'
-                    else:  # 无缓存，尝试下载
-                        timeid = idtotime(musicid)
-                        if difficulty == 'master':
-                            data = requests.get(f'https://sdvx.in/prsk/obj/data{str(timeid).zfill(3)}mst.png',
-                                                proxies=proxies)
-                        else:
-                            data = requests.get(f'https://sdvx.in/prsk/obj/data{str(timeid).zfill(3)}exp.png',
-                                                proxies=proxies)
-                        if data.status_code == 200:  # 下载到了
-                            bg = requests.get(f"https://sdvx.in/prsk/bg/{str(timeid).zfill(3)}bg.png",
-                                              proxies=proxies)
-                            bar = requests.get(f"https://sdvx.in/prsk/bg/{str(timeid).zfill(3)}bar.png",
-                                               proxies=proxies)
-                            bgpic = Image.open(io.BytesIO(bg.content))
-                            datapic = Image.open(io.BytesIO(data.content))
-                            barpic = Image.open(io.BytesIO(bar.content))
-                            r, g, b, mask = datapic.split()
-                            bgpic.paste(datapic, (0, 0), mask)
-                            r, g, b, mask = barpic.split()
-                            bgpic.paste(barpic, (0, 0), mask)
-                            dirs = f'charts/sdvxInCharts/{musicid}'
-                            if not os.path.exists(dirs):
-                                os.makedirs(dirs)
-
-                            r, g, b, mask = bgpic.split()
-                            final = Image.new('RGB', bgpic.size, (0, 0, 0))
-                            final.paste(bgpic, (0, 0), mask)
-                            final.save(f'charts/sdvxInCharts/{musicid}/{difficulty}.png')
-                            return f'charts/sdvxInCharts/{musicid}/{difficulty}.png'
-                        else:  # 没下载到
-                            if os.path.exists(f'charts/sus/{musicid}/{difficulty}.png'):
-                                return f'charts/sus/{musicid}/{difficulty}.png'
-                            else:
-                                sus2img(musicid, difficulty)
-                                return f'charts/sus/{musicid}/{difficulty}.png'
-
-        else:  # 其他难度
-            if os.path.exists(f'charts/SekaiViewer/{musicid}/{difficulty}.png'):  # 本地有缓存
-                return f'charts/SekaiViewer/{musicid}/{difficulty}.png'
-            else:  # 本地无缓存
-                if downloadviewerchart(musicid, difficulty):  # sekai viewer下载成功
-                    return f'charts/SekaiViewer/{musicid}/{difficulty}.png'
-                elif os.path.exists(f'charts/moe/{musicid}/{difficulty}.png'):
-                    return f'charts/moe/{musicid}/{difficulty}.png'
-                else:  # sekai viewer下载失败
-                    if os.path.exists(f'charts/sus/{musicid}/{difficulty}.png'):
-                        return f'charts/sus/{musicid}/{difficulty}.png'
-                    else:
-                        sus2img(musicid, difficulty)
-                        return f'charts/sus/{musicid}/{difficulty}.png'
+        if os.path.exists(f'charts/moe/{musicid}/{difficulty}.png'):  # 本地有缓存
+            return f'charts/moe/{musicid}/{difficulty}.png'
+        else:  # 本地无缓存
+            parse(musicid, difficulty)  # 生成moe
+            return f'charts/moe/{musicid}/{difficulty}.png'
     except:
         return None
 
