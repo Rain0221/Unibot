@@ -73,9 +73,9 @@ class SUS:
         note_host='https://asset3.pjsekai.moe/notes',
         **kwargs,
     ) -> None:
-        if 30 < kwargs['playlevel'] < 33:
-            self.pixel_per_second += (kwargs['playlevel'] - 30) * 30
-        elif kwargs['playlevel'] >= 33:
+        if 30 < kwargs['playlevel'] <= 33:
+            self.pixel_per_second += (kwargs['playlevel'] - 30) * 25
+        elif kwargs['playlevel'] > 33:
             self.pixel_per_second = 340
         self.meta_lines: list[Line] = []
         self.score_lines: list[Line] = []
