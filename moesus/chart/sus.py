@@ -735,7 +735,9 @@ class SUS:
                 bar = i
 
             event |= e
-
+        print(width, height)
+        if width < 1650:
+            width = 1650
         drawing = svgwrite.Drawing(file_name, size=(
             width + self.padding * 2,
             height + self.padding * 2 + self.meta_size + self.padding * 2,
@@ -772,7 +774,7 @@ class SUS:
         ))
 
         drawing.add(svgwrite.text.Text(
-            f'{self.meta.difficulty} {self.meta.playlevel} 譜面確認　　Code by ぷろせかもえ！ (pjsekai.moe)　　Generate by Unibot',
+            f'{self.meta.difficulty} {self.meta.playlevel} 譜面確認　by ぷろせかもえ！ (pjsekai.moe)',
             insert=(
                 self.meta_size + self.padding * 3,
                 height + self.padding * 3,
