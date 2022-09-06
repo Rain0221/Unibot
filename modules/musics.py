@@ -196,6 +196,21 @@ def getcharttheme(qqnum):
         return row[1]
     return 'white'
 
+def gensvg():
+    with open(r'masterdata/musics.json', 'r', encoding='utf-8') as f:
+        musics = json.load(f)
+    for music in musics:
+        if not os.path.exists(f'charts/moe/svg/{music["id"]}/master.svg'):
+            parse(music['id'], 'master', 'svg', False, 'https://assets.unipjsk.com/startapp/music/jacket/%s/%s.png')
+        if not os.path.exists(f'charts/moe/svg/{music["id"]}/expert.svg'):
+            parse(music['id'], 'expert', 'svg', False, 'https://assets.unipjsk.com/startapp/music/jacket/%s/%s.png')
+        if not os.path.exists(f'charts/moe/svg/{music["id"]}/hard.svg'):
+            parse(music['id'], 'hard', 'svg', False, 'https://assets.unipjsk.com/startapp/music/jacket/%s/%s.png')
+        if not os.path.exists(f'charts/moe/svg/{music["id"]}/normal.svg'):
+            parse(music['id'], 'normal', 'svg', False, 'https://assets.unipjsk.com/startapp/music/jacket/%s/%s.png')
+        if not os.path.exists(f'charts/moe/svg/{music["id"]}/easy.svg'):
+            parse(music['id'], 'easy', 'svg', False, 'https://assets.unipjsk.com/startapp/music/jacket/%s/%s.png')
+
 def setcharttheme(qqnum, theme):
     if theme != 'white' and theme != 'black' and theme != 'color':
         return '白色主题：/theme white\n黑色主题：/theme black\n彩色主题：/theme color'

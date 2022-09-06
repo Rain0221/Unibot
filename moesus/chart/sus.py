@@ -706,7 +706,7 @@ class SUS:
 
         return drawing
 
-    def export(self, file_name, style_sheet=''):
+    def export(self, file_name, style_sheet='', themehint=True):
         n_bars = math.ceil(self.score.notes[-1].bar)
         drawings: list[svgwrite.Drawing] = []
 
@@ -735,7 +735,6 @@ class SUS:
                 bar = i
 
             event |= e
-        print(width, height)
         if width < 1650:
             width = 1650
         drawing = svgwrite.Drawing(file_name, size=(
@@ -774,38 +773,38 @@ class SUS:
         ))
 
         drawing.add(svgwrite.text.Text(
-            f'{self.meta.difficulty} {self.meta.playlevel} 譜面確認　by ぷろせかもえ！ (pjsekai.moe)',
+            f'{self.meta.difficulty} {self.meta.playlevel} 譜面確認 by ぷろせかもえ！ (pjsekai.moe)',
             insert=(
                 self.meta_size + self.padding * 3,
                 height + self.padding * 3,
             ),
             class_='subtitle',
         ))
-
-        drawing.add(svgwrite.text.Text(
-            '白色配色：/theme white',
-            insert=(
-                width - 400,
-                height + self.padding * 3,
-            ),
-            class_='subtitle',
-        ))
-        drawing.add(svgwrite.text.Text(
-            '黑色配色：/theme black',
-            insert=(
-                width - 400,
-                height + self.padding * 4.4,
-            ),
-            class_='subtitle',
-        ))
-        drawing.add(svgwrite.text.Text(
-            '彩色配色：/theme color',
-            insert=(
-                width - 400,
-                height + self.padding * 5.8,
-            ),
-            class_='subtitle',
-        ))
+        if themehint:
+            drawing.add(svgwrite.text.Text(
+                '白色配色：/theme white',
+                insert=(
+                    width - 400,
+                    height + self.padding * 3,
+                ),
+                class_='subtitle',
+            ))
+            drawing.add(svgwrite.text.Text(
+                '黑色配色：/theme black',
+                insert=(
+                    width - 400,
+                    height + self.padding * 4.4,
+                ),
+                class_='subtitle',
+            ))
+            drawing.add(svgwrite.text.Text(
+                '彩色配色：/theme color',
+                insert=(
+                    width - 400,
+                    height + self.padding * 5.8,
+                ),
+                class_='subtitle',
+            ))
         # scale = self.scale()
         # scale['x'] = width - self.meta_size
         # scale['y'] = height + self.padding * 2

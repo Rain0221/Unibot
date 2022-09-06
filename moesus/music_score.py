@@ -15,10 +15,13 @@ note_sizes = {
 }
 
 
-def parse(music_id, difficulty, theme):
+def parse(music_id, difficulty, theme, savepng=True, jacketdir=None):
     with open(rf'data\assets\sekai\assetbundle\resources\startapp\music\music_score\{str(music_id).zfill(4)}_01\{difficulty}', 'r', encoding='utf-8') as f:
         sustext = f.read()
     lines = sustext.splitlines()
+
+    if jacketdir is None:
+        jacketdir = '../../../../data/assets/sekai/assetbundle/resources/startapp/music/jacket/%s/%s.png'
 
     with open (r'masterdata\musics.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
@@ -49,7 +52,7 @@ def parse(music_id, difficulty, theme):
             'artist': artist,
             'difficulty': difficulty,
             'playlevel': playlevel,
-            'jacket': '../../../../data/assets/sekai/assetbundle/resources/startapp/music/jacket/%s/%s.png' % (music['assetbundleName'], music['assetbundleName'])
+            'jacket': jacketdir % (music['assetbundleName'], music['assetbundleName'])
         }),
     )
 
@@ -82,19 +85,27 @@ def parse(music_id, difficulty, theme):
     file_name = 'charts/moe/%s/%d/%s' % (theme, music_id, difficulty)
     os.makedirs(os.path.dirname(file_name), exist_ok=True)
 
-    with open(f'moesus/chart/{theme}/css/sus.css', encoding='utf-8') as f:
-        style_sheet = f.read()
-
-    if theme == 'color':
+    themehint = True
+    if theme == 'svg' or theme == 'pjskguess':
+        with open(f'moesus/chart/white/css/sus.css', encoding='utf-8') as f:
+            style_sheet = f.read()
+        with open(f'moesus/chart/white/css/master.css') as f:
+            style_sheet += '\n' + f.read()
+        themehint = False
+    elif theme == 'color':
+        with open(f'moesus/chart/{theme}/css/sus.css', encoding='utf-8') as f:
+            style_sheet = f.read()
         with open(f'moesus/chart/{theme}/css/{difficulty}.css') as f:
             style_sheet += '\n' + f.read()
     else:
+        with open(f'moesus/chart/{theme}/css/sus.css', encoding='utf-8') as f:
+            style_sheet = f.read()
         with open(f'moesus/chart/{theme}/css/master.css') as f:
             style_sheet += '\n' + f.read()
 
-    sus.export(file_name + '.svg', style_sheet=style_sheet)
-
-    cairosvg.svg2png(url=file_name + '.svg', write_to=file_name + '.png', scale=1.3)
+    sus.export(file_name + '.svg', style_sheet=style_sheet, themehint=themehint)
+    if savepng:
+        cairosvg.svg2png(url=file_name + '.svg', write_to=file_name + '.png', scale=1.3)
 
 
 if __name__ == '__main__':
