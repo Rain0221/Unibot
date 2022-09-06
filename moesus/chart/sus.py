@@ -772,7 +772,7 @@ class SUS:
         ))
 
         drawing.add(svgwrite.text.Text(
-            f'{self.meta.difficulty} {self.meta.playlevel} 譜面確認 by ぷろせかもえ！ (pjsekai.moe)',
+            f'{self.meta.difficulty} {self.meta.playlevel} 譜面確認　　Code by ぷろせかもえ！ (pjsekai.moe)　　Generate by Unibot',
             insert=(
                 self.meta_size + self.padding * 3,
                 height + self.padding * 3,
@@ -780,6 +780,30 @@ class SUS:
             class_='subtitle',
         ))
 
+        drawing.add(svgwrite.text.Text(
+            '白色配色：/theme white',
+            insert=(
+                width - 400,
+                height + self.padding * 3,
+            ),
+            class_='subtitle',
+        ))
+        drawing.add(svgwrite.text.Text(
+            '黑色配色：/theme black',
+            insert=(
+                width - 400,
+                height + self.padding * 4.4,
+            ),
+            class_='subtitle',
+        ))
+        drawing.add(svgwrite.text.Text(
+            '彩色配色：/theme color',
+            insert=(
+                width - 400,
+                height + self.padding * 5.8,
+            ),
+            class_='subtitle',
+        ))
         # scale = self.scale()
         # scale['x'] = width - self.meta_size
         # scale['y'] = height + self.padding * 2
@@ -793,7 +817,6 @@ class SUS:
             drawing.add(d)
 
         drawing.save()
-
 
 if __name__ == '__main__':
     with open('ws32') as f:

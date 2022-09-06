@@ -1,0 +1,76 @@
+.bar-line {
+    stroke: #a0a0a0;
+    stroke-width: 4;
+}
+
+.bar-count-line {
+    stroke: #ffffff;
+    stroke-width: 4;
+}
+
+.bar-count-text {
+    font-size: 12px;
+    font-weight: 900;
+    font-family: Avenir;
+    fill: #ffffff;
+    text-anchor: start;
+}
+
+.beat-line {
+    stroke: #a0a0a0;
+    stroke-width: 1;
+}
+
+.lane-line {
+    stroke: #a0a0a0;
+    stroke-width: 1;
+}
+
+.event-line {
+    stroke: #ff8585;
+    stroke-width: 4;
+}
+
+.event-text {
+    font-size: 12px;
+    font-weight: 900;
+    font-family: Avenir;
+    fill: #ff8585;
+    text-anchor: start;
+}
+
+.slide {
+    fill: #c9fce2cc
+}
+
+.slide-critical {
+    fill: #fcf1c3cc
+}
+
+.tick-text {
+    font-size: 9px;
+    font-family: Avenir;
+    fill: #e2e2e2;
+    text-anchor: end;
+}
+
+.tick-line {
+    stroke: #e2e2e2;
+    stroke-width: 1;
+}
+
+.title {
+    font-size: 64px;
+    font-weight: 900;
+    font-family: FOT-RodinNTLG Pro DB;
+    fill: #ffffff;
+    text-anchor: start;
+}
+
+.subtitle {
+    font-size: 36px;
+    font-weight: 700;
+    font-family: FOT-RodinNTLG Pro DB;
+    fill: #ffffff;
+    text-anchor: start;
+}

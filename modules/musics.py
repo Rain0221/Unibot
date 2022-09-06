@@ -2,6 +2,7 @@ import io
 import json
 import os
 import re
+import sqlite3
 import time
 
 import requests
@@ -178,13 +179,35 @@ def parse_bpm(music_id):
     return mean_bpm, bpm_sequence, max_time
 
 
-def getchart(musicid, difficulty):
-    if os.path.exists(f'charts/moe/{musicid}/{difficulty}.png'):  # 本地有缓存
-        return f'charts/moe/{musicid}/{difficulty}.png'
+def getchart(musicid, difficulty, theme='white'):
+    path = f'charts/moe/{theme}/{musicid}/{difficulty}.png'
+    if os.path.exists(path):  # 本地有缓存
+        return path
     else:  # 本地无缓存
-        parse(musicid, difficulty)  # 生成moe
-        return f'charts/moe/{musicid}/{difficulty}.png'
+        parse(musicid, difficulty, theme)  # 生成moe
+        return path
 
+def getcharttheme(qqnum):
+    conn = sqlite3.connect('pjsk.db')
+    c = conn.cursor()
+    cursor = c.execute(f'SELECT * from chartprefer where qqnum=?', (qqnum,))
+    for row in cursor:
+        conn.close()
+        return row[1]
+    return 'white'
+
+def setcharttheme(qqnum, theme):
+    if theme != 'white' and theme != 'black' and theme != 'color':
+        return '白色主题：/theme white\n黑色主题：/theme black\n彩色主题：/theme color'
+    conn = sqlite3.connect('pjsk.db')
+    c = conn.cursor()
+    try:
+        c.execute(f'insert into chartprefer (qqnum, prefer) values(?, ?)', (str(qqnum), theme))
+    except sqlite3.IntegrityError:
+        c.execute(f'update chartprefer set prefer=? where qqnum=?', (theme, str(qqnum)))
+    conn.commit()
+    conn.close()
+    return f'{theme}主题设置成功'
 
 def getsdvxchart(musicid, difficulty):
     try:
@@ -278,7 +301,7 @@ def downloadviewerchart(musicid, difficulty):
         return False
 
 
-def aliastochart(full, sdvx=False, qun=False):
+def aliastochart(full, sdvx=False, qun=False, theme='white'):
     if full[-2:] == 'ex':
         alias = full[:-2]
         diff = 'expert'
@@ -322,7 +345,7 @@ def aliastochart(full, sdvx=False, qun=False):
         if sdvx:
             dir = getsdvxchart(resp['musicid'], diff)
         else:
-            dir = getchart(resp['musicid'], diff)
+            dir = getchart(resp['musicid'], diff, theme)
         if dir is not None:
             bpm = parse_bpm(resp['musicid'])
             bpmtext = ''

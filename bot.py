@@ -23,7 +23,8 @@ from modules.kk import kkwhitelist, kankan, uploadkk
 from modules.otherpics import geteventpic
 from modules.gacha import getcharaname, getallcurrentgacha, getcurrentgacha, fakegacha
 from modules.homo import generate_homo
-from modules.musics import hotrank, levelrank, parse_bpm, aliastochart, idtoname, notecount, tasseiritsu, findbpm
+from modules.musics import hotrank, levelrank, parse_bpm, aliastochart, idtoname, notecount, tasseiritsu, findbpm, \
+    getcharttheme, setcharttheme
 from modules.pjskguess import getrandomjacket, cutjacket, getrandomchart, cutchartimg, getrandomcard, cutcard, \
     getrandommusic, cutmusic
 from modules.pjskinfo import aliastomusicid, pjskset, pjskdel, pjskalias, pjskinfo, writelog
@@ -702,7 +703,10 @@ def sync_handle_msg(event):
                 sendmsg(event, fr"[CQ:image,file=file:///{botdir}\{pic},cache=0]")
             return
         if event.message[:4] == "谱面预览" or event.message[-4:] == "谱面预览" :
-            picdir = aliastochart(event.message.replace("谱面预览", ''), False, True)
+            qun = True
+            if event.self_id == guildbot:
+                qun = False
+            picdir = aliastochart(event.message.replace("谱面预览", ''), False, qun, getcharttheme(event.user_id))
             if picdir is not None:  # 匹配到歌曲
                 if len(picdir) == 2:  # 有图片
                     sendmsg(event, picdir[0] + fr"[CQ:image,file=file:///{botdir}\{picdir[1]},cache=0]")
@@ -712,6 +716,10 @@ def sync_handle_msg(event):
                     sendmsg(event, picdir + "\n暂无谱面图片 请等待更新")
             else:  # 匹配不到歌曲
                 sendmsg(event, "没有找到你说的歌曲哦")
+            return
+        if event.message[:5] == "theme":
+            theme = event.message[event.message.find("theme") + len("theme"):].strip()
+            sendmsg(event, setcharttheme(event.user_id, theme))
             return
         if event.message[:3] == "查时间":
             userid = event.message[event.message.find("查时间") + len("查时间"):].strip()

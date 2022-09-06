@@ -1,15 +1,10 @@
-import argparse
 import json
 import os
 import time
+import cairosvg
 
-import requests
-import threading
-
-import tqdm
 
 from moesus import chart
-import moesus.utils
 
 note_sizes = {
     'easy': 2.0,
@@ -20,19 +15,10 @@ note_sizes = {
 }
 
 
-score_host = 'https://asset3.pjsekai.moe'
-score_file_name = 'charts/moe/%d/%s'
-
-
-def parse(music_id, difficulty):
-    file_name = score_file_name % (music_id, difficulty)
-    try:
-        with open(file_name) as f:
-            lines = f.readlines()
-    except:
-        with open(rf'data\assets\sekai\assetbundle\resources\startapp\music\music_score\{str(music_id).zfill(4)}_01\{difficulty}', 'r', encoding='utf-8') as f:
-            sustext = f.read()
-        lines = sustext.splitlines()
+def parse(music_id, difficulty, theme):
+    with open(rf'data\assets\sekai\assetbundle\resources\startapp\music\music_score\{str(music_id).zfill(4)}_01\{difficulty}', 'r', encoding='utf-8') as f:
+        sustext = f.read()
+    lines = sustext.splitlines()
 
     with open (r'masterdata\musics.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
@@ -57,13 +43,13 @@ def parse(music_id, difficulty):
     sus = chart.SUS(
         lines,
         note_size=note_sizes[difficulty],
-        note_host='../notes',
+        note_host='../../notes',
         **({
             'title': music['title'],
             'artist': artist,
             'difficulty': difficulty,
             'playlevel': playlevel,
-            'jacket': '../../../data/assets/sekai/assetbundle/resources/startapp/music/jacket/%s/%s.png' % (music['assetbundleName'], music['assetbundleName'])
+            'jacket': '../../../../data/assets/sekai/assetbundle/resources/startapp/music/jacket/%s/%s.png' % (music['assetbundleName'], music['assetbundleName'])
         }),
     )
 
@@ -93,30 +79,28 @@ def parse(music_id, difficulty):
             for event in rebase.get('events', [])
         ], offset=rebase.get('offset', 0))
 
-    file_name = score_file_name % (music_id, difficulty)
+    file_name = 'charts/moe/%s/%d/%s' % (theme, music_id, difficulty)
     os.makedirs(os.path.dirname(file_name), exist_ok=True)
 
-    with open('moesus/chart/css/sus.css', encoding='utf-8') as f:
+    with open(f'moesus/chart/{theme}/css/sus.css', encoding='utf-8') as f:
         style_sheet = f.read()
 
-    with open('moesus/chart/css/master.css') as f:
-        style_sheet += '\n' + f.read()
+    if theme == 'color':
+        with open(f'moesus/chart/{theme}/css/{difficulty}.css') as f:
+            style_sheet += '\n' + f.read()
+    else:
+        with open(f'moesus/chart/{theme}/css/master.css') as f:
+            style_sheet += '\n' + f.read()
 
     sus.export(file_name + '.svg', style_sheet=style_sheet)
 
-    try:
-        import cairosvg
-    except (ImportError, OSError):
-        cairosvg = Nonere
-
-    if cairosvg:
-        cairosvg.svg2png(url=file_name + '.svg', write_to=file_name + '.png', scale=1.3)
+    cairosvg.svg2png(url=file_name + '.svg', write_to=file_name + '.png', scale=1.3)
 
 
 if __name__ == '__main__':
     start = time.time()
     musicid = 131
-    parse(musicid, 'master')
+    parse(musicid, 'master', 'white')
     # parse(musicid, 'expert')
     # parse(musicid, 'hard')
     # parse(musicid, 'normal')
