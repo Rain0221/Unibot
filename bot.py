@@ -898,7 +898,7 @@ def sync_handle_msg(event):
                     sendmsg(event, f'[CQ:reply,id={event.message_id}]找不到捏')
                 opencvmatch = False
             else:
-                sendmsg(event, f'当前有正在匹配的进程')
+                sendmsg(event, f'当前有正在匹配的进程，请稍后再试')
             return
         if event.message[:3] == '查物量':
             sendmsg(event, notecount(int(event.message[3:])))
