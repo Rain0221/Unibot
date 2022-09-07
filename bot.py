@@ -20,6 +20,7 @@ from modules.chara import charaset, grcharaset, charadel, charainfo, grcharadel,
 from modules.config import whitelist, block, msggroup, aliasblock, groupban, asseturl, verifyurl, distributedurl, apiurl
 from modules.cyo5000 import cyo5000
 from modules.kk import kkwhitelist, kankan, uploadkk
+from modules.opencv import matchjacket
 from modules.otherpics import geteventpic
 from modules.gacha import getcharaname, getallcurrentgacha, getcurrentgacha, fakegacha
 from modules.homo import generate_homo
@@ -880,6 +881,17 @@ def sync_handle_msg(event):
                 sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache/{twiid}.png,cache=0]")
             except:
                 sendmsg(event, '查不到捏，可能是你id有问题或者bot卡了')
+            return
+        if event.message[:4] == '封面匹配':
+            url = event.message[event.message.find('url=') + 4:event.message.find(']')]
+            title, picdir = matchjacket(url=url)
+            if title:
+                if 'assets' in picdir:
+                    sendmsg(event, "匹配点过少，该曲为最有可能匹配的封面：\n" + fr"{title}[CQ:image,file=file:///{botdir}\{picdir},cache=0]")
+                else:
+                    sendmsg(event, fr"{title}[CQ:image,file=file:///{botdir}\{picdir},cache=0]")
+            else:
+                sendmsg(event, '找不到捏')
             return
         if event.message[:3] == '查物量':
             sendmsg(event, notecount(int(event.message[3:])))
