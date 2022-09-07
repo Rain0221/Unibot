@@ -62,7 +62,7 @@ botname = {
 guildbot = "9892212940143267151"
 send1 = False
 send3 = False
-
+opencvmatch = False
 async def geturl(url):
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as res:
@@ -883,16 +883,22 @@ def sync_handle_msg(event):
                 sendmsg(event, '查不到捏，可能是你id有问题或者bot卡了')
             return
         if event.message[:4] == '封面匹配':
-            sendmsg(event, f'[CQ:reply,id={event.message_id}]了解，查询中（输出只对有效输入负责）')
-            url = event.message[event.message.find('url=') + 4:event.message.find(']')]
-            title, picdir = matchjacket(url=url)
-            if title:
-                if 'assets' in picdir:
-                    sendmsg(event, f"[CQ:reply,id={event.message_id}]匹配点过少，该曲为最有可能匹配的封面：\n" + fr"{title}[CQ:image,file=file:///{botdir}\{picdir},cache=0]")
+            global opencvmatch
+            if not opencvmatch:
+                opencvmatch = True
+                sendmsg(event, f'[CQ:reply,id={event.message_id}]了解，查询中（输出只对有效输入负责）')
+                url = event.message[event.message.find('url=') + 4:event.message.find(']')]
+                title, picdir = matchjacket(url=url)
+                if title:
+                    if 'assets' in picdir:
+                        sendmsg(event, f"[CQ:reply,id={event.message_id}]匹配点过少，该曲为最有可能匹配的封面：\n" + fr"{title}[CQ:image,file=file:///{botdir}\{picdir},cache=0]")
+                    else:
+                        sendmsg(event, fr"[CQ:reply,id={event.message_id}]{title}[CQ:image,file=file:///{botdir}\{picdir},cache=0]")
                 else:
-                    sendmsg(event, fr"[CQ:reply,id={event.message_id}]{title}[CQ:image,file=file:///{botdir}\{picdir},cache=0]")
+                    sendmsg(event, f'[CQ:reply,id={event.message_id}]找不到捏')
+                opencvmatch = False
             else:
-                sendmsg(event, f'[CQ:reply,id={event.message_id}]找不到捏')
+                sendmsg(event, f'当前有正在匹配的进程')
             return
         if event.message[:3] == '查物量':
             sendmsg(event, notecount(int(event.message[3:])))
