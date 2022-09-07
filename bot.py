@@ -363,7 +363,7 @@ def sync_handle_msg(event):
             server = 'en'
         # -------------------- 多服共用功能区 -----------------------
         if event.message[:2] == "sk":
-            if event.group_id in blacklist['sk']:
+            if event.group_id in blacklist['sk'] and server == 'jp':
                 return
             if event.message == "sk":
                 bind = getqqbind(event.user_id, server)
@@ -427,7 +427,7 @@ def sync_handle_msg(event):
                 sendmsg(event, '你还没有绑定哦')
             return
         if event.message[:2] == "逮捕":
-            if event.group_id in blacklist['sk']:
+            if event.group_id in blacklist['sk'] and server == 'jp':
                 return
             if event.message == "逮捕":
                 bind = getqqbind(event.user_id, server)
@@ -883,15 +883,16 @@ def sync_handle_msg(event):
                 sendmsg(event, '查不到捏，可能是你id有问题或者bot卡了')
             return
         if event.message[:4] == '封面匹配':
+            sendmsg(event, f'[CQ:reply,id={event.message_id}]了解，查询中（输出只对有效输入负责）')
             url = event.message[event.message.find('url=') + 4:event.message.find(']')]
             title, picdir = matchjacket(url=url)
             if title:
                 if 'assets' in picdir:
-                    sendmsg(event, "匹配点过少，该曲为最有可能匹配的封面：\n" + fr"{title}[CQ:image,file=file:///{botdir}\{picdir},cache=0]")
+                    sendmsg(event, f"[CQ:reply,id={event.message_id}]匹配点过少，该曲为最有可能匹配的封面：\n" + fr"{title}[CQ:image,file=file:///{botdir}\{picdir},cache=0]")
                 else:
-                    sendmsg(event, fr"{title}[CQ:image,file=file:///{botdir}\{picdir},cache=0]")
+                    sendmsg(event, fr"[CQ:reply,id={event.message_id}]{title}[CQ:image,file=file:///{botdir}\{picdir},cache=0]")
             else:
-                sendmsg(event, '找不到捏')
+                sendmsg(event, f'[CQ:reply,id={event.message_id}]找不到捏')
             return
         if event.message[:3] == '查物量':
             sendmsg(event, notecount(int(event.message[3:])))
