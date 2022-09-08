@@ -886,17 +886,21 @@ def sync_handle_msg(event):
         if event.message[:4] == '封面匹配':
             global opencvmatch
             if not opencvmatch:
-                opencvmatch = True
-                sendmsg(event, f'[CQ:reply,id={event.message_id}]了解，查询中（输出只对有效输入负责）')
-                url = event.message[event.message.find('url=') + 4:event.message.find(']')]
-                title, picdir = matchjacket(url=url)
-                if title:
-                    if 'assets' in picdir:
-                        sendmsg(event, f"[CQ:reply,id={event.message_id}]匹配点过少，该曲为最有可能匹配的封面：\n" + fr"{title}[CQ:image,file=file:///{botdir}\{picdir},cache=0]")
+                try:
+                    opencvmatch = True
+                    sendmsg(event, f'[CQ:reply,id={event.message_id}]了解，查询中（输出只对有效输入负责）')
+                    url = event.message[event.message.find('url=') + 4:event.message.find(']')]
+                    title, picdir = matchjacket(url=url)
+                    if title:
+                        if 'assets' in picdir:
+                            sendmsg(event, f"[CQ:reply,id={event.message_id}]匹配点过少，该曲为最有可能匹配的封面：\n" + fr"{title}[CQ:image,file=file:///{botdir}\{picdir},cache=0]")
+                        else:
+                            sendmsg(event, fr"[CQ:reply,id={event.message_id}]{title}[CQ:image,file=file:///{botdir}\{picdir},cache=0]")
                     else:
-                        sendmsg(event, fr"[CQ:reply,id={event.message_id}]{title}[CQ:image,file=file:///{botdir}\{picdir},cache=0]")
-                else:
-                    sendmsg(event, f'[CQ:reply,id={event.message_id}]找不到捏')
+                        sendmsg(event, f'[CQ:reply,id={event.message_id}]找不到捏')
+                except Exception as a:
+                    traceback.print_exc()
+                    sendmsg(event, '出问题了捏\n' + repr(a))
                 opencvmatch = False
             else:
                 sendmsg(event, f'当前有正在匹配的进程，请稍后再试')
@@ -1190,7 +1194,10 @@ def sync_handle_msg(event):
         sendmsg(event, '查不到数据捏，好像是bot网不好')
     except Exception as a:
         traceback.print_exc()
-        sendmsg(event, '出问题了捏\n' + repr(a))
+        if repr(a) == "KeyError('status')":
+            sendmsg(event, '图片发送失败，请再试一次')
+        else:
+            sendmsg(event, '出问题了捏\n' + repr(a))
 
 
 def sendmsg(event, msg):
