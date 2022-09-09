@@ -524,8 +524,8 @@ def sync_handle_msg(event):
                 if bind is None:
                     sendmsg(event, '你没有绑定id！')
                     return
-                userid = bind[0]
-                private = bind[1]
+                userid = bind[1]
+                private = bind[2]
             else:
                 userid = event.message.replace("查房", "")
                 userid = re.sub(r'\D', "", userid)
@@ -548,7 +548,7 @@ def sync_handle_msg(event):
                 if bind is None:
                     sendmsg(event, '你没有绑定id！')
                     return
-                userid = bind[0]
+                userid = bind[1]
             else:
                 userid = event.message.replace("分数线", "")
             if userid == '':
@@ -584,8 +584,8 @@ def sync_handle_msg(event):
                 if bind is None:
                     sendmsg(event, '你没有绑定id！')
                     return
-                userid = bind[0]
-                private = bind[1]
+                userid = bind[1]
+                private = bind[2]
             else:
                 userid = event.message.replace("查水表", "")
                 userid = re.sub(r'\D', "", userid)
