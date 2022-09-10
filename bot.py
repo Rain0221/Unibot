@@ -1208,7 +1208,7 @@ def sync_handle_msg(event):
                     return
             except KeyError:
                 pass
-        if event.message == f'[CQ:at,qq={event.self_id}]':
+        if event.message == f'[CQ:at,qq={event.self_id}] ':
             sendmsg(event, 'bot帮助文档：https://docs.unipjsk.com/')
             return
     except (requests.exceptions.ConnectionError, JSONDecodeError):
