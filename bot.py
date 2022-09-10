@@ -39,9 +39,11 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 if os.path.basename(__file__) == 'bot.py':
     bot = CQHttp()
+    botdebug = False
 else:
     guildhttpport = 1988
     bot = CQHttp(api_root=f'http://127.0.0.1:{guildhttpport}')
+    botdebug = True
 botdir = os.getcwd()
 
 pjskguess = {}
@@ -54,7 +56,7 @@ vitslimit = {'lasttime': '', 'count': 0}
 admin = [1103479519]
 mainbot = [1513705608]
 requestwhitelist = []  # 邀请加群白名单 随时设置 不保存到文件
-botdebug = False
+
 botname = {
     1513705608: '一号机',
     3506606538: '三号机',
@@ -64,6 +66,7 @@ guildbot = "9892212940143267151"
 send1 = False
 send3 = False
 opencvmatch = False
+
 async def geturl(url):
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as res:
@@ -195,7 +198,7 @@ def sync_handle_msg(event):
             print(Time, botname[event.self_id] + '收到消息', event.group_id, event.user_id, event.message.replace('\n', ''))
         except KeyError:
             print(Time, '测试bot收到消息', event.group_id, event.user_id, event.message.replace('\n', ''))
-    if event.group_id in groupban:
+    if event.group_id in groupban and event.self_id in mainbot:
         # print('黑名单群已拦截')
         return
     if event.user_id in block:
@@ -1040,7 +1043,6 @@ def sync_handle_msg(event):
             charaguess[event.group_id]['istrained'] = cutcard(cardinfo[1], cardinfo[3], event.group_id)
             sendmsg(event, 'PJSK猜卡面\n你有30秒的时间回答\n艾特我+你的答案（只猜角色）以参加猜曲（不要使用回复）\n发送「结束猜卡面」可退出猜卡面模式'
                     + fr"[CQ:image,file=file:///{botdir}\piccache/{event.group_id}.png,cache=0]")
-            print(charaguess)
             return
         if (event.message[-2:] == '猜曲' or event.message[-4:-2] == '猜曲') and event.message[:4] == 'pjsk':
             if event.user_id not in whitelist and event.group_id not in whitelist and event.self_id != guildbot:
@@ -1151,7 +1153,15 @@ def sync_handle_msg(event):
                             pjskguess[event.group_id]['isgoing'] = False
                             sendmsg(event, text + fr"[CQ:image,file=file:///{botdir}\{picdir},cache=0]")
                         else:
-                            sendmsg(event, f"[CQ:at,qq={event.user_id}] 您猜错了，答案不是{idtoname(resp['musicid'])}哦")
+                            text = f"[CQ:at,qq={event.user_id}] 您猜错了，答案不是{idtoname(resp['musicid'])}哦"
+                            if int(time.time()) > pjskguess[event.group_id]['starttime'] + 45:
+                                text = text + '，回答已超时'
+                                picdir = f"data/assets/sekai/assetbundle/resources/startapp/music/jacket/" \
+                                         f"jacket_s_{str(pjskguess[event.group_id]['musicid']).zfill(3)}/" \
+                                         f"jacket_s_{str(pjskguess[event.group_id]['musicid']).zfill(3)}.png"
+                                text = text + '\n正确答案：' + idtoname(pjskguess[event.group_id]['musicid']) + fr"[CQ:image,file=file:///{botdir}\{picdir},cache=0]"
+                                pjskguess[event.group_id]['isgoing'] = False
+                            sendmsg(event, text)
                     return
             except KeyError:
                 pass
@@ -1183,7 +1193,18 @@ def sync_handle_msg(event):
                             charaguess[event.group_id]['isgoing'] = False
                             sendmsg(event, text + fr"[CQ:image,file=file:///{botdir}\{picdir},cache=0]")
                         else:
-                            sendmsg(event, f"[CQ:at,qq={event.user_id}] 您猜错了，答案不是{resp[1]}哦")
+                            text = f"[CQ:at,qq={event.user_id}] 您猜错了，答案不是{resp[1]}哦"
+                            if int(time.time()) > charaguess[event.group_id]['starttime'] + 45:
+                                text = text + '，回答已超时'
+                                if charaguess[event.group_id]['istrained']:
+                                    picdir = 'data/assets/sekai/assetbundle/resources/startapp/' \
+                                             f"character/member/{charaguess[event.group_id]['assetbundleName']}/card_after_training.jpg"
+                                else:
+                                    picdir = 'data/assets/sekai/assetbundle/resources/startapp/' \
+                                             f"character/member/{charaguess[event.group_id]['assetbundleName']}/card_normal.jpg"
+                                text = text + f"\n正确答案：{charaguess[event.group_id]['prefix']} - {getcharaname(charaguess[event.group_id]['charaid'])}" + fr"[CQ:image,file=file:///{botdir}\{picdir},cache=0]"
+                                charaguess[event.group_id]['isgoing'] = False
+                            sendmsg(event, text)
                     return
             except KeyError:
                 pass
