@@ -77,7 +77,7 @@ def analysisunitid(unitid, gameCharacterUnits):
             else:
                 return units['gameCharacterId'], units['unit'], f'chr_ts_90_{units["gameCharacterId"]}_2.png'
 
-def cardthumnail(cardid, istrained=False, cards=None):
+def cardthumnail(cardid, istrained=False, cards=None, limitedbadge=False):
     if cards is None:
         masterdatadir = path.join(botpath, 'masterdata/')
         with open(masterdatadir + 'cards.json', 'r', encoding='utf-8') as f:
@@ -136,7 +136,14 @@ def cardthumnail(cardid, istrained=False, cards=None):
             attr = attr.resize((35, 35))
             r, g, b, mask = attr.split()
             pic.paste(attr, (1, 1), mask)
+            if limitedbadge:
+                badge = Image.open(f'{botpath}/pics/badge_limited.png')
+                # attr = attr.resize((35, 35))
+                r, g, b, mask = badge.split()
+                pic.paste(badge, (43, 0), mask)
+
             return pic
+
 
 def gachacardthumnail(cardid, istrained=False, cards=None):
     if cards is None:

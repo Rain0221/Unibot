@@ -6,10 +6,11 @@ import time
 from urllib.parse import quote
 
 import aiohttp
-from PIL import Image
+from PIL import Image, ImageFont, ImageDraw, ImageFilter
 
 from modules.config import vitsapiurl, proxy, vitsvoiceurl
 from modules.gacha import getcharaname
+from modules.otherpics import cardthumnail
 from modules.pjskinfo import writelog
 from modules.texttoimg import texttoimg
 
@@ -27,10 +28,19 @@ def cardidtopic(cardid):
     path = path + "/" + assetbundleName
     files = os.listdir(path)
     files_file = [f for f in files if os.path.isfile(os.path.join(path, f))]
+    if not os.path.exists(path + '/card_normal.png'):  # 频道bot最多发送4MB 这里转jpg缩小大小
+        im = Image.open(path)
+        im = im.convert('RGB')
+        im.save(path + '/card_normal.jpg', quality=95)
+
     if 'card_after_training.png' in files_file:
-        return [path + '/card_normal.png', path + '/card_after_training.png']
+        if not os.path.exists(path + '/card_after_training.png'):  # 频道bot最多发送4MB 这里转jpg缩小大小
+            im = Image.open(path)
+            im = im.convert('RGB')
+            im.save(path + '/card_after_training.jpg', quality=95)
+        return [path + '/card_normal.jpg', path + '/card_after_training.jpg']
     else:
-        return [path + '/card_normal.png']
+        return [path + '/card_normal.jpg']
 
 def cardtype(cardid, cardCostume3ds, costume3ds):
     # 普通0 限定1
@@ -53,34 +63,55 @@ def findcard(charaid, cardRarityType=None):
     with open(f'masterdata/costume3ds.json', 'r', encoding='utf-8') as f:
         costume3ds = json.load(f)
     allcards.sort(key=lambda x: x["releaseAt"], reverse=True)
-    name = getcharaname(charaid)
-    text = ''
+    pic = Image.new('RGB', (1500, 5000), (235, 235, 235))
+    count = 0
     for card in allcards:
         if card['characterId'] == charaid:
-            cardtypenum = cardtype(card['id'], cardCostume3ds, costume3ds)
-            limit = ''
-            if cardtypenum == 1:
-                limit = '[限定]'
-            rarity = ''
-            if card['cardRarityType'] == 'rarity_1':
-                rarity = '★'
-            elif card['cardRarityType'] == 'rarity_2':
-                rarity = '★★'
-            elif card['cardRarityType'] == 'rarity_3':
-                rarity = '★★★'
-            elif card['cardRarityType'] == 'rarity_4':
-                rarity = '★★★★'
-            elif card['cardRarityType'] == 'rarity_birthday':
-                rarity = '生日卡'
             if cardRarityType is not None:
-                if card['cardRarityType'] == cardRarityType:
-                    text += f"{card['id']}: {limit}{rarity} {card['prefix']} - {name}\n"
-            else:
-                text += f"{card['id']}: {limit}{rarity} {card['prefix']} - {name}\n"
-    texttoimg(text[:-1], 700, f'{charaid}{cardRarityType}')
-    return f'{charaid}{cardRarityType}.png'
+                if card['cardRarityType'] != cardRarityType:
+                    continue
+            pos = (int(70 + count % 3 * 470), int(count / 3) * 310 + 60)
+            count += 1
+            single = findcardsingle(card, allcards, cardCostume3ds, costume3ds)
+            pic.paste(single, pos)
+    pic = pic.crop((0, 0, 1500, (int((count - 1) / 3) + 1) * 310 + 60))
+
+    pic.save(f'piccache/{charaid}{cardRarityType}.jpg')
+    return f'{charaid}{cardRarityType}.jpg'
 
 
+def findcardsingle(card, allcards, cardCostume3ds, costume3ds):
+    pic = Image.new("RGB", (420, 260), (255, 255, 255))
+    badge = False
+    cardtypenum = cardtype(card['id'], cardCostume3ds, costume3ds)
+    if cardtypenum == 1 or card['cardRarityType'] == 'rarity_birthday':
+        badge = True
+    if card['cardRarityType'] == 'rarity_3' or card['cardRarityType'] == 'rarity_4':
+        thumnail = cardthumnail(card['id'], istrained=False, cards=allcards, limitedbadge=badge)
+        r, g, b, mask = thumnail.split()
+        pic.paste(thumnail, (45, 15), mask)
+
+        thumnail = cardthumnail(card['id'], istrained=True, cards=allcards, limitedbadge=badge)
+        r, g, b, mask = thumnail.split()
+        pic.paste(thumnail, (220, 15), mask)
+    else:
+        thumnail = cardthumnail(card['id'], istrained=False, cards=allcards, limitedbadge=badge)
+        r, g, b, mask = thumnail.split()
+        pic.paste(thumnail, (132, 15), mask)
+
+    draw = ImageDraw.Draw(pic)
+    font = ImageFont.truetype(r'fonts\SourceHanSansCN-Medium.otf', 28)
+    text_width = font.getsize(f'{card["id"]}. {card["prefix"]}')
+    text_coordinate = ((210 - text_width[0] / 2), int(195 - text_width[1] / 2))
+    draw.text(text_coordinate, f'{card["id"]}. {card["prefix"]}', '#000000', font)
+
+    name = getcharaname(card['characterId'])
+    font = ImageFont.truetype(r'fonts\SourceHanSansCN-Medium.otf', 18)
+    text_width = font.getsize(name)
+    text_coordinate = ((210 - text_width[0] / 2), int(230 - text_width[1] / 2))
+    draw.text(text_coordinate, name, '#505050', font)
+
+    return pic
 
 def charainfo(alias, qunnum=''):
     resp = aliastocharaid(alias, qunnum)
