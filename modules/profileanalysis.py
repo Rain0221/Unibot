@@ -618,7 +618,7 @@ def generatehonor(honor, ismain=True, server='jp'):
                 frame = Image.open(r'pics/frame_degree_m_1.png')
             elif honorRarity == 'middle':
                 frame = Image.open(r'pics/frame_degree_m_2.png')
-            elif honorRarity == 'middle':
+            elif honorRarity == 'high':
                 frame = Image.open(r'pics/frame_degree_m_3.png')
             else:
                 frame = Image.open(r'pics/frame_degree_m_4.png')
@@ -667,7 +667,7 @@ def generatehonor(honor, ismain=True, server='jp'):
                 frame = Image.open(r'pics/frame_degree_s_1.png')
             elif honorRarity == 'middle':
                 frame = Image.open(r'pics/frame_degree_s_2.png')
-            elif honorRarity == 'middle':
+            elif honorRarity == 'high':
                 frame = Image.open(r'pics/frame_degree_s_3.png')
             else:
                 frame = Image.open(r'pics/frame_degree_s_4.png')
@@ -869,6 +869,16 @@ def bondsbackground(chara1, chara2, ismain=True):
         pic1.paste(pic2, (90, 0))
     return pic1
 
+
+def fcrank(playlevel, rank):
+    if playlevel <= 32:
+        return rank - 1.5
+    # elif rank == 33:
+    #     return rank - 0.5
+    else:
+        return rank - 1
+
+
 def pjskb30(userid, private=False, returnpic=False, server='jp', qqnum='未知'):
     if server == 'jp':
         url = apiurl
@@ -1031,7 +1041,7 @@ def pjskb30(userid, private=False, returnpic=False, server='jp', qqnum='未知')
             elif playResult == 'full_combo':
                 if diff[i]['result'] < 1:
                     diff[i]['result'] = 1
-                    diff[i]['rank'] = diff[i]['fclevel+'] * 0.95
+                    diff[i]['rank'] = fcrank(diff[i]['playLevel'], diff[i]['fclevel+'])
 
     diff.sort(key=lambda x: x["rank"], reverse=True)
     rank = 0
@@ -1054,7 +1064,7 @@ def pjskb30(userid, private=False, returnpic=False, server='jp', qqnum='未知')
         textadd = f'，当前理论值为{highest}'
     else:
         textadd = ''
-    draw.text((50, 1722), f'注：FC权重为0.95，非官方算法，仅供参考娱乐{textadd}', fill='#00CCBB',
+    draw.text((50, 1722), f'注：33+FC权重减1，其他减1.5，非官方算法，仅供参考娱乐{textadd}', fill='#00CCBB',
               font=font_style)
     draw.text((50, 1752), '定数来源：https://profile.pjsekai.moe/  ※定数每次统计时可能会改变', fill='#00CCBB',
               font=font_style)
@@ -1134,7 +1144,7 @@ def b30single(diff, musics):
             if diff['result'] == 1:
                 resultpic = Image.open('pics/FullCombo.png')
                 draw.text((259, 24), str(round(diff['fclevel+'], 1)), (255, 255, 255), font)
-                draw.text((370, 24), '→ ' + str(round(diff['fclevel+'] * 0.95, 1)), (0, 0, 0), font)
+                draw.text((370, 24), '→ ' + str(round(fcrank(diff['playLevel'], diff["fclevel+"]), 1)), (0, 0, 0), font)
         else:
             if diff['result'] == 2:
                 resultpic = Image.open('pics/AllPerfect.png')
@@ -1143,7 +1153,7 @@ def b30single(diff, musics):
             if diff['result'] == 1:
                 resultpic = Image.open('pics/FullCombo.png')
                 draw.text((259, 24), f'{round(diff["fclevel+"], 1)}.?', (255, 255, 255), font)
-                draw.text((370, 24), f'→ {round(diff["fclevel+"] * 0.95, 1)}', (0, 0, 0), font)
+                draw.text((370, 24), f'→ {round(fcrank(diff["playLevel"], diff["fclevel+"]), 1)}', (0, 0, 0), font)
         r, g, b, mask = resultpic.split()
         pic.paste(resultpic, (238, 154), mask)
     pic = pic.resize((310, 120))
