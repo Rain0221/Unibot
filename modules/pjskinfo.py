@@ -494,6 +494,10 @@ def vocalimg(musicid):
     return img
 
 def pjskset(newalias, oldalias, qqnum=None, username='', qun='群与用户名未知，可能来自旧版分布式'):
+    if newalias[:1] == ' ':
+        newalias = newalias[1:]
+    if newalias[-1:] == ' ':
+        newalias = newalias[:-1]
     resp = aliastomusicid(oldalias)
     if resp['musicid'] == 0:
         return "找不到你要设置的歌曲，请使用正确格式：pjskinfo新昵称to旧昵称"
