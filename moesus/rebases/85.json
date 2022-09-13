@@ -1,0 +1,162 @@
+{
+    "musicId": 85,
+    "offset": 1.263157894736842,
+    "events": [
+        {
+            "bar": 0,
+            "bpm": 190,
+            "barLength": 3.5,
+            "section": "intro"
+        },
+        {
+            "bar": 1,
+            "barLength": 2
+        },
+        {
+            "bar": 2,
+            "barLength": 3.5
+        },
+        {
+            "bar": 3,
+            "barLength": 3
+        },
+        {
+            "bar": 4,
+            "barLength": 3.5,
+            "sentenceLength": 5
+        },
+        {
+            "bar": 5,
+            "barLength": 2
+        },
+        {
+            "bar": 6,
+            "barLength": 3.5
+        },
+        {
+            "bar": 7,
+            "barLength": 2
+        },
+        {
+            "bar": 8,
+            "barLength": 5
+        },
+        {
+            "bar": 9,
+            "barLength": 3,
+            "sentenceLength": 4
+        },
+        {
+            "bar": 10,
+            "barLength": 4
+        },
+        {
+            "bar": 11,
+            "barLength": 3.5
+        },
+        {
+            "bar": 12,
+            "barLength": 4.5
+        },
+        {
+            "bar": 13,
+            "barLength": 7
+        },
+        {
+            "bar": 14,
+            "barLength": 2
+        },
+        {
+            "bar": 15,
+            "barLength": 5,
+            "section": "chorus-0"
+        },
+        {
+            "bar": 23,
+            "barLength": 6
+        },
+        {
+            "bar": 24,
+            "barLength": 5
+        },
+        {
+            "bar": 25,
+            "barLength": 6,
+            "section": "verse"
+        },
+        {
+            "bar": 26,
+            "barLength": 5
+        },
+        {
+            "bar": 27,
+            "barLength": 6
+        },
+        {
+            "bar": 28,
+            "barLength": 5
+        },
+        {
+            "bar": 29,
+            "barLength": 6
+        },
+        {
+            "bar": 30,
+            "barLength": 5
+        },
+        {
+            "bar": 31,
+            "barLength": 6
+        },
+        {
+            "bar": 32,
+            "barLength": 5
+        },
+        {
+            "bar": 33,
+            "barLength": 6,
+            "section": "verse"
+        },
+        {
+            "bar": 34,
+            "barLength": 5
+        },
+        {
+            "bar": 35,
+            "barLength": 6
+        },
+        {
+            "bar": 36,
+            "barLength": 5
+        },
+        {
+            "bar": 37,
+            "barLength": 6
+        },
+        {
+            "bar": 38,
+            "barLength": 5
+        },
+        {
+            "bar": 39,
+            "barLength": 6
+        },
+        {
+            "bar": 41,
+            "section": "bridge"
+        },
+        {
+            "bar": 49,
+            "barLength": 5,
+            "section": "chorus"
+        },
+        {
+            "bar": 65,
+            "section": "post-chorus"
+        },
+        {
+            "bar": 73,
+            "barLength": 6
+        }
+    ]
+}

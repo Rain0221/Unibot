@@ -1,0 +1,99 @@
+{
+    "musicId": 48,
+    "events": [
+        {
+            "bar": 0,
+            "bpm": 165
+        },
+        {
+            "bar": 2,
+            "section": "chorus-0"
+        },
+        {
+            "bar": 6,
+            "sentenceLength": 3
+        },
+        {
+            "bar": 8,
+            "bpm": 150
+        },
+        {
+            "bar": 8.5,
+            "bpm": 145
+        },
+        {
+            "bar": 9,
+            "bpm": 120
+        },
+        {
+            "bar": 9.5,
+            "bpm": 100
+        },
+        {
+            "bar": 10.5,
+            "bpm": 110
+        },
+        {
+            "bar": 11,
+            "bpm": 165
+        },
+        {
+            "bar": 12,
+            "sentenceLength": 4,
+            "section": "intro"
+        },
+        {
+            "bar": 20,
+            "section": "verse"
+        },
+        {
+            "bar": 36,
+            "section": "bridge"
+        },
+        {
+            "bar": 46,
+            "section": "chorus"
+        },
+        {
+            "bar": 64,
+            "section": "inter"
+        },
+        {
+            "bar": 68,
+            "section": "bridge-2"
+        },
+        {
+            "bar": 84,
+            "section": "chorus-2"
+        },
+        {
+            "bar": 102,
+            "section": "outro"
+        },
+        {
+            "bar": 106,
+            "bpm": 150,
+            "sentenceLength": 3
+        },
+        {
+            "bar": 106.5,
+            "bpm": 144
+        },
+        {
+            "bar": 107,
+            "bpm": 137
+        },
+        {
+            "bar": 107.5,
+            "bpm": 110
+        },
+        {
+            "bar": 109,
+            "sentenceLength": 2
+        },
+        {
+            "bar": 111.5,
+            "bpm": 120
+        }
+    ]
+}

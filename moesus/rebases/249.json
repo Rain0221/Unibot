@@ -1,0 +1,100 @@
+{
+    "musicId": 249,
+    "events": [
+        {
+            "bar": 0,
+            "bpm": 122,
+            "barLength": 3,
+            "section": "intro"
+        },
+        {
+            "bar": 11,
+            "barLength": 4
+        },
+        {
+            "bar": 12,
+            "section": "verse"
+        },
+        {
+            "bar": 15,
+            "barLength": 3
+        },
+        {
+            "bar": 19,
+            "barLength": 4
+        },
+        {
+            "bar": 23,
+            "barLength": 3
+        },
+        {
+            "bar": 27,
+            "barLength": 5
+        },
+        {
+            "bar": 28,
+            "barLength": 5.5,
+            "sentenceLength": 2,
+            "section": "bridge"
+        },
+        {
+            "bar": 32,
+            "sentenceLength": 4,
+            "barLength": 3
+        },
+        {
+            "bar": 34,
+            "barLength": 4
+        },
+        {
+            "bar": 35,
+            "barLength": 6
+        },
+        {
+            "bar": 36,
+            "barLength": 5.5,
+            "sentenceLength": 2
+        },
+        {
+            "bar": 38,
+            "sentenceLength": 3
+        },
+        {
+            "bar": 39,
+            "barLength": 3
+        },
+        {
+            "bar": 43,
+            "barLength": 4
+        },
+        {
+            "bar": 44,
+            "sentenceLength": 4,
+            "section": "chorus"
+        },
+        {
+            "bar": 60,
+            "section": "chorus-2"
+        },
+        {
+            "bar": 69,
+            "barLength": 3
+        },
+        {
+            "bar": 70,
+            "section": "outro"
+        },
+        {
+            "bar": 73,
+            "barLength": 4
+        },
+        {
+            "bar": 74,
+            "barLength": 3
+        },
+        {
+            "bar": 76,
+            "barLength": 4
+        }
+    ]
+}

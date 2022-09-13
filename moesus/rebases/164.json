@@ -1,0 +1,120 @@
+{
+    "musicId": 164,
+    "offset": 1.2307692307692308,
+    "events": [
+        {
+            "bar": 0,
+            "bpm": 195,
+            "barLength": 4,
+            "section": "intro"
+        },
+        {
+            "bar": 4,
+            "barLength": 6.5,
+            "sentenceLength": 2
+        },
+        {
+            "bar": 6,
+            "barLength": 3,
+            "sentenceLength": 3
+        },
+        {
+            "bar": 8,
+            "barLength": 4
+        },
+        {
+            "bar": 12,
+            "barLength": 1
+        },
+        {
+            "bar": 13,
+            "barLength": 4
+        },
+        {
+            "bar": 15,
+            "sentenceLength": 4,
+            "section": "verse"
+        },
+        {
+            "bar": 31,
+            "section": "bridge"
+        },
+        {
+            "bar": 43,
+            "bpm": 200,
+            "section": "chorus"
+        },
+        {
+            "bar": 59,
+            "section": "inter"
+        },
+        {
+            "bar": 63,
+            "bpm": 190
+        },
+        {
+            "bar": 71,
+            "bpm": 185,
+            "barLength": 1.5,
+            "sentenceLength": 5
+        },
+        {
+            "bar": 72,
+            "bpm": 183
+        },
+        {
+            "bar": 73,
+            "bpm": 180
+        },
+        {
+            "bar": 74,
+            "bpm": 140
+        },
+        {
+            "bar": 76,
+            "bpm": 74,
+            "barLength": 3,
+            "sentenceLength": 2
+        },
+        {
+            "bar": 78,
+            "bpm": 190,
+            "barLength": 4,
+            "sentenceLength": 4
+        },
+        {
+            "bar": 82,
+            "bpm": 188
+        },
+        {
+            "bar": 84,
+            "bpm": 185
+        },
+        {
+            "bar": 85,
+            "bpm": 172
+        },
+        {
+            "bar": 86,
+            "bpm": 120,
+            "barLength": 2
+        },
+        {
+            "bar": 86.5,
+            "bpm": 200
+        },
+        {
+            "bar": 87,
+            "barLength": 4,
+            "section": "chorus-2"
+        },
+        {
+            "bar": 103,
+            "section": "chorus-3"
+        },
+        {
+            "bar": 118,
+            "section": "outro"
+        }
+    ]
+}

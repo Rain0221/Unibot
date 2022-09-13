@@ -1,7 +1,11 @@
 .lane {
-    fill: #9cc8ef;
+    fill: #a6caef;
 }
 
 .background {
-    fill: #6099a5;
+    fill: #6da3d0;
+}
+
+.meta {
+    fill: #6da3d0;
 }

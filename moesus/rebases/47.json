@@ -1,0 +1,39 @@
+{
+    "musicId": 47,
+    "offset": 1.411764705882353,
+    "events": [
+        {
+            "bar": 0,
+            "bpm": 170,
+            "section": "intro"
+        },
+        {
+            "bar": 16,
+            "section": "verse"
+        },
+        {
+            "bar": 32,
+            "section": "bridge"
+        },
+        {
+            "bar": 42,
+            "section": "chorus"
+        },
+        {
+            "bar": 62,
+            "section": "bridge-2"
+        },
+        {
+            "bar": 70,
+            "section": "inter"
+        },
+        {
+            "bar": 94,
+            "section": "chorus-2"
+        },
+        {
+            "bar": 114,
+            "section": "outro"
+        }
+    ]
+}

@@ -15,8 +15,11 @@ def thread(function):
 
     while True:
         try:
-            account = pool.get()
-            account = function(account)
+            args = pool.get()
+            if isinstance(args, tuple):
+                function(*args)
+            else:
+                function(args)
 
         except Exception:
             traceback.print_exc()

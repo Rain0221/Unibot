@@ -1,0 +1,22 @@
+{
+    "musicId": 15,
+    "events": [
+        {
+            "bar": 0,
+            "bpm": 130,
+            "section": "intro"
+        },
+        {
+            "bar": 8,
+            "section": "verse"
+        },
+        {
+            "bar": 28,
+            "section": "chorus"
+        },
+        {
+            "bar": 48,
+            "section": "outro"
+        }
+    ]
+}

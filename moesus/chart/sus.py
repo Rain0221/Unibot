@@ -10,6 +10,7 @@ import svgwrite.path
 import svgwrite.shapes
 
 from .score import *
+from .lyric import *
 
 
 def get_denominator(x: float):
@@ -52,7 +53,7 @@ class Meta:
 class SUS:
 
     pixel_per_second = 240
-    lane_size = 10
+    lane_size = 12
 
     note_width = 8
     note_height = 16
@@ -77,6 +78,7 @@ class SUS:
             self.pixel_per_second += (kwargs['playlevel'] - 30) * 25
         elif kwargs['playlevel'] > 33:
             self.pixel_per_second = 340
+
         self.meta_lines: list[Line] = []
         self.score_lines: list[Line] = []
 
@@ -105,6 +107,8 @@ class SUS:
 
         self.note_size = note_size
         self.note_host = note_host
+
+        self.words: list[Word] = []
 
     def __getitem__(self, key: slice) -> svgwrite.Drawing:
         bar_from = key.start or 0
@@ -271,6 +275,18 @@ class SUS:
                     preserveAspectRatio='none',
                 ))
 
+        def add_hand_text(tap, hand):
+            y = self.pixel_per_second * self.score.get_time_delta(tap.bar, bar_to) + self.padding
+            l = self.lane_size * (tap.lane - 2) + self.padding
+            r = self.lane_size * (tap.lane - 2 + tap.width) + self.padding
+
+            tap_images.append(svgwrite.text.Text(
+                str(hand),
+                insert=(
+                    l, y
+                )
+            ))
+
         flick_images = []
 
         def add_flick_image(directional: Directional, type=None, critical=None):
@@ -314,45 +330,59 @@ class SUS:
 
         tick_texts = []
 
-        def add_tick_text(note: Note, next: Note | None):
+        def add_tick_text(note: Note, next: Note | None = None):
             y = self.pixel_per_second * self.score.get_time_delta(note.bar, bar_to) + self.padding
 
-            if (
-                next is None or
-                next is note or
-                next.bar == note.bar or
-                next.bar - note.bar > 1 or
-                next.bar - note.bar > 0.5 and int(next.bar + 1e-3) != int(note.bar + 1e-3)
-            ):
-                interval = math.floor(note.bar + 1 + 1e-3) - note.bar
+            if isinstance(note, Slide) and note.is_among_note():
+                tick_texts.append(svgwrite.shapes.Line(
+                    start=(
+                        round(self.padding * (1 - 1/6)),
+                        round(y),
+                    ),
+                    end=(
+                        round(self.padding),
+                        round(y),
+                    ),
+                    class_='tick-line',
+                ))
+
             else:
-                interval = next.bar - note.bar
+                if (
+                    next is None or
+                    next is note or
+                    next.bar == note.bar or
+                    next.bar - note.bar > 1 or
+                    next.bar - note.bar > 0.5 and int(next.bar + 1e-3) != int(note.bar + 1e-3)
+                ):
+                    interval = math.floor(note.bar + 1 + 1e-3) - note.bar
+                else:
+                    interval = next.bar - note.bar
 
-            interval *= self.score.get_event(note.bar + 1e-3).bar_length / 4
-            denominator = get_denominator(interval)
-            numerator = round(interval * denominator)
+                interval *= self.score.get_event(note.bar + 1e-3).bar_length / 4
+                denominator = get_denominator(interval)
+                numerator = round(interval * denominator)
 
-            text = '%g/%g' % (numerator, denominator) if numerator != 1 else '/%g' % (denominator,)
+                text = '%g/%g' % (numerator, denominator) if numerator != 1 else '/%g' % (denominator,)
 
-            tick_texts.append(svgwrite.shapes.Line(
-                start=(
-                    round(self.padding * (1 - 2/3)),
-                    round(y),
-                ),
-                end=(
-                    round(self.padding),
-                    round(y),
-                ),
-                class_='tick-line',
-            ))
-            tick_texts.append(svgwrite.text.Text(
-                text,
-                insert=(
-                    round(self.padding - 4),
-                    round(y - 2),
-                ),
-                class_='tick-text',
-            ))
+                tick_texts.append(svgwrite.shapes.Line(
+                    start=(
+                        round(self.padding * (1 - 1/2)),
+                        round(y),
+                    ),
+                    end=(
+                        round(self.padding),
+                        round(y),
+                    ),
+                    class_='tick-line',
+                ))
+                tick_texts.append(svgwrite.text.Text(
+                    text,
+                    insert=(
+                        round(self.padding - 4),
+                        round(y - 2),
+                    ),
+                    class_='tick-text',
+                ))
 
         for i, note in enumerate(self.score.notes):
             if isinstance(note, Slide) and note.next:
@@ -375,6 +405,9 @@ class SUS:
                 else:
                     if next.bar > note.bar:
                         break
+
+            if note.type != 0 and False:
+                add_hand_text(note, hand=self.score.note_hands()[i])
 
             if isinstance(note, Tap):
                 add_tap_images(note)
@@ -409,7 +442,7 @@ class SUS:
                     add_tick_text(note, next=next)
 
                 elif note.type == 3:
-                    # add_tap_images(note)
+                    add_tick_text(note)
                     if note.is_path_note():
                         add_slide_path(note)
 
@@ -491,68 +524,91 @@ class SUS:
                 else None,
             ]))
 
-            drawing.add(drawing.line(
-                start=(
-                    round(self.lane_size * 0),
-                    round(self.pixel_per_second * self.score.get_time_delta(bar, bar_to) + self.padding),
-                ),
-                end=(
-                    round(self.lane_size * 0 + self.padding),
-                    round(self.pixel_per_second * self.score.get_time_delta(bar, bar_to) + self.padding),
-                ),
-                class_='bar-count-line',
-            ))
+            # drawing.add(drawing.line(
+            #     start=(
+            #         round(self.lane_size * 0),
+            #         round(self.pixel_per_second * self.score.get_time_delta(bar, bar_to) + self.padding),
+            #     ),
+            #     end=(
+            #         round(self.lane_size * 0 + self.padding),
+            #         round(self.pixel_per_second * self.score.get_time_delta(bar, bar_to) + self.padding),
+            #     ),
+            #     class_='bar-count-line',
+            # ))
 
-            drawing.add(drawing.text(
-                text,
-                insert=(
-                    round(self.padding + 8),
-                    round(self.pixel_per_second * self.score.get_time_delta(bar, bar_to) + self.padding - 16),
-                ),
-                transform=f'''rotate(-90, {
-                    round(self.padding)
-                }, {
-                    round(self.pixel_per_second * self.score.get_time_delta(bar, bar_to) + self.padding)
-                })''',
-                class_='bar-count-text',
-            ))
+            # drawing.add(drawing.text(
+            #     text,
+            # insert=(
+            #     round(self.padding + 8),
+            #     round(self.pixel_per_second * self.score.get_time_delta(bar, bar_to) + self.padding - 20),
+            # ),
+            # transform=f'''rotate(-90, {
+            #     round(self.padding)
+            # }, {
+            #     round(self.pixel_per_second * self.score.get_time_delta(bar, bar_to) + self.padding)
+            # })''',
+            # class_='bar-count-text',
+            # ))
 
-        for event in self.score.events:
+        for event in Score.parse_events(sorted(self.score.events + [Event(bar=bar) for bar in range(bar_from, bar_to + 1)], key=lambda event: event.bar)):
             if not bar_from - 1 <= event.bar < bar_to + 1:
                 continue
 
             text = ', '.join(filter(lambda x: x, [
+                '#%g' % event.bar if float('%g' % event.bar).is_integer() else None,
                 '%g BPM' % event.bpm if event.bpm else None,
                 '%g/4' % event.bar_length if event.bar_length else None,
+                event.section,
+                event.text,
             ]))
+
+            special = event.bpm or event.bar_length or event.section or event.text
 
             if not text:
                 continue
 
             drawing.add(drawing.line(
                 start=(
-                    round(self.lane_size * self.n_lanes + self.padding),
+                    round(self.lane_size * 0),
                     round(self.pixel_per_second * self.score.get_time_delta(event.bar, bar_to) + self.padding),
                 ),
                 end=(
-                    round(self.lane_size * self.n_lanes + self.padding * (1 + 2/3)),
+                    round(self.lane_size * 0 + self.padding),
                     round(self.pixel_per_second * self.score.get_time_delta(event.bar, bar_to) + self.padding),
                 ),
-                class_='event-line',
+                class_='bar-count-line' if not special else 'event-line',
             ))
 
             drawing.add(drawing.text(
                 text,
                 insert=(
-                    round(self.lane_size * self.n_lanes + self.padding + 8),
-                    round(self.pixel_per_second * self.score.get_time_delta(event.bar, bar_to) + self.padding + 16),
+                    round(self.padding + 8),
+                    round(self.pixel_per_second * self.score.get_time_delta(event.bar, bar_to) + self.padding - 20),
+                ),
+                transform=f'''rotate(-90, {
+                    round(self.padding)
+                }, {
+                    round(self.pixel_per_second * self.score.get_time_delta(event.bar, bar_to) + self.padding)
+                })''',
+                class_='bar-count-text' if not special else 'event-text',
+            ))
+
+        for word in self.words:
+            if not bar_from - 1 <= word.bar < bar_to + 1:
+                continue
+
+            drawing.add(drawing.text(
+                word.text,
+                insert=(
+                    round(self.lane_size * self.n_lanes + self.padding),
+                    round(self.pixel_per_second * self.score.get_time_delta(word.bar, bar_to) + self.padding + 16),
                 ),
                 transform=f'''rotate(-90, {
                     round(self.lane_size * self.n_lanes + self.padding)
                 }, {
-                    round(self.pixel_per_second * self.score.get_time_delta(event.bar, bar_to) + self.padding)
+                    round(self.pixel_per_second * self.score.get_time_delta(word.bar, bar_to) + self.padding)
                 })''',
-                class_='event-text',
+                class_='lyric-text',
             ))
 
         for slide_path in slide_paths:
@@ -707,7 +763,7 @@ class SUS:
         return drawing
 
     def export(self, file_name, style_sheet='', themehint=True):
-        n_bars = math.ceil(self.score.notes[-1].bar)
+        n_bars = math.ceil(self.score.notes[-1].bar - 1e-6)
         drawings: list[svgwrite.Drawing] = []
 
         width = 0
@@ -735,8 +791,7 @@ class SUS:
                 bar = i
 
             event |= e
-        if width < 1650:
-            width = 1650
+
         drawing = svgwrite.Drawing(file_name, size=(
             width + self.padding * 2,
             height + self.padding * 2 + self.meta_size + self.padding * 2,
@@ -748,9 +803,30 @@ class SUS:
             insert=(0, 0),
             size=(
                 width + self.padding * 2,
-                height + self.padding * 2 + self.meta_size + self.padding * 2,
+                height + self.padding * 2,
             ),
             class_='background',
+        ))
+
+        drawing.add(drawing.rect(
+            insert=(0, height + self.padding * 2),
+            size=(
+                width + self.padding * 2,
+                self.meta_size + self.padding * 2,
+            ),
+            class_='meta',
+        ))
+
+        drawing.add(drawing.line(
+            start=(
+                0,
+                height + self.padding * 2,
+            ),
+            end=(
+                width + self.padding * 2,
+                height + self.padding * 2,
+            ),
+            class_='meta-line',
         ))
 
         if self.meta.jacket:
@@ -758,7 +834,7 @@ class SUS:
                 href=self.meta.jacket,
                 insert=(
                     self.padding * 2,
-                    height + self.padding * 2,
+                    height + self.padding * 3,
                 ),
                 size=(self.meta_size, self.meta_size),
             ))
@@ -767,16 +843,16 @@ class SUS:
             f'{self.meta.title} - {self.meta.artist}',
             insert=(
                 self.meta_size + self.padding * 3,
-                self.meta_size + height + self.padding * 2 - 8,
+                self.meta_size + height + self.padding * 3 - 8,
             ),
             class_='title',
         ))
 
         drawing.add(svgwrite.text.Text(
-            f'{self.meta.difficulty} {self.meta.playlevel} 譜面確認 by ぷろせかもえ！ (pjsekai.moe)',
+            f'{str(self.meta.difficulty).upper()} {self.meta.playlevel} 譜面確認 by ぷろせかもえ！ (pjsekai.moe)',
             insert=(
                 self.meta_size + self.padding * 3,
-                height + self.padding * 3,
+                height + self.padding * 4,
             ),
             class_='subtitle',
         ))
@@ -784,32 +860,39 @@ class SUS:
             drawing.add(svgwrite.text.Text(
                 '白色配色：/theme white',
                 insert=(
-                    width - 400,
-                    height + self.padding * 3,
+                    width - 300,
+                    height + self.padding * 3.4,
                 ),
-                class_='subtitle',
+                class_='themehint',
             ))
             drawing.add(svgwrite.text.Text(
                 '黑色配色：/theme black',
                 insert=(
-                    width - 400,
-                    height + self.padding * 4.4,
+                    width - 300,
+                    height + self.padding * 4.5,
                 ),
-                class_='subtitle',
+                class_='themehint',
             ))
             drawing.add(svgwrite.text.Text(
                 '彩色配色：/theme color',
                 insert=(
-                    width - 400,
-                    height + self.padding * 5.8,
+                    width - 300,
+                    height + self.padding * 5.6,
                 ),
-                class_='subtitle',
+                class_='themehint',
             ))
         # scale = self.scale()
         # scale['x'] = width - self.meta_size
         # scale['y'] = height + self.padding * 2
         # drawing.add(scale)
-
+        drawing.add(svgwrite.text.Text(
+            'Code by ぷろせかもえ！ (pjsekai.moe)　Generated by Unibot',
+            insert=(
+                width - 820,
+                height + self.padding * 6.7,
+            ),
+            class_='themehint',
+        ))
         width = 0
         for d in drawings:
             d['x'] = width + self.padding
@@ -818,6 +901,7 @@ class SUS:
             drawing.add(d)
 
         drawing.save()
+
 
 if __name__ == '__main__':
     with open('ws32') as f:

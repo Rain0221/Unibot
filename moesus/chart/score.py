@@ -1,6 +1,6 @@
 import dataclasses
 import functools
-import pprint
+import itertools
 import re
 import typing
 
@@ -44,6 +44,9 @@ class Slide(Note):
         return hash(str(self))
 
     def is_path_note(self):
+        if self.type == 0:
+            return False
+
         if self.type != 3:
             return True
 
@@ -69,6 +72,7 @@ class Event:
     bar_length: typing.Optional[int] = None
     sentence_length: int = None
     section: str = None
+    text: str = None
 
     def __or__(self, other):
         assert self.bar <= other.bar
@@ -76,8 +80,9 @@ class Event:
             bar=other.bar,
             bpm=other.bpm or self.bpm,
             bar_length=other.bar_length or self.bar_length,
-            section=other.section or self.section,
             sentence_length=other.sentence_length or self.sentence_length,
+            section=other.section or self.section,
+            text=other.text or self.text,
         )
 
 
@@ -123,11 +128,11 @@ class Score:
         if notes:
             self.notes += notes
 
-        self.events.sort(key=lambda event: event.bar)
         self.notes = sorted(set(self.notes), key=lambda note: note.bar)
+        self.notes, self.note_events = self.parse_notes(self.notes, add_slide_intervals=True)
 
+        self.events = sorted(self.events + self.note_events, key=lambda event: event.bar)
         self.events = self.parse_events(self.events)
-        self.notes = self.parse_notes(self.notes)
 
     def parse_line(self, line: Line):
         if match := re.match(r'^(\d\d\d)02$', line.header):
@@ -159,7 +164,7 @@ class Score:
 
         for i in range(len(self.events)):
             event = event | self.events[i]
-            if i+1 == len(self.events) or self.events[i+1].bar > bar:
+            if i+1 == len(self.events) or self.events[i+1].bar > bar + 1e-6:
                 t += event.bar_length * 60 / event.bpm * (bar - event.bar)
                 break
             else:
@@ -200,22 +205,31 @@ class Score:
         events: list[Event] = []
 
         for event in sorted_events:
-            if len(events) and event.bar == events[-1].bar:
-                events[-1].bpm = event.bpm or events[-1].bpm
-                events[-1].bar_length = event.bar_length or events[-1].bar_length
+            if len(events) and '%e' % event.bar == '%e' % events[-1].bar:
+                events[-1] |= event
             else:
                 events.append(event)
 
         return events
 
     @staticmethod
-    def parse_notes(sorted_notes: list[Note]):
+    def parse_notes(sorted_notes: list[Note], add_slide_intervals=False):
         notes: list[Note] = list(sorted_notes)
+        note_events: list[Event] = []
+
         note_dict: dict[float, list[Note]] = {}
         for note in sorted_notes:
             if note.bar not in note_dict:
                 note_dict[note.bar] = []
             note_dict[note.bar].append(note)
+
+        for i, note in enumerate(sorted_notes):
+            if not 0 <= note.lane - 2 < 12:
+                notes.remove(note)
+                note_events.append(Event(
+                    bar=note.bar,
+                    text='SKILL' if note.lane == 0 else 'FEVER CHANCE!' if note.type == 1 else 'SUPER FEVER!!',
+                ))
 
         for i, note in enumerate(sorted_notes):
             if isinstance(note, Directional):
@@ -254,18 +268,29 @@ class Score:
                             slide.directional = directional
                             if directional.tap is not None:
                                 slide.tap = directional.tap
-
                             break
 
                 if slide.type != 2:
                     for note in sorted_notes[i+1:]:
                         if isinstance(note, Slide):
                             if note.channel == slide.channel:
-                                slide.next = note
+                                head = slide.head
+
+                                interval = slide
+                                if add_slide_intervals:
+                                    bar = slide.bar + 1/8
+                                    while bar + 1e-3 < note.bar:
+                                        interval_next = Slide(bar, slide.lane, slide.width, 0, slide.channel, head=head)
+                                        notes.append(interval_next)
+                                        interval.next = interval_next
+                                        interval = interval_next
+                                        bar += 1/8
+
+                                interval.next = note
                                 note.head = slide.head
                                 break
 
-        return notes
+        return sorted(notes, key=lambda note: note.bar), note_events
 
     @staticmethod
     def parse_data(data: str):
@@ -320,6 +345,167 @@ class Score:
                         ))
 
         score.notes.sort(key=lambda note: note.bar)
-        score.notes = score.parse_notes(score.notes)
+        score.notes, _ = score.parse_notes(score.notes)
+
+        for note_event in self.note_events:
+            score.note_events.append(
+                dataclasses.replace(
+                    note_event,
+                    bar=score.get_bar(self.get_time(note_event.bar) - offset),
+                )
+            )
+
+        score.events = sorted(score.events + score.note_events, key=lambda event: event.bar)
+        score.events = score.parse_events(score.events)
 
         return score
+
+    @functools.lru_cache()
+    def note_hands(self, single_hand_max_combo=16):
+        @dataclasses.dataclass
+        class DPState:
+            hard: float
+
+            i: typing.Optional[int] = None
+            hand: typing.Optional[int] = None
+            j: typing.Optional[int] = None
+
+            def __lt__(self, other):
+                return self.hard < other.hard
+
+            def __gt__(self, other):
+                return self.hard > other.hard
+
+            def __le__(self, other):
+                return self.hard <= other.hard
+
+            def __ge__(self, other):
+                return self.hard >= other.hard
+
+            def __eq__(self, other):
+                return self.hard == other.hard
+
+        inf = float('inf')
+
+        def hard(note: Note, last: Note, hand: int):
+            if last is None:
+                return 0.0
+
+            ans = 0
+
+            # interval
+            interval = abs(self.get_time(note.bar) - self.get_time(last.bar)) + 1e-3
+            if isinstance(last, Directional):
+                interval *= 0.95
+            if isinstance(last, Slide) and last.type not in (1, 2):
+                if last.next is note:
+                    interval = interval * 6 + 1
+                else:
+                    interval *= 0.5
+            if isinstance(last, Slide) and last.type == 2:
+                interval *= 2
+
+            try:
+                if isinstance(note, Slide) and note.type not in (1, 2):
+                    ans += max(0, 1 / interval - 1)
+                else:
+                    ans += max(0, 1 / interval ** 2 - 1)
+            except ZeroDivisionError:
+                ans += inf
+
+            # lane move
+            lane_move = max(
+                0,
+                abs((note.lane - 2 + note.width / 2) - (last.lane - 2 + last.width / 2)) - 4
+            )
+            ans = ans * (1 + 0.35 * lane_move / interval ** 0.5)  # + 3 * lane_move / interval ** 0.5
+
+            # hand move
+            hand_move = max(
+                0,
+                hand == 0 and (note.lane - 2 + note.width * 0.25) - 6,
+                hand == 1 and 6 - (note.lane - 2 + note.width * 0.75),
+            )
+            ans = ans * (1 + 0.1 * hand_move ** 2) + 1 * hand_move ** 2
+
+            # reverse slice
+            if isinstance(note, Directional):
+                reverse_slide = max(
+                    0,
+                    hand == 0 and note.type == 4,
+                    hand == 1 and note.type == 3,
+                )
+                ans = ans * (1 + 0.02 * reverse_slide) + 6 * reverse_slide
+
+            # right hand
+            if hand == 1:
+                ans -= 0.000001
+
+            return ans
+
+        dp = [
+            [
+                [
+                    DPState(0.0) if i == 0 and j == 0 else
+                    DPState(inf)
+                    for j in range(len(self.notes) + 1)
+                ] for hand in range(2)
+            ] for i in range(len(self.notes))
+        ]
+
+        for i, note in enumerate(self.notes):
+            for hand in [0, 1]:
+                if i == 0:
+                    pass
+
+                else:
+                    for j in range(max(-1, i - single_hand_max_combo), i):
+                        options = [
+                            # use the same hand if the last note is the same hand
+                            DPState(
+                                dp[i-1][hand][j+1].hard + hard(
+                                    self.notes[i],
+                                    self.notes[i-1] if i-1 != -1 else None,
+                                    hand=hand,
+                                ),
+                                i-1, hand, j,
+                            )
+                        ] if j+1 != i else [
+                            # use the opposite hand
+                            *([
+                                DPState(
+                                    dp[i-1][1-hand][k+1].hard + hard(
+                                        self.notes[i],
+                                        self.notes[k] if k != -1 else None,
+                                        hand=hand,
+                                    ),
+                                    i-1, 1-hand, k,
+                                )
+                                for k in range(max(-1, j - single_hand_max_combo), i-1)
+                            ])
+                        ]
+
+                        dp[i][hand][j+1] = min(options)
+
+        note_hands = [None for _ in range(len(self.notes))]
+
+        ans = DPState(inf)
+        index = None
+        for hand in [0, 1]:
+            for j in range(len(self.notes)+1):
+                if ans >= dp[len(self.notes) - 1][hand][j]:
+                    ans = dp[len(self.notes) - 1][hand][j]
+                    index = hand, j-1
+
+        ans = DPState(ans.hard, len(self.notes) - 1, *index)
+        while True:
+            for i in range(ans.i, ans.j, -1):
+                note_hands[i] = ans.hand
+
+            try:
+                ans = dp[ans.i][ans.hand][ans.j+1]
+                assert ans.i is not None
+            except:
+                break
+
+        return note_hands

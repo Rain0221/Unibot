@@ -1,10 +1,12 @@
 import json
 import os
 import time
+import traceback
+
 import cairosvg
-
-
-from moesus import chart
+import argparse
+import threading
+from moesus import chart, thread_manager
 
 note_sizes = {
     'easy': 2.0,
@@ -57,18 +59,16 @@ def parse(music_id, difficulty, theme, savepng=True, jacketdir=None):
     )
 
     try:
-        with open('moesus/rebases.json') as f:
-            rebases: list = json.load(f)
-        for rebase in rebases:
-            if rebase['musicId'] == music_id:
-                break
-        else:
-            raise NotImplementedError
+        with open('moesus/rebases/%s.json' % music_id, encoding='utf-8') as f:
+            rebase = json.load(f)
     except:
         rebase = None
-        # utils.get_database('pjsekai_musics')['musicRebases'].find_one({
-        #     'musicId': music_id,
-        # })
+
+    try:
+        with open('moesus/rebases/%s.lyric' % music_id, encoding='utf-8') as f:
+            sus.words = chart.load_lyric(f.readlines())
+    except:
+        pass
 
     if rebase:
         sus.score = sus.score.rebase([
@@ -106,6 +106,24 @@ def parse(music_id, difficulty, theme, savepng=True, jacketdir=None):
     sus.export(file_name + '.svg', style_sheet=style_sheet, themehint=themehint)
     if savepng:
         cairosvg.svg2png(url=file_name + '.svg', write_to=file_name + '.png', scale=1.3)
+
+
+def handle(music_ids, theme):
+    threading.Thread(target=thread_manager.start_thread, args=(thread_manager.thread, parse, 16)).start()
+
+    thread_manager.progress.total = len(music_ids) * 5
+    for music_id in music_ids:
+        for difficulty in [
+            'easy',
+            'normal',
+            'hard',
+            'expert',
+            'master',
+        ]:
+            thread_manager.pool.put((music_id, difficulty, theme))
+
+    thread_manager.pool.join()
+
 
 
 if __name__ == '__main__':

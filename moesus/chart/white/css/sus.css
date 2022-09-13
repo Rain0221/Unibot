@@ -59,6 +59,11 @@
     stroke-width: 1;
 }
 
+.meta-line {
+    stroke: #e2e2e2;
+    stroke-width: 2;
+}
+
 .title {
     font-size: 64px;
     font-weight: 900;
@@ -72,5 +77,13 @@
     font-weight: 700;
     font-family: FOT-RodinNTLG Pro DB;
     fill: #000000;
+    text-anchor: start;
+}
+
+.themehint {
+    font-size: 28px;
+    font-weight: 700;
+    font-family: FOT-RodinNTLG Pro DB;
+    fill: #808080;
     text-anchor: start;
 }
