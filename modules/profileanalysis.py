@@ -720,7 +720,7 @@ def generatehonor(honor, ismain=True, server='jp'):
                             lv = Image.open(r'pics/icon_degreeLv6.png')
                             r, g, b, mask = lv.split()
                             pic.paste(lv, (54 + 16 * i, 63), mask)
-    else:
+    elif honor['profileHonorType'] == 'bonds':
         # cp牌子
         with open(f'{masterdatadir}/bondsHonors.json', 'r', encoding='utf-8') as f:
             bondsHonors = json.load(f)
@@ -820,6 +820,65 @@ def generatehonor(honor, ismain=True, server='jp'):
                     lv = Image.open(r'pics/icon_degreeLv6.png')
                     r, g, b, mask = lv.split()
                     pic.paste(lv, (54 + 16 * i, 63), mask)
+    else:
+        # 排位牌子
+        with open(f'{masterdatadir}/honors.json', 'r', encoding='utf-8') as f:
+            honors = json.load(f)
+        with open(f'{masterdatadir}/honorGroups.json', 'r', encoding='utf-8') as f:
+            honorGroups = json.load(f)
+        for i in honors:
+            if i['id'] == honor['honorId']:
+                assetbundleName = i['assetbundleName']
+                honorRarity = i['honorRarity']
+                for j in honorGroups:
+                    if j['id'] == i['groupId']:
+                        backgroundAssetbundleName = j['backgroundAssetbundleName']
+                        break
+        # 数据读取完成
+        if ismain:
+            # 大图
+            if honorRarity == 'low':
+                frame = Image.open(r'pics/frame_degree_m_1.png')
+            elif honorRarity == 'middle':
+                frame = Image.open(r'pics/frame_degree_m_2.png')
+            elif honorRarity == 'high':
+                frame = Image.open(r'pics/frame_degree_m_3.png')
+            else:
+                frame = Image.open(r'pics/frame_degree_m_4.png')
+
+            pic = gethonorasset(server, r'data\assets\sekai\assetbundle\resources'
+                             fr'\startapp\rank_live\honor\{backgroundAssetbundleName}\degree_main.png')
+            rankpic = gethonorasset(server, r'data\assets\sekai\assetbundle\resources'
+                                 fr'\startapp\rank_live\honor\{assetbundleName}\rank_main.png')
+            r, g, b, mask = frame.split()
+            if honorRarity == 'low':
+                pic.paste(frame, (8, 0), mask)
+            else:
+                pic.paste(frame, (0, 0), mask)
+            r, g, b, mask = rankpic.split()
+            pic.paste(rankpic, (190, 0), mask)
+        else:
+            # 小图
+            if honorRarity == 'low':
+                frame = Image.open(r'pics/frame_degree_s_1.png')
+            elif honorRarity == 'middle':
+                frame = Image.open(r'pics/frame_degree_s_2.png')
+            elif honorRarity == 'high':
+                frame = Image.open(r'pics/frame_degree_s_3.png')
+            else:
+                frame = Image.open(r'pics/frame_degree_s_4.png')
+
+            pic = gethonorasset(server, r'data\assets\sekai\assetbundle\resources'
+                             fr'\startapp\rank_live\honor\{backgroundAssetbundleName}\degree_sub.png')
+            rankpic = gethonorasset(server, r'data\assets\sekai\assetbundle\resources'
+                                 fr'\startapp\rank_live\honor\{assetbundleName}\rank_sub.png')
+            r, g, b, mask = frame.split()
+            if honorRarity == 'low':
+                pic.paste(frame, (8, 0), mask)
+            else:
+                pic.paste(frame, (0, 0), mask)
+            r, g, b, mask = rankpic.split()
+            pic.paste(rankpic, (34, 42), mask)
     return pic
 
 def gethonorasset(server, path):
