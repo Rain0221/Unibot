@@ -1,0 +1,85 @@
+{
+"musicId": 226,
+"offset": 2.608695652173913,
+"events": [
+{
+"bar": 0,
+"bpm": 92,
+"barLength": 4,
+"sentenceLength": 2,
+"section": "intro"
+},
+{
+"bar": 12,
+"bpm": 184,
+"sentenceLength": 4,
+"section": "chorus"
+},
+{
+"bar": 26,
+"section": "post-chorus"
+},
+{
+"bar": 39,
+"barLength": 3
+},
+{
+"bar": 40,
+"barLength": 6,
+"section": "bridge"
+},
+{
+"bar": 41,
+"barLength": 5
+},
+{
+"bar": 42,
+"barLength": 6
+},
+{
+"bar": 43,
+"barLength": 5
+},
+{
+"bar": 44,
+"barLength": 5.5
+},
+{
+"bar": 45,
+"barLength": 6
+},
+{
+"bar": 49,
+"barLength": 5
+},
+{
+"bar": 50,
+"barLength": 6
+},
+{
+"bar": 51,
+"barLength": 5
+},
+{
+"bar": 52,
+"barLength": 5.5
+},
+{
+"bar": 53,
+"barLength": 6
+},
+{
+"bar": 57,
+"barLength": 4,
+"section": "pre-chorus-2"
+},
+{
+"bar": 71,
+"section": "chorus-2"
+},
+{
+"bar": 85,
+"section": "post-chorus-2"
+}
+]
+}

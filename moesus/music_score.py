@@ -32,9 +32,9 @@ def parse(music_id, difficulty, theme, savepng=True, jacketdir=None):
             music = i
     if music['composer'] == music['arranger']:
         artist = music['composer']
-    elif music['composer'] in music['arranger']:
+    elif music['composer'] in music['arranger'] or music['composer'] == '-':
         artist = music['arranger']
-    elif music['arranger'] in music['composer']:
+    elif music['arranger'] in music['composer'] or music['arranger'] == '-':
         artist = music['composer']
     else:
         artist = '%s / %s' % (music['composer'], music['arranger'])

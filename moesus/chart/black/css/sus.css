@@ -27,7 +27,7 @@
 }
 
 .event-line {
-    stroke: #ff8585;
+    stroke: #ffdea8;
     stroke-width: 4;
 }
 
@@ -35,7 +35,15 @@
     font-size: 12px;
     font-weight: 900;
     font-family: Avenir;
-    fill: #ff8585;
+    fill: #ffdea8;
+    text-anchor: start;
+}
+
+.lyric-text {
+    font-size: 12px;
+    font-weight: 900;
+    font-family: FOT-RodinNTLG Pro DB;
+    fill: #ffffff;
     text-anchor: start;
 }
 

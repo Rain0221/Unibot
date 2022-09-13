@@ -39,6 +39,14 @@
     text-anchor: start;
 }
 
+.lyric-text {
+    font-size: 12px;
+    font-weight: 900;
+    font-family: FOT-RodinNTLG Pro DB;
+    fill: #808080;
+    text-anchor: start;
+}
+
 .slide {
     fill: #d9fbeecc
 }
