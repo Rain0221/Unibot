@@ -29,7 +29,7 @@ bot频道版已上线，[点击进入](https://qun.qq.com/qqweb/qunpro/share?_wv
 - `pjskbpm+曲名` 查看当前歌曲的bpm（频道可直接使用`bpm+曲名`）
 - `查bpm+数字` 查询对应bpm所有歌曲
 ### 谱面预览
-- `谱面预览 曲名 难度` 查询对应曲名，难度的谱面预览（来源：[Sekai Viewer](https://sekai.best/)）
+- `谱面预览 曲名 难度` 查询对应曲名，难度的谱面预览（来源：[ぷろせかもえ！](https://pjsekai.moe/)（开发中））
   - `难度`支持的输入: `easy`, `norml`, `hard`, `expert`, `master`, `ex`, `nm`, `hd`, `ex`, `ma`
   - 如果查询`master`可省略难度
 - `谱面预览2 曲名 难度` 查询对应曲名，难度的谱面预览（来源：[プロセカ譜面保管所](sdvx.in/prsk.html)）
@@ -134,4 +134,5 @@ bot频道版已上线，[点击进入](https://qun.qq.com/qqweb/qunpro/share?_wv
 ### 数据来源
 - 预测线: [33Kit](https://3-3.dev/)
 - 歌曲达成率，难度偏差，热度等信息: [Project Sekai Profile](https://profile.pjsekai.moe/)
-- 谱面预览: [Sekai Viewer](https://sekai.best/), [プロセカ譜面保管所](https://sdvx.in/prsk.html)
+- 谱面预览: [ぷろせかもえ！](https://pjsekai.moe/)（开发中）, [プロセカ譜面保管所](https://sdvx.in/prsk.html)
+- 台服日服牌子图片：[Sekai Viewer](https://sekai.best/)
