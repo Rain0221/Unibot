@@ -116,7 +116,7 @@ def get_filectime(file):
     return datetime.datetime.fromtimestamp(os.path.getmtime(file))
 
 def isleak(musicid):
-    with open(r'masterdata/musics.json', 'r', encoding='utf-8') as f:
+    with open('masterdata/musics.json', 'r', encoding='utf-8') as f:
         musics = json.load(f)
     for i in musics:
         if i['id'] == musicid:
@@ -130,7 +130,7 @@ def pjskinfo(musicid):
     if os.path.exists(f'piccache/pjskinfo/{musicid}.png'):
         pjskinfotime = get_filectime(f'piccache/pjskinfo/{musicid}.png')
         playdatatime = get_filectime('masterdata/realtime/musics.json')
-        with open(r'masterdata/musics.json', 'r', encoding='utf-8') as f:
+        with open('masterdata/musics.json', 'r', encoding='utf-8') as f:
             musics = json.load(f)
         for i in musics:
             if i['id'] == musicid:
@@ -149,7 +149,7 @@ def pjskinfo(musicid):
 
 def drawpjskinfo(musicid, olddir=True):
     info = musicinfo()
-    with open(r'masterdata/realtime/musics.json', 'r', encoding='utf-8') as f:
+    with open('masterdata/realtime/musics.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
     for music in data:
         if music['id'] == musicid:
@@ -166,7 +166,7 @@ def drawpjskinfo(musicid, olddir=True):
                 pass
             break
     if info.title == '':
-        with open(r'masterdata/musics.json', 'r', encoding='utf-8') as f:
+        with open('masterdata/musics.json', 'r', encoding='utf-8') as f:
             data = json.load(f)
         for music in data:
             if music['id'] != musicid:
@@ -179,7 +179,7 @@ def drawpjskinfo(musicid, olddir=True):
             info.fillerSec = music['fillerSec']
 
 
-    with open(r'masterdata/realtime/musicDifficulties.json', 'r', encoding='utf-8') as f:
+    with open('masterdata/realtime/musicDifficulties.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
     for i in range(0, len(data)):
         if data[i]['musicId'] == musicid:
@@ -201,7 +201,7 @@ def drawpjskinfo(musicid, olddir=True):
                 pass
             break
     if info.playLevel[0] == 0:
-        with open(r'masterdata/musicDifficulties.json', 'r', encoding='utf-8') as f:
+        with open('masterdata/musicDifficulties.json', 'r', encoding='utf-8') as f:
             data = json.load(f)
         for i in range(0, len(data)):
             if data[i]['musicId'] != musicid:
@@ -214,27 +214,27 @@ def drawpjskinfo(musicid, olddir=True):
     now = int(time.time() * 1000)
     leak = False
     if now < info.publishedAt:
-        img = Image.open(r'pics/leak.png')
+        img = Image.open('pics/leak.png')
         leak = True
     else:
         if info.playLevelAdjust[0] == 0:
-            img = Image.open(r'pics/pjskinfonew.png')
+            img = Image.open('pics/pjskinfonew.png')
         else:
-            img = Image.open(r'pics/pjskinfo.png')
+            img = Image.open('pics/pjskinfo.png')
     try:
-        jacket = Image.open(r'data\assets\sekai\assetbundle\resources'
-                            fr'\startapp\music\jacket\jacket_s_{str(musicid).zfill(3)}\jacket_s_{str(musicid).zfill(3)}.png')
+        jacket = Image.open('data/assets/sekai/assetbundle/resources'
+                            f'/startapp/music/jacket/jacket_s_{str(musicid).zfill(3)}/jacket_s_{str(musicid).zfill(3)}.png')
         jacket = jacket.resize((650, 650))
         img.paste(jacket, (80, 47))
     except FileNotFoundError:
         pass
-    font_style = ImageFont.truetype(r"fonts\KOZGOPRO-BOLD.OTF", 90)
+    font_style = ImageFont.truetype("fonts/KOZGOPRO-BOLD.OTF", 90)
     size = font_style.getsize(info.title)
     if size[0] < 1150:
         highplus = 0
     else:
         size = int(90 * (1150 / size[0]))
-        font_style = ImageFont.truetype(r"fonts\KOZGOPRO-BOLD.OTF", size)
+        font_style = ImageFont.truetype("fonts/KOZGOPRO-BOLD.OTF", size)
         text_width = font_style.getsize(info.title)
         if text_width[1] != 90:
             highplus = (90 - text_width[1]) / 2
@@ -244,7 +244,7 @@ def drawpjskinfo(musicid, olddir=True):
     # 标题
     draw.text((760, 100 + highplus), info.title, fill=(1, 255, 221), font=font_style)
     # 作词作曲编曲
-    font_style = ImageFont.truetype(r"fonts\KOZGOPRO-BOLD.OTF", 40)
+    font_style = ImageFont.truetype("fonts/KOZGOPRO-BOLD.OTF", 40)
     draw.text((930, 268), info.lyricist, fill=(255, 255, 255), font=font_style)
     draw.text((930, 350), info.composer, fill=(255, 255, 255), font=font_style)
     draw.text((930, 430), info.arranger, fill=(255, 255, 255), font=font_style)
@@ -263,12 +263,12 @@ def drawpjskinfo(musicid, olddir=True):
     draw.text((930, 593), Time, fill=(255, 255, 255), font=font_style)
 
     # 难度
-    font_style = ImageFont.truetype(r"fonts\SourceHanSansCN-Bold.otf", 60)
+    font_style = ImageFont.truetype("fonts/SourceHanSansCN-Bold.otf", 60)
     for i in range(0, 5):
         text_width = font_style.getsize(str(info.playLevel[i]))
         text_coordinate = (int((132 + 138 * i) - text_width[0] / 2), int(873 - text_width[1] / 2))
         draw.text(text_coordinate, str(info.playLevel[i]), fill=(1, 255, 221), font=font_style)
-    font_style = ImageFont.truetype(r"fonts\SourceHanSansCN-Bold.otf", 45)
+    font_style = ImageFont.truetype("fonts/SourceHanSansCN-Bold.otf", 45)
     for i in range(0, 5):
         text_width = font_style.getsize(str(info.noteCount[i]))
         text_coordinate = (int((132 + 138 * i) - text_width[0] / 2), int(960 - text_width[1] / 2))
@@ -277,25 +277,25 @@ def drawpjskinfo(musicid, olddir=True):
     if info.playLevelAdjust[0] != 0:
 
         if info.hotAdjust > 0.5:
-            hotpic = Image.open(r'pics/hot.png')
+            hotpic = Image.open('pics/hot.png')
         elif info.hotAdjust > 0:
-            hotpic = Image.open(r'pics/hot3.png')
+            hotpic = Image.open('pics/hot3.png')
         elif info.hotAdjust > -1:
-            hotpic = Image.open(r'pics/hot2.png')
+            hotpic = Image.open('pics/hot2.png')
         elif info.hotAdjust > -2:
-            hotpic = Image.open(r'pics/hot1.png')
+            hotpic = Image.open('pics/hot1.png')
         else:
-            hotpic = Image.open(r'pics/hot0.png')
+            hotpic = Image.open('pics/hot0.png')
 
         if info.hot == 0:
             hot = '最新最热'
-            hotpic = Image.open(r'pics/new.png')
+            hotpic = Image.open('pics/new.png')
         else:
             hot = str(round(info.hot))
 
         hotpic = hotpic.resize((48, 48))
         r, g, b, mask = hotpic.split()
-        font_style = ImageFont.truetype(r"fonts\SourceHanSansCN-Bold.otf", 28)
+        font_style = ImageFont.truetype("fonts/SourceHanSansCN-Bold.otf", 28)
         text_width = font_style.getsize(str(hot))
         text_coordinate = (int(1760 - text_width[0]), int(805 - text_width[1] / 2))
         if hot == '最新最热':
@@ -338,7 +338,7 @@ def drawpjskinfo(musicid, olddir=True):
             text_coordinate = (int(1363 + 116 * i - text_width[0] / 2), int(980 - text_width[1] / 2))
             draw.text(text_coordinate, aplevelplus, fill=(67, 70, 101), font=font_style)
 
-        font_style = ImageFont.truetype(r"fonts\SourceHanSansCN-Bold.otf", 20)
+        font_style = ImageFont.truetype("fonts/SourceHanSansCN-Bold.otf", 20)
         for i in range(0, 5):
             if info.playLevelAdjust[i] > 1.5:
                 adjust = "++"
@@ -361,9 +361,9 @@ def drawpjskinfo(musicid, olddir=True):
     else:
         img.paste(vocals, (758, 670), mask)
     if olddir:
-        img.save(fr'piccache\pjskinfo{musicid}.png')
+        img.save(f'piccache/pjskinfo{musicid}.png')
     else:
-        img.save(fr'piccache\pjskinfo\{musicid}.png')
+        img.save(f'piccache/pjskinfo/{musicid}.png')
     return leak
 
 def vocalimg(musicid):
@@ -397,7 +397,7 @@ def vocalimg(musicid):
         noan = False
 
     if noan:
-        font_style = ImageFont.truetype(r"fonts\SourceHanSansCN-Bold.otf", 35)
+        font_style = ImageFont.truetype("fonts/SourceHanSansCN-Bold.otf", 35)
         img = Image.open('pics/vocal.png')
         if vs == 0:
             draw = ImageDraw.Draw(img)
@@ -434,7 +434,7 @@ def vocalimg(musicid):
                 elif vocal['musicVocalType'] == "sekai":
                     img.paste(vocalimg, (370 - int(vocalimg.size[0] / 2), 317 - int(vocalimg.size[1] / 2)), mask)
     else:
-        font_style = ImageFont.truetype(r"fonts\SourceHanSansCN-Bold.otf", 27)
+        font_style = ImageFont.truetype("fonts/SourceHanSansCN-Bold.otf", 27)
         img = Image.new('RGBA', (720, 380), color=(0, 0, 0, 0))
         for vocal in musicVocals:
             if vocal['musicId'] == musicid:
@@ -515,7 +515,7 @@ def pjskset(newalias, oldalias, qqnum=None, username='', qun='群与用户名未
         c.execute(sql_add, (newalias, musicid))
     conn.commit()
     conn.close()
-    with open(r'masterdata/musics.json', 'r', encoding='utf-8') as f:
+    with open('masterdata/musics.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
     title = ''
     for music in data:
@@ -625,9 +625,9 @@ def logtohtml(dir):
         f.write(txt2html(log))
 
 def musiclength(musicid, fillerSec=0):
-    audiodir = r'data\assets\sekai\assetbundle\resources\ondemand\music\long'
+    audiodir = 'data/assets/sekai/assetbundle/resources/ondemand/music/long'
     try:
-        with open(r'masterdata/musicVocals.json', 'r', encoding='utf-8') as f:
+        with open('masterdata/musicVocals.json', 'r', encoding='utf-8') as f:
             data = json.load(f)
         for vocal in data:
             if vocal['musicId'] == musicid:

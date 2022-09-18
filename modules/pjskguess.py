@@ -59,8 +59,8 @@ def getrandomjacket():
 
 
 def cutjacket(musicid, qunnum, size=140, isbw=False):
-    img = Image.open(r'data\assets\sekai\assetbundle\resources'
-                     fr'\startapp\music\jacket\jacket_s_{str(musicid).zfill(3)}\jacket_s_{str(musicid).zfill(3)}.png')
+    img = Image.open('data/assets/sekai/assetbundle/resources'
+                     f'/startapp/music/jacket/jacket_s_{str(musicid).zfill(3)}/jacket_s_{str(musicid).zfill(3)}.png')
     ran1 = random.randint(0, img.size[0] - size)
     ran2 = random.randint(0, img.size[1] - size)
     img = img.crop((ran1, ran2, ran1 + size, ran2 + size))

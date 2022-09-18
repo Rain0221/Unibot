@@ -5,8 +5,7 @@ import traceback
 
 import cairosvg
 import argparse
-import threading
-from moesus import chart, thread_manager
+from moesus import chart
 
 note_sizes = {
     'easy': 2.0,
@@ -18,14 +17,14 @@ note_sizes = {
 
 
 def parse(music_id, difficulty, theme, savepng=True, jacketdir=None):
-    with open(rf'data\assets\sekai\assetbundle\resources\startapp\music\music_score\{str(music_id).zfill(4)}_01\{difficulty}', 'r', encoding='utf-8') as f:
+    with open(f'data/assets/sekai/assetbundle/resources/startapp/music/music_score/{str(music_id).zfill(4)}_01/{difficulty}', 'r', encoding='utf-8') as f:
         sustext = f.read()
     lines = sustext.splitlines()
 
     if jacketdir is None:
         jacketdir = '../../../../data/assets/sekai/assetbundle/resources/startapp/music/jacket/%s/%s.png'
 
-    with open (r'masterdata\musics.json', 'r', encoding='utf-8') as f:
+    with open ('masterdata/musics.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
     for i in data:
         if i['id'] == music_id:
@@ -39,7 +38,7 @@ def parse(music_id, difficulty, theme, savepng=True, jacketdir=None):
     else:
         artist = '%s / %s' % (music['composer'], music['arranger'])
 
-    with open (r'masterdata\musicDifficulties.json', 'r', encoding='utf-8') as f:
+    with open ('masterdata/musicDifficulties.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
     for i in data:
         if i['musicId'] == music_id and i['musicDifficulty'] == difficulty:
@@ -106,24 +105,6 @@ def parse(music_id, difficulty, theme, savepng=True, jacketdir=None):
     sus.export(file_name + '.svg', style_sheet=style_sheet, themehint=themehint)
     if savepng:
         cairosvg.svg2png(url=file_name + '.svg', write_to=file_name + '.png', scale=1.3)
-
-
-def handle(music_ids, theme):
-    threading.Thread(target=thread_manager.start_thread, args=(thread_manager.thread, parse, 16)).start()
-
-    thread_manager.progress.total = len(music_ids) * 5
-    for music_id in music_ids:
-        for difficulty in [
-            'easy',
-            'normal',
-            'hard',
-            'expert',
-            'master',
-        ]:
-            thread_manager.pool.put((music_id, difficulty, theme))
-
-    thread_manager.pool.join()
-
 
 
 if __name__ == '__main__':

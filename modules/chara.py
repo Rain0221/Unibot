@@ -100,13 +100,13 @@ def findcardsingle(card, allcards, cardCostume3ds, costume3ds):
         pic.paste(thumnail, (132, 15), mask)
 
     draw = ImageDraw.Draw(pic)
-    font = ImageFont.truetype(r'fonts\SourceHanSansCN-Medium.otf', 28)
+    font = ImageFont.truetype('fonts/SourceHanSansCN-Medium.otf', 28)
     text_width = font.getsize(f'{card["id"]}. {card["prefix"]}')
     text_coordinate = ((210 - text_width[0] / 2), int(195 - text_width[1] / 2))
     draw.text(text_coordinate, f'{card["id"]}. {card["prefix"]}', '#000000', font)
 
     name = getcharaname(card['characterId'])
-    font = ImageFont.truetype(r'fonts\SourceHanSansCN-Medium.otf', 18)
+    font = ImageFont.truetype('fonts/SourceHanSansCN-Medium.otf', 18)
     text_width = font.getsize(name)
     text_coordinate = ((210 - text_width[0] / 2), int(230 - text_width[1] / 2))
     draw.text(text_coordinate, name, '#505050', font)

@@ -60,8 +60,6 @@ class userprofile(object):
             masterdatadir = '../twapi/masterdata'
         resp = requests.get(f'{url}/user/{userid}/profile')
         data = json.loads(resp.content)
-        # with open('piccache\profile.json', 'r', encoding='utf-8') as f:
-        #     data = json.load(f)
         self.name = data['user']['userGamedata']['name']
         recordname(qqnum, userid, self.name)
         try:
@@ -218,8 +216,6 @@ def r30(userid, private=False, server='jp', qqnum='未知'):
         private = True
     resp = requests.get(f'{url}/user/{userid}/profile')
     data = json.loads(resp.content)
-    # with open('piccache\profile.json', 'r', encoding='utf-8') as f:
-    #     data = json.load(f)
     name = data['user']['userGamedata']['name']
     recordname(qqnum, userid, name)
     userMusicResults = data['userMusicResults']
@@ -332,9 +328,9 @@ def pjskjindu(userid, private=False, diff='master', server='jp', qqnum='未知')
     else:
         id = userid
     if diff == 'master':
-        img = Image.open(r'pics/bgmaster.png')
+        img = Image.open('pics/bgmaster.png')
     else:
-        img = Image.open(r'pics/bgexpert.png')
+        img = Image.open('pics/bgexpert.png')
     with open('masterdata/cards.json', 'r', encoding='utf-8') as f:
         cards = json.load(f)
     try:
@@ -343,24 +339,24 @@ def pjskjindu(userid, private=False, diff='master', server='jp', qqnum='未知')
             if i['id'] == profile.userDecks[0]:
                 assetbundleName = i['assetbundleName']
         if profile.special_training[0]:
-            cardimg = Image.open(r'data\assets\sekai\assetbundle\resources'
-                                 fr'\startapp\thumbnail\chara\{assetbundleName}_after_training.png')
+            cardimg = Image.open('data/assets/sekai/assetbundle/resources'
+                                 f'/startapp/thumbnail/chara/{assetbundleName}_after_training.png')
         else:
-            cardimg = Image.open(r'data\assets\sekai\assetbundle\resources'
-                                 fr'\startapp\thumbnail\chara\{assetbundleName}_normal.png')
+            cardimg = Image.open('data/assets/sekai/assetbundle/resources'
+                                 f'/startapp/thumbnail/chara/{assetbundleName}_normal.png')
         cardimg = cardimg.resize((117, 117))
         r, g, b, mask = cardimg.split()
         img.paste(cardimg, (67, 57), mask)
     except FileNotFoundError:
         pass
     draw = ImageDraw.Draw(img)
-    font_style = ImageFont.truetype(r"fonts\SourceHanSansCN-Bold.otf", 31)
+    font_style = ImageFont.truetype("fonts/SourceHanSansCN-Bold.otf", 31)
     draw.text((216, 55), profile.name, fill=(0, 0, 0), font=font_style)
-    font_style = ImageFont.truetype(r"fonts\FOT-RodinNTLGPro-DB.ttf", 15)
+    font_style = ImageFont.truetype("fonts/FOT-RodinNTLGPro-DB.ttf", 15)
     draw.text((216, 105), 'id:' + id, fill=(0, 0, 0), font=font_style)
-    font_style = ImageFont.truetype(r"fonts\FOT-RodinNTLGPro-DB.ttf", 26)
+    font_style = ImageFont.truetype("fonts/FOT-RodinNTLGPro-DB.ttf", 26)
     draw.text((314, 138), str(profile.rank), fill=(255, 255, 255), font=font_style)
-    font_style = ImageFont.truetype(r"fonts\SourceHanSansCN-Bold.otf", 35)
+    font_style = ImageFont.truetype("fonts/SourceHanSansCN-Bold.otf", 35)
     if diff == 'master':
         levelmin = 26
     else:
@@ -399,7 +395,7 @@ def pjskjindu(userid, private=False, diff='master', server='jp', qqnum='未知')
         text_width = font_style.getsize(str(profile.masterscore[i + levelmin + 6][3]))
         text_coordinate = (int(683 + 3 * 78 - text_width[0] / 2), int(300 + 96.4 * i - text_width[1] / 2))
         draw.text(text_coordinate, str(profile.masterscore[i + levelmin + 6][3]), fill=(108, 237, 226), font=font_style)
-    img.save(fr'piccache\{userid}jindu.png')
+    img.save(f'piccache/{userid}jindu.png')
 
 
 def pjskprofile(userid, private=False, server='jp', qqnum='未知'):
@@ -409,7 +405,7 @@ def pjskprofile(userid, private=False, server='jp', qqnum='未知'):
         id = '保密'
     else:
         id = userid
-    img = Image.open(r'pics/bg.png')
+    img = Image.open('pics/bg.png')
     with open('masterdata/cards.json', 'r', encoding='utf-8') as f:
         cards = json.load(f)
     try:
@@ -418,27 +414,27 @@ def pjskprofile(userid, private=False, server='jp', qqnum='未知'):
             if i['id'] == profile.userDecks[0]:
                 assetbundleName = i['assetbundleName']
         if profile.special_training[0]:
-            cardimg = Image.open(r'data\assets\sekai\assetbundle\resources'
-                                 fr'\startapp\thumbnail\chara\{assetbundleName}_after_training.png')
+            cardimg = Image.open('data/assets/sekai/assetbundle/resources'
+                                 f'/startapp/thumbnail/chara/{assetbundleName}_after_training.png')
         else:
-            cardimg = Image.open(r'data\assets\sekai\assetbundle\resources'
-                                 fr'\startapp\thumbnail\chara\{assetbundleName}_normal.png')
+            cardimg = Image.open('data/assets/sekai/assetbundle/resources'
+                                 f'/startapp/thumbnail/chara/{assetbundleName}_normal.png')
         cardimg = cardimg.resize((151, 151))
         r, g, b, mask = cardimg.split()
         img.paste(cardimg, (118, 51), mask)
     except FileNotFoundError:
         pass
     draw = ImageDraw.Draw(img)
-    font_style = ImageFont.truetype(r"fonts\SourceHanSansCN-Bold.otf", 45)
+    font_style = ImageFont.truetype("fonts/SourceHanSansCN-Bold.otf", 45)
     draw.text((295, 45), profile.name, fill=(0, 0, 0), font=font_style)
-    font_style = ImageFont.truetype(r"fonts\FOT-RodinNTLGPro-DB.ttf", 20)
+    font_style = ImageFont.truetype("fonts/FOT-RodinNTLGPro-DB.ttf", 20)
     draw.text((298, 116), 'id:' + id, fill=(0, 0, 0), font=font_style)
-    font_style = ImageFont.truetype(r"fonts\FOT-RodinNTLGPro-DB.ttf", 34)
+    font_style = ImageFont.truetype("fonts/FOT-RodinNTLGPro-DB.ttf", 34)
     draw.text((415, 157), str(profile.rank), fill=(255, 255, 255), font=font_style)
-    font_style = ImageFont.truetype(r"fonts\FOT-RodinNTLGPro-DB.ttf", 22)
+    font_style = ImageFont.truetype("fonts/FOT-RodinNTLGPro-DB.ttf", 22)
     draw.text((182, 318), str(profile.twitterId), fill=(0, 0, 0), font=font_style)
 
-    font_style = ImageFont.truetype(r"fonts\SourceHanSansCN-Medium.otf", 24)
+    font_style = ImageFont.truetype("fonts/SourceHanSansCN-Medium.otf", 24)
     size = font_style.getsize(profile.word)
     if size[0] > 480:
         draw.text((132, 388), profile.word[:int(len(profile.word) * (460 / size[0]))], fill=(0, 0, 0), font=font_style)
@@ -453,17 +449,17 @@ def pjskprofile(userid, private=False, server='jp', qqnum='未知'):
                 if j['id'] == profile.userDecks[i]:
                     assetbundleName = j['assetbundleName']
             if profile.special_training[i]:
-                cardimg = Image.open(r'data\assets\sekai\assetbundle\resources'
-                                     fr'\startapp\thumbnail\chara\{assetbundleName}_after_training.png')
+                cardimg = Image.open('data/assets/sekai/assetbundle/resources'
+                                     f'/startapp/thumbnail/chara/{assetbundleName}_after_training.png')
             else:
-                cardimg = Image.open(r'data\assets\sekai\assetbundle\resources'
-                                     fr'\startapp\thumbnail\chara\{assetbundleName}_normal.png')
+                cardimg = Image.open('data/assets/sekai/assetbundle/resources'
+                                     f'/startapp/thumbnail/chara/{assetbundleName}_normal.png')
             # cardimg = cardimg.resize((151, 151))
             r, g, b, mask = cardimg.split()
             img.paste(cardimg, (111 + 128 * i, 488), mask)
         except FileNotFoundError:
             pass
-    font_style = ImageFont.truetype(r"fonts\FOT-RodinNTLGPro-DB.ttf", 27)
+    font_style = ImageFont.truetype("fonts/FOT-RodinNTLGPro-DB.ttf", 27)
     for i in range(0, 5):
         text_width = font_style.getsize(str(profile.clear[i]))
         text_coordinate = (int(170 + 132 * i - text_width[0] / 2), int(735 - text_width[1] / 2))
@@ -478,7 +474,7 @@ def pjskprofile(userid, private=False, server='jp', qqnum='未知'):
         draw.text(text_coordinate, str(profile.full_perfect[i]), fill=(0, 0, 0), font=font_style)
 
     character = 0
-    font_style = ImageFont.truetype(r"fonts\FOT-RodinNTLGPro-DB.ttf", 29)
+    font_style = ImageFont.truetype("fonts/FOT-RodinNTLGPro-DB.ttf", 29)
     for i in range(0, 5):
         for j in range(0, 4):
             character = character + 1
@@ -506,7 +502,7 @@ def pjskprofile(userid, private=False, server='jp', qqnum='未知'):
     draw.text((952, 141), f'{profile.mvpCount}回', fill=(0, 0, 0), font=font_style)
     draw.text((1259, 141), f'{profile.superStarCount}回', fill=(0, 0, 0), font=font_style)
     try:
-        chara = Image.open(rf'chara\chr_ts_{profile.characterId}.png')
+        chara = Image.open(f'chara/chr_ts_{profile.characterId}.png')
         chara = chara.resize((70, 70))
         r, g, b, mask = chara.split()
         img.paste(chara, (952, 293), mask)
@@ -566,7 +562,7 @@ def pjskprofile(userid, private=False, server='jp', qqnum='未知'):
                 except:
                     pass
 
-    img.save(fr'piccache\{userid}profile.png')
+    img.save(f'piccache/{userid}profile.png')
     return
 
 
@@ -615,20 +611,20 @@ def generatehonor(honor, ismain=True, server='jp'):
         if ismain:
             # 大图
             if honorRarity == 'low':
-                frame = Image.open(r'pics/frame_degree_m_1.png')
+                frame = Image.open('pics/frame_degree_m_1.png')
             elif honorRarity == 'middle':
-                frame = Image.open(r'pics/frame_degree_m_2.png')
+                frame = Image.open('pics/frame_degree_m_2.png')
             elif honorRarity == 'high':
-                frame = Image.open(r'pics/frame_degree_m_3.png')
+                frame = Image.open('pics/frame_degree_m_3.png')
             else:
-                frame = Image.open(r'pics/frame_degree_m_4.png')
+                frame = Image.open('pics/frame_degree_m_4.png')
             if backgroundAssetbundleName == '':
                 rankpic = None
-                pic = gethonorasset(server, r'data\assets\sekai\assetbundle\resources'
-                                 fr'\startapp\honor\{assetbundleName}\degree_main.png')
+                pic = gethonorasset(server, 'data/assets/sekai/assetbundle/resources'
+                                 f'/startapp/honor/{assetbundleName}/degree_main.png')
                 try:
-                    rankpic = gethonorasset(server, r'data\assets\sekai\assetbundle\resources'
-                                         fr'\startapp\honor\{assetbundleName}\rank_main.png')
+                    rankpic = gethonorasset(server, 'data/assets/sekai/assetbundle/resources'
+                                         f'/startapp/honor/{assetbundleName}/rank_main.png')
                 except FileNotFoundError:
                     pass
                 r, g, b, mask = frame.split()
@@ -640,10 +636,10 @@ def generatehonor(honor, ismain=True, server='jp'):
                     r, g, b, mask = rankpic.split()
                     pic.paste(rankpic, (190, 0), mask)
             else:
-                pic = gethonorasset(server, r'data\assets\sekai\assetbundle\resources'
-                                 fr'\startapp\honor\{backgroundAssetbundleName}\degree_main.png')
-                rankpic = gethonorasset(server, r'data\assets\sekai\assetbundle\resources'
-                                     fr'\startapp\honor\{assetbundleName}\rank_main.png')
+                pic = gethonorasset(server, 'data/assets/sekai/assetbundle/resources'
+                                 f'/startapp/honor/{backgroundAssetbundleName}/degree_main.png')
+                rankpic = gethonorasset(server, 'data/assets/sekai/assetbundle/resources'
+                                     f'/startapp/honor/{assetbundleName}/rank_main.png')
                 r, g, b, mask = frame.split()
                 if honorRarity == 'low':
                     pic.paste(frame, (8, 0), mask)
@@ -658,26 +654,26 @@ def generatehonor(honor, ismain=True, server='jp'):
                     honorlevel = honor['honorLevel']
                 if star is True:
                     for i in range(0, honorlevel):
-                        lv = Image.open(r'pics/icon_degreeLv.png')
+                        lv = Image.open('pics/icon_degreeLv.png')
                         r, g, b, mask = lv.split()
                         pic.paste(lv, (54 + 16 * i, 63), mask)
         else:
             # 小图
             if honorRarity == 'low':
-                frame = Image.open(r'pics/frame_degree_s_1.png')
+                frame = Image.open('pics/frame_degree_s_1.png')
             elif honorRarity == 'middle':
-                frame = Image.open(r'pics/frame_degree_s_2.png')
+                frame = Image.open('pics/frame_degree_s_2.png')
             elif honorRarity == 'high':
-                frame = Image.open(r'pics/frame_degree_s_3.png')
+                frame = Image.open('pics/frame_degree_s_3.png')
             else:
-                frame = Image.open(r'pics/frame_degree_s_4.png')
+                frame = Image.open('pics/frame_degree_s_4.png')
             if backgroundAssetbundleName == '':
                 rankpic = None
-                pic = gethonorasset(server, r'data\assets\sekai\assetbundle\resources'
-                                 fr'\startapp\honor\{assetbundleName}\degree_sub.png')
+                pic = gethonorasset(server, 'data/assets/sekai/assetbundle/resources'
+                                 f'/startapp/honor/{assetbundleName}/degree_sub.png')
                 try:
-                    rankpic = gethonorasset(server, r'data\assets\sekai\assetbundle\resources'
-                                         fr'\startapp\honor\{assetbundleName}\rank_sub.png')
+                    rankpic = gethonorasset(server, 'data/assets/sekai/assetbundle/resources'
+                                         f'/startapp/honor/{assetbundleName}/rank_sub.png')
                 except FileNotFoundError:
                     pass
                 r, g, b, mask = frame.split()
@@ -689,10 +685,10 @@ def generatehonor(honor, ismain=True, server='jp'):
                     r, g, b, mask = rankpic.split()
                     pic.paste(rankpic, (34, 42), mask)
             else:
-                pic = gethonorasset(server, r'data\assets\sekai\assetbundle\resources'
-                                 fr'\startapp\honor\{backgroundAssetbundleName}\degree_sub.png')
-                rankpic = gethonorasset(server, r'data\assets\sekai\assetbundle\resources'
-                                     fr'\startapp\honor\{assetbundleName}\rank_sub.png')
+                pic = gethonorasset(server, 'data/assets/sekai/assetbundle/resources'
+                                 f'/startapp/honor/{backgroundAssetbundleName}/degree_sub.png')
+                rankpic = gethonorasset(server, 'data/assets/sekai/assetbundle/resources'
+                                     f'/startapp/honor/{assetbundleName}/rank_sub.png')
                 r, g, b, mask = frame.split()
                 if honorRarity == 'low':
                     pic.paste(frame, (8, 0), mask)
@@ -708,16 +704,16 @@ def generatehonor(honor, ismain=True, server='jp'):
                         honorlevel = honor['honorLevel']
                     if honorlevel < 5:
                         for i in range(0, honorlevel):
-                            lv = Image.open(r'pics/icon_degreeLv.png')
+                            lv = Image.open('pics/icon_degreeLv.png')
                             r, g, b, mask = lv.split()
                             pic.paste(lv, (54 + 16 * i, 63), mask)
                     else:
                         for i in range(0, 5):
-                            lv = Image.open(r'pics/icon_degreeLv.png')
+                            lv = Image.open('pics/icon_degreeLv.png')
                             r, g, b, mask = lv.split()
                             pic.paste(lv, (54 + 16 * i, 63), mask)
                         for i in range(0, honorlevel - 5):
-                            lv = Image.open(r'pics/icon_degreeLv6.png')
+                            lv = Image.open('pics/icon_degreeLv6.png')
                             r, g, b, mask = lv.split()
                             pic.paste(lv, (54 + 16 * i, 63), mask)
     elif honor['profileHonorType'] == 'bonds':
@@ -736,10 +732,10 @@ def generatehonor(honor, ismain=True, server='jp'):
                 pic = bondsbackground(gameCharacterUnitId2, gameCharacterUnitId1)
             else:
                 pic = bondsbackground(gameCharacterUnitId1, gameCharacterUnitId2)
-            chara1 = Image.open(rf'chara\chr_sd_{str(gameCharacterUnitId1).zfill(2)}_01\chr_sd_'
-                                rf'{str(gameCharacterUnitId1).zfill(2)}_01.png')
-            chara2 = Image.open(rf'chara\chr_sd_{str(gameCharacterUnitId2).zfill(2)}_01\chr_sd_'
-                                rf'{str(gameCharacterUnitId2).zfill(2)}_01.png')
+            chara1 = Image.open(f'chara/chr_sd_{str(gameCharacterUnitId1).zfill(2)}_01/chr_sd_'
+                                f'{str(gameCharacterUnitId1).zfill(2)}_01.png')
+            chara2 = Image.open(f'chara/chr_sd_{str(gameCharacterUnitId2).zfill(2)}_01/chr_sd_'
+                                f'{str(gameCharacterUnitId2).zfill(2)}_01.png')
             if honor['bondsHonorViewType'] == 'reverse':
                 chara1, chara2 = chara2, chara1
             r, g, b, mask = chara1.split()
@@ -750,13 +746,13 @@ def generatehonor(honor, ismain=True, server='jp'):
             r, g, b, mask = maskimg.split()
             pic.putalpha(mask)
             if honorRarity == 'low':
-                frame = Image.open(r'pics/frame_degree_m_1.png')
+                frame = Image.open('pics/frame_degree_m_1.png')
             elif honorRarity == 'middle':
-                frame = Image.open(r'pics/frame_degree_m_2.png')
+                frame = Image.open('pics/frame_degree_m_2.png')
             elif honorRarity == 'middle':
-                frame = Image.open(r'pics/frame_degree_m_3.png')
+                frame = Image.open('pics/frame_degree_m_3.png')
             else:
-                frame = Image.open(r'pics/frame_degree_m_4.png')
+                frame = Image.open('pics/frame_degree_m_4.png')
             r, g, b, mask = frame.split()
             if honorRarity == 'low':
                 pic.paste(frame, (8, 0), mask)
@@ -764,12 +760,12 @@ def generatehonor(honor, ismain=True, server='jp'):
                 pic.paste(frame, (0, 0), mask)
             wordbundlename = f"honorname_{str(gameCharacterUnitId1).zfill(2)}" \
                              f"{str(gameCharacterUnitId2).zfill(2)}_{str(honor['bondsHonorWordId']%100).zfill(2)}_01"
-            word = Image.open(rf'data\assets\sekai\assetbundle\resources\startapp'
-                                 fr'\bonds_honor\word\{wordbundlename}.png')
+            word = Image.open('data/assets/sekai/assetbundle/resources/startapp'
+                                 f'/bonds_honor/word/{wordbundlename}.png')
             r, g, b, mask = word.split()
             pic.paste(word, (int(190-(word.size[0]/2)), int(40-(word.size[1]/2))), mask)
             for i in range(0, honor['honorLevel']):
-                lv = Image.open(r'pics/icon_degreeLv.png')
+                lv = Image.open('pics/icon_degreeLv.png')
                 r, g, b, mask = lv.split()
                 pic.paste(lv, (54 + 16 * i, 63), mask)
         else:
@@ -778,10 +774,10 @@ def generatehonor(honor, ismain=True, server='jp'):
                 pic = bondsbackground(gameCharacterUnitId2, gameCharacterUnitId1, False)
             else:
                 pic = bondsbackground(gameCharacterUnitId1, gameCharacterUnitId2, False)
-            chara1 = Image.open(rf'chara\chr_sd_{str(gameCharacterUnitId1).zfill(2)}_01\chr_sd_'
-                                rf'{str(gameCharacterUnitId1).zfill(2)}_01.png')
-            chara2 = Image.open(rf'chara\chr_sd_{str(gameCharacterUnitId2).zfill(2)}_01\chr_sd_'
-                                rf'{str(gameCharacterUnitId2).zfill(2)}_01.png')
+            chara1 = Image.open(f'chara/chr_sd_{str(gameCharacterUnitId1).zfill(2)}_01/chr_sd_'
+                                f'{str(gameCharacterUnitId1).zfill(2)}_01.png')
+            chara2 = Image.open(f'chara/chr_sd_{str(gameCharacterUnitId2).zfill(2)}_01/chr_sd_'
+                                f'{str(gameCharacterUnitId2).zfill(2)}_01.png')
             if honor['bondsHonorViewType'] == 'reverse':
                 chara1, chara2 = chara2, chara1
             chara1 = chara1.resize((120, 102))
@@ -794,13 +790,13 @@ def generatehonor(honor, ismain=True, server='jp'):
             r, g, b, mask = maskimg.split()
             pic.putalpha(mask)
             if honorRarity == 'low':
-                frame = Image.open(r'pics/frame_degree_s_1.png')
+                frame = Image.open('pics/frame_degree_s_1.png')
             elif honorRarity == 'middle':
-                frame = Image.open(r'pics/frame_degree_s_2.png')
+                frame = Image.open('pics/frame_degree_s_2.png')
             elif honorRarity == 'middle':
-                frame = Image.open(r'pics/frame_degree_s_3.png')
+                frame = Image.open('pics/frame_degree_s_3.png')
             else:
-                frame = Image.open(r'pics/frame_degree_s_4.png')
+                frame = Image.open('pics/frame_degree_s_4.png')
             r, g, b, mask = frame.split()
             if honorRarity == 'low':
                 pic.paste(frame, (8, 0), mask)
@@ -808,16 +804,16 @@ def generatehonor(honor, ismain=True, server='jp'):
                 pic.paste(frame, (0, 0), mask)
             if honor['honorLevel'] < 5:
                 for i in range(0, honor['honorLevel']):
-                    lv = Image.open(r'pics/icon_degreeLv.png')
+                    lv = Image.open('pics/icon_degreeLv.png')
                     r, g, b, mask = lv.split()
                     pic.paste(lv, (54 + 16 * i, 63), mask)
             else:
                 for i in range(0, 5):
-                    lv = Image.open(r'pics/icon_degreeLv.png')
+                    lv = Image.open('pics/icon_degreeLv.png')
                     r, g, b, mask = lv.split()
                     pic.paste(lv, (54 + 16 * i, 63), mask)
                 for i in range(0, honor['honorLevel'] - 5):
-                    lv = Image.open(r'pics/icon_degreeLv6.png')
+                    lv = Image.open('pics/icon_degreeLv6.png')
                     r, g, b, mask = lv.split()
                     pic.paste(lv, (54 + 16 * i, 63), mask)
     else:
@@ -838,18 +834,18 @@ def generatehonor(honor, ismain=True, server='jp'):
         if ismain:
             # 大图
             if honorRarity == 'low':
-                frame = Image.open(r'pics/frame_degree_m_1.png')
+                frame = Image.open('pics/frame_degree_m_1.png')
             elif honorRarity == 'middle':
-                frame = Image.open(r'pics/frame_degree_m_2.png')
+                frame = Image.open('pics/frame_degree_m_2.png')
             elif honorRarity == 'high':
-                frame = Image.open(r'pics/frame_degree_m_3.png')
+                frame = Image.open('pics/frame_degree_m_3.png')
             else:
-                frame = Image.open(r'pics/frame_degree_m_4.png')
+                frame = Image.open('pics/frame_degree_m_4.png')
 
-            pic = gethonorasset(server, r'data\assets\sekai\assetbundle\resources'
-                             fr'\startapp\rank_live\honor\{backgroundAssetbundleName}\degree_main.png')
-            rankpic = gethonorasset(server, r'data\assets\sekai\assetbundle\resources'
-                                 fr'\startapp\rank_live\honor\{assetbundleName}\rank_main.png')
+            pic = gethonorasset(server, 'data/assets/sekai/assetbundle/resources'
+                             f'/startapp/rank_live/honor/{backgroundAssetbundleName}/degree_main.png')
+            rankpic = gethonorasset(server, 'data/assets/sekai/assetbundle/resources'
+                                 f'/startapp/rank_live/honor/{assetbundleName}/rank_main.png')
             r, g, b, mask = frame.split()
             if honorRarity == 'low':
                 pic.paste(frame, (8, 0), mask)
@@ -860,18 +856,18 @@ def generatehonor(honor, ismain=True, server='jp'):
         else:
             # 小图
             if honorRarity == 'low':
-                frame = Image.open(r'pics/frame_degree_s_1.png')
+                frame = Image.open('pics/frame_degree_s_1.png')
             elif honorRarity == 'middle':
-                frame = Image.open(r'pics/frame_degree_s_2.png')
+                frame = Image.open('pics/frame_degree_s_2.png')
             elif honorRarity == 'high':
-                frame = Image.open(r'pics/frame_degree_s_3.png')
+                frame = Image.open('pics/frame_degree_s_3.png')
             else:
-                frame = Image.open(r'pics/frame_degree_s_4.png')
+                frame = Image.open('pics/frame_degree_s_4.png')
 
-            pic = gethonorasset(server, r'data\assets\sekai\assetbundle\resources'
-                             fr'\startapp\rank_live\honor\{backgroundAssetbundleName}\degree_sub.png')
-            rankpic = gethonorasset(server, r'data\assets\sekai\assetbundle\resources'
-                                 fr'\startapp\rank_live\honor\{assetbundleName}\rank_sub.png')
+            pic = gethonorasset(server, 'data/assets/sekai/assetbundle/resources'
+                             f'/startapp/rank_live/honor/{backgroundAssetbundleName}/degree_sub.png')
+            rankpic = gethonorasset(server, 'data/assets/sekai/assetbundle/resources'
+                                 f'/startapp/rank_live/honor/{assetbundleName}/rank_sub.png')
             r, g, b, mask = frame.split()
             if honorRarity == 'low':
                 pic.paste(frame, (8, 0), mask)
@@ -887,7 +883,7 @@ def gethonorasset(server, path):
     if 'bonds_honor' in path:  # 没解出来 之后再改
         return Image.open(path)
     else:
-        path = path.replace(r'startapp\honor', fr'startapp\{server}honor').replace('startapp/honor', f'startapp/{server}honor')
+        path = path.replace('startapp/honor', f'startapp/{server}honor').replace('startapp/honor', f'startapp/{server}honor')
         if os.path.exists(path):
             return Image.open(path)
         else:
@@ -904,7 +900,7 @@ def gethonorasset(server, path):
                     resp = requests.get(f"https://storage.sekai.best/sekai-en-assets/honor/{foldername}_rip/{filename}",
                                         proxies=proxies)
             except:
-                return Image.open(path.replace(f'{server}honor', 'honor'))
+                return Image.open(path.replace('{server}honor', 'honor'))
             if resp.status_code == 200:  # 下载到了
                 pic = Image.open(io.BytesIO(resp.content))
                 if not os.path.exists(dirs):
@@ -917,13 +913,13 @@ def gethonorasset(server, path):
 
 def bondsbackground(chara1, chara2, ismain=True):
     if ismain:
-        pic1 = Image.open(rf'bonds\{str(chara1)}.png')
-        pic2 = Image.open(rf'bonds\{str(chara2)}.png')
+        pic1 = Image.open(f'bonds/{str(chara1)}.png')
+        pic2 = Image.open(f'bonds/{str(chara2)}.png')
         pic2 = pic2.crop((190, 0, 380, 80))
         pic1.paste(pic2, (190, 0))
     else:
-        pic1 = Image.open(rf'bonds\{str(chara1)}_sub.png')
-        pic2 = Image.open(rf'bonds\{str(chara2)}_sub.png')
+        pic1 = Image.open(f'bonds/{str(chara1)}_sub.png')
+        pic2 = Image.open(f'bonds/{str(chara2)}_sub.png')
         pic2 = pic2.crop((90, 0, 380, 80))
         pic1.paste(pic2, (90, 0))
     return pic1
@@ -947,8 +943,6 @@ def pjskb30(userid, private=False, returnpic=False, server='jp', qqnum='未知')
         url = twapiurl
     resp = requests.get(f'{url}/user/{userid}/profile')
     data = json.loads(resp.content)
-    # with open('piccache\profile.json', 'r', encoding='utf-8') as f:
-    #     data = json.load(f)
     name = data['user']['userGamedata']['name']
     recordname(qqnum, userid, name)
     if server == 'en':
@@ -1001,11 +995,11 @@ def pjskb30(userid, private=False, returnpic=False, server='jp', qqnum='未知')
     except FileNotFoundError:
         pass
     draw = ImageDraw.Draw(pic)
-    font_style = ImageFont.truetype(r"fonts\SourceHanSansCN-Bold.otf", 35)
+    font_style = ImageFont.truetype("fonts/SourceHanSansCN-Bold.otf", 35)
     draw.text((215, 65), name, fill=(0, 0, 0), font=font_style)
-    font_style = ImageFont.truetype(r"fonts\FOT-RodinNTLGPro-DB.ttf", 15)
+    font_style = ImageFont.truetype("fonts/FOT-RodinNTLGPro-DB.ttf", 15)
     draw.text((218, 118), 'id:' + id, fill=(0, 0, 0), font=font_style)
-    font_style = ImageFont.truetype(r"fonts\FOT-RodinNTLGPro-DB.ttf", 28)
+    font_style = ImageFont.truetype("fonts/FOT-RodinNTLGPro-DB.ttf", 28)
     draw.text((314, 150), str(rank), fill=(255, 255, 255), font=font_style)
 
     if server == 'en':
@@ -1061,7 +1055,7 @@ def pjskb30(userid, private=False, returnpic=False, server='jp', qqnum='未知')
                 except:
                     pass
 
-    with open(r'masterdata/realtime/musicDifficulties.json', 'r', encoding='utf-8') as f:
+    with open('masterdata/realtime/musicDifficulties.json', 'r', encoding='utf-8') as f:
         diff = json.load(f)
     for i in range(0, len(diff)):
         try:
@@ -1081,7 +1075,7 @@ def pjskb30(userid, private=False, returnpic=False, server='jp', qqnum='未知')
         for i in range(0, 30):
             highest = highest + diff[i]['aplevel+']
         highest = round(highest / 30, 2)
-    with open(r'masterdata/realtime/musics.json', 'r', encoding='utf-8') as f:
+    with open('masterdata/realtime/musics.json', 'r', encoding='utf-8') as f:
         musics = json.load(f)
     for music in data['userMusicResults']:
         playResult = music['playResult']
@@ -1108,7 +1102,7 @@ def pjskb30(userid, private=False, returnpic=False, server='jp', qqnum='未知')
     shadow.paste(Image.new("RGBA", (310, 120), (0, 0, 0, 50)), (5, 5))
     shadow = shadow.filter(ImageFilter.GaussianBlur(3))
     if server == 'en':
-        with open(r'../enapi/masterdata/musics.json', 'r', encoding='utf-8') as f:
+        with open('../enapi/masterdata/musics.json', 'r', encoding='utf-8') as f:
             musics = json.load(f)
     for i in range(0, 30):
         rank = rank + diff[i]['rank']
@@ -1129,7 +1123,7 @@ def pjskb30(userid, private=False, returnpic=False, server='jp', qqnum='未知')
               font=font_style)
     rankimg = Image.new("RGBA", (120, 55), (100, 110, 180, 0))
     draw = ImageDraw.Draw(rankimg)
-    font_style = ImageFont.truetype(r"fonts\SourceHanSansCN-Bold.otf", 35)
+    font_style = ImageFont.truetype("fonts/SourceHanSansCN-Bold.otf", 35)
     text_width = font_style.getsize(str(rank))
     # 硬核画文字边框
     draw.text((int(60 - text_width[0] / 2) + 3, int(20 - text_width[1] / 2)), str(rank), fill=(61, 74, 162, 210),
@@ -1157,7 +1151,7 @@ def pjskb30(userid, private=False, returnpic=False, server='jp', qqnum='未知')
     pic = pic.convert("RGB")
     if returnpic:
         return pic
-    pic.save(fr'piccache\{userid}b30.png')
+    pic.save(f'piccache/{userid}b30.png')
 
 def b30single(diff, musics):
     color = {
@@ -1174,7 +1168,7 @@ def b30single(diff, musics):
     pic = Image.new("RGB", (620, 240), (255, 255, 255))
     if diff['result'] == 2 or diff['result'] == 1:
         draw = ImageDraw.Draw(pic)
-        font = ImageFont.truetype(r'fonts\YuGothicUI-Semibold.ttf', 48)
+        font = ImageFont.truetype('fonts/YuGothicUI-Semibold.ttf', 48)
         size = font.getsize(musictitle)
         if size[0] > 365:
             musictitle = musictitle[:int(len(musictitle)*(345/size[0]))] + '...'
@@ -1185,7 +1179,7 @@ def b30single(diff, musics):
         pic.paste(jacket, (32, 28))
 
         draw.ellipse((5, 5, 5+60, 5+60), fill=color[diff['musicDifficulty']])
-        font = ImageFont.truetype(r'fonts\SourceHanSansCN-Bold.otf', 38)
+        font = ImageFont.truetype('fonts/SourceHanSansCN-Bold.otf', 38)
         text_width = font.getsize(str(diff['playLevel']))
         text_coordinate = (int(36 - text_width[0] / 2), int(28 - text_width[1] / 2))
         draw.text(text_coordinate, str(diff['playLevel']), (255, 255, 255), font)

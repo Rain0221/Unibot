@@ -174,7 +174,7 @@ def gentwiimg(twitterdata, translate=False):
             pic = pic.resize((int(1400 * pic.size[0] / pic.size[1]), 1400))
             img.paste(pic, (int(540 - pic.size[0] / 2), 175 + textimg.size[1]))
             high = 270 + textimg.size[1] + pic.size[1]
-        play = Image.open(r'pics/play.png')
+        play = Image.open('pics/play.png')
         play = play.resize((150, 150))
         r, g, b, mask = play.split()
         img.paste(play, (460, 80 + textimg.size[1] + int(pic.size[1] / 2)), mask)
@@ -249,12 +249,12 @@ def gentwiimg(twitterdata, translate=False):
         pic = pic.resize((950, int(950 * pic.size[1] / pic.size[0])))
         img.paste(pic, (60, 235 + textimg.size[1]))
 
-        play = Image.open(r'pics/play.png')
+        play = Image.open('pics/play.png')
         play = play.resize((150, 150))
         r, g, b, mask = play.split()
         img.paste(play, (460, 140 + textimg.size[1] + int(pic.size[1] / 2)), mask)
 
-        play = Image.open(r'pics/youtube.png')
+        play = Image.open('pics/youtube.png')
         img.paste(play, (50, 160 + textimg.size[1]))
 
         font_style = ImageFont.truetype(r"fonts\SourceHanSansCN-Bold.otf", 40)
@@ -265,7 +265,7 @@ def gentwiimg(twitterdata, translate=False):
         des = n.draw_text()
         img.paste(des, (60, 320 + textimg.size[1] + pic.size[1]))
 
-        play = Image.open(r'pics/getyoutube.png')
+        play = Image.open('pics/getyoutube.png')
         play = play.resize((1000, int(1000*play.size[1]/play.size[0])))
         img.paste(play, (40, 300 + textimg.size[1] + pic.size[1] + des.size[1]))
 

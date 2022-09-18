@@ -60,8 +60,8 @@ def matchjacket(queryImage=None, url=None):
         with open(f'piccache/{now}.png', 'wb') as f:
             f.write(resp.content)
         queryImage = f'piccache/{now}.png'
-    jacketdir = r'data\assets\sekai\assetbundle\resources\startapp\music\jacket\jacket_s_%03d\jacket_s_%03d.png'
-    with open(r'masterdata/musics.json', 'r', encoding='utf-8') as f:
+    jacketdir = 'data/assets/sekai/assetbundle/resources/startapp/music/jacket/jacket_s_%03d/jacket_s_%03d.png'
+    with open('masterdata/musics.json', 'r', encoding='utf-8') as f:
         musics = json.load(f)
     match = [0, 0, '']
     for music in musics:

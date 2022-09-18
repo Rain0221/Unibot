@@ -14,7 +14,7 @@ from moesus.music_score import parse
 
 
 def hotrank():
-    with open(r'masterdata/realtime/musics.json', 'r', encoding='utf-8') as f:
+    with open('masterdata/realtime/musics.json', 'r', encoding='utf-8') as f:
         musics = json.load(f)
     for i in range(0, len(musics)):
         try:
@@ -29,11 +29,11 @@ def hotrank():
     IMG_SIZE = (500, 40 + 33 * 34)
     img = Image.new('RGB', IMG_SIZE, (255, 255, 255))
     draw = ImageDraw.Draw(img)
-    font = ImageFont.truetype(r'fonts/SourceHanSansCN-Medium.otf', 18)
+    font = ImageFont.truetype('fonts/SourceHanSansCN-Medium.otf', 18)
     draw.text((20, 20), '热度排行Top40', '#000000', font, spacing=10)
-    font = ImageFont.truetype(r'fonts/FOT-RodinNTLGPro-DB.ttf', 18)
+    font = ImageFont.truetype('fonts/FOT-RodinNTLGPro-DB.ttf', 18)
     draw.text((20, 53), text, '#000000', font, spacing=10)
-    font = ImageFont.truetype(r'fonts/SourceHanSansCN-Medium.otf', 15)
+    font = ImageFont.truetype('fonts/SourceHanSansCN-Medium.otf', 15)
     updatetime = time.localtime(os.path.getmtime(r"masterdata/realtime/musics.json"))
     draw.text((20, 1100), '数据来源：https://profile.pjsekai.moe/\nUpdated in '
               + time.strftime("%Y-%m-%d %H:%M:%S", updatetime), '#000000', font)
@@ -41,7 +41,7 @@ def hotrank():
 
 
 def idtoname(musicid):
-    with open(r'masterdata/realtime/musics.json', 'r', encoding='utf-8') as f:
+    with open('masterdata/realtime/musics.json', 'r', encoding='utf-8') as f:
         musics = json.load(f)
     for i in musics:
         if i['id'] == musicid:
@@ -50,7 +50,7 @@ def idtoname(musicid):
 
 
 def isleak(musicid):
-    with open(r'masterdata/musics.json', 'r', encoding='utf-8') as f:
+    with open('masterdata/musics.json', 'r', encoding='utf-8') as f:
         musics = json.load(f)
     for i in musics:
         if i['id'] == musicid:
@@ -63,9 +63,9 @@ def isleak(musicid):
 
 def levelrank(level, difficulty, fcap=0):
     target = []
-    with open(r'masterdata/realtime/musicDifficulties.json', 'r', encoding='utf-8') as f:
+    with open('masterdata/realtime/musicDifficulties.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
-    with open(r'masterdata/realtime/musics.json', 'r', encoding='utf-8') as f:
+    with open('masterdata/realtime/musics.json', 'r', encoding='utf-8') as f:
         musics = json.load(f)
     for i in data:
         if i['playLevel'] == level and i['musicDifficulty'] == difficulty:
@@ -101,11 +101,11 @@ def levelrank(level, difficulty, fcap=0):
     IMG_SIZE = (500, int(100 + text.count('\n') * 31.5))
     img = Image.new('RGB', IMG_SIZE, (255, 255, 255))
     draw = ImageDraw.Draw(img)
-    font = ImageFont.truetype(r'fonts/SourceHanSansCN-Medium.otf', 22)
+    font = ImageFont.truetype('fonts/SourceHanSansCN-Medium.otf', 22)
     draw.text((20, 15), title, '#000000', font, spacing=10)
-    font = ImageFont.truetype(r'fonts/FOT-RodinNTLGPro-DB.ttf', 22)
+    font = ImageFont.truetype('fonts/FOT-RodinNTLGPro-DB.ttf', 22)
     draw.text((20, 55), text, '#000000', font, spacing=10)
-    font = ImageFont.truetype(r'fonts/SourceHanSansCN-Medium.otf', 15)
+    font = ImageFont.truetype('fonts/SourceHanSansCN-Medium.otf', 15)
     updatetime = time.localtime(os.path.getmtime(r"masterdata/realtime/musicDifficulties.json"))
     draw.text((20, int(45 + text.count('\n') * 31.5)), '数据来源：https://profile.pjsekai.moe/\nUpdated in '
               + time.strftime("%Y-%m-%d %H:%M:%S", updatetime), '#000000', font)
@@ -116,8 +116,8 @@ def levelrank(level, difficulty, fcap=0):
 # from https://gitlab.com/pjsekai/musics/-/blob/main/music_bpm.py
 def parse_bpm(music_id):
     try:
-        with open(r'data/assets/sekai/assetbundle/resources'
-                  r'/startapp/music/music_score/%04d_01/expert' % music_id, encoding='utf-8') as f:
+        with open('data/assets/sekai/assetbundle/resources'
+                  '/startapp/music/music_score/%04d_01/expert' % music_id, encoding='utf-8') as f:
             r = f.read()
     except FileNotFoundError:
         return 0, [{'time': 0.0, 'bpm': '无数据'}], 0
@@ -197,19 +197,13 @@ def getcharttheme(qqnum):
     return 'white'
 
 def gensvg():
-    with open(r'masterdata/musics.json', 'r', encoding='utf-8') as f:
+    with open('masterdata/musics.json', 'r', encoding='utf-8') as f:
         musics = json.load(f)
     for music in musics:
-        if not os.path.exists(f'charts/moe/svg/{music["id"]}/master.svg'):
-            parse(music['id'], 'master', 'svg', False, 'https://assets.unipjsk.com/startapp/music/jacket/%s/%s.png')
-        if not os.path.exists(f'charts/moe/svg/{music["id"]}/expert.svg'):
-            parse(music['id'], 'expert', 'svg', False, 'https://assets.unipjsk.com/startapp/music/jacket/%s/%s.png')
-        if not os.path.exists(f'charts/moe/svg/{music["id"]}/hard.svg'):
-            parse(music['id'], 'hard', 'svg', False, 'https://assets.unipjsk.com/startapp/music/jacket/%s/%s.png')
-        if not os.path.exists(f'charts/moe/svg/{music["id"]}/normal.svg'):
-            parse(music['id'], 'normal', 'svg', False, 'https://assets.unipjsk.com/startapp/music/jacket/%s/%s.png')
-        if not os.path.exists(f'charts/moe/svg/{music["id"]}/easy.svg'):
-            parse(music['id'], 'easy', 'svg', False, 'https://assets.unipjsk.com/startapp/music/jacket/%s/%s.png')
+        for diff in ['master', 'expert', 'hard', 'normal', 'easy']:
+            if not os.path.exists(f'charts/moe/svg/{music["id"]}/{diff}.svg'):
+                parse(music['id'], diff, 'svg', False, 'https://assets.unipjsk.com/startapp/music/jacket/%s/%s.png')
+
 
 def setcharttheme(qqnum, theme):
     if theme != 'white' and theme != 'black' and theme != 'color':
@@ -266,7 +260,7 @@ def getsdvxchart(musicid, difficulty):
 
 
 def idtotime(musicid):
-    with open(r'masterdata/musics.json', 'r', encoding='utf-8') as f:
+    with open('masterdata/musics.json', 'r', encoding='utf-8') as f:
         musics = json.load(f)
     musics.sort(key=lambda x: x["publishedAt"])
     for i in range(0, len(musics)):
@@ -381,7 +375,7 @@ def aliastochart(full, sdvx=False, qun=False, theme='white'):
 
 def notecount(count):
     text = ''
-    with open(r'masterdata/musicDifficulties.json', 'r', encoding='utf-8') as f:
+    with open('masterdata/musicDifficulties.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
     for i in data:
         if i['noteCount'] == count:
@@ -423,7 +417,7 @@ def tasseiritsu(para):
 def findbpm(targetbpm):
     bpm = {}
     text = ''
-    with open(r'masterdata/realtime/musics.json', 'r', encoding='utf-8') as f:
+    with open('masterdata/realtime/musics.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
     for music in data:
         bpm[music['id']] = parse_bpm(music['id'])[1]
