@@ -649,10 +649,10 @@ def sync_handle_msg(event):
                 hotrank()
                 sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\hotrank.png,cache=0]")
                 return
-            if "难度排行" in event.message:
-                if event.message[:2] == 'fc':
+            if event.message[:4] == "难度排行" or event.message[2:6] == "难度排行":
+                if event.message[:2].lower() == 'fc':
                     fcap = 1
-                elif event.message[:2] == 'ap':
+                elif event.message[:2].lower() == 'ap':
                     fcap = 2
                 else:
                     fcap = 0
