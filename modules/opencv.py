@@ -7,7 +7,7 @@ import cv2
 import requests
 from matplotlib import pyplot as plt
 
-MIN_MATCH_COUNT = 8  # 设置最低特征点匹配数量为10
+MIN_MATCH_COUNT = 8  # 设置最低特征点匹配数量
 plt.switch_backend('agg')
 def matchimage(queryImage, trainImage):
     template = cv2.imread(queryImage, 0)  # queryImage
