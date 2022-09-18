@@ -4,6 +4,8 @@ import os.path
 import sqlite3
 import time
 import traceback
+from urllib.parse import quote
+
 from PIL import Image, ImageFont, ImageDraw, ImageFilter
 import matplotlib
 import pytz
@@ -116,32 +118,38 @@ def eventtrack():
 def recordname(qqnum, userid, name):
     conn = sqlite3.connect('data/names.db')
     c = conn.cursor()
+
+    # 审核游戏昵称
+    cursor = c.execute(f'SELECT * from examresult where name=?', (name,))
+    found = False
+    for raw in cursor:
+        found = True
+        if raw[1]:
+            result = True
+        else:
+            result = False
+    if not found:
+        resp = requests.get(f'http://127.0.0.1:5000/exam/{quote(name.replace("/", ""), "utf-8")}')
+        sql_add = f'insert into examresult (name, result) values(?, ?)'
+        result = resp.json()['conclusion']
+        if result:
+            c.execute(sql_add, (name, 1))
+        else:
+            c.execute(sql_add, (name, 0))
+
+    # 记录游戏昵称
     cursor = c.execute(f'SELECT * from names where qqnum=? and userid=? and name=?', (str(qqnum), str(userid), name))
     found = False
     for raw in cursor:
         found = True
     if not found:
-        sql_add = f'insert into names (userid, name, qqnum, time) values(?, ?, ?, ?)'
-        c.execute(sql_add, (str(userid), name, str(qqnum), int(time.time())))
+        sql_add = f'insert into names (userid, name, qqnum, time, result) values(?, ?, ?, ?, ?)'
+        text = '合规' if result else '不合规'
+        c.execute(sql_add, (str(userid), name, str(qqnum), int(time.time()), text))
 
-    cursor = c.execute(f'SELECT * from examresult where name=?', (name,))
-    for raw in cursor:
-        conn.commit()
-        conn.close()
-        if raw[1]:
-            return True
-        else:
-            return False
-
-    resp = requests.get(f'http://127.0.0.1:5000/exam/{name}')
-    sql_add = f'insert into examresult (name, result) values(?, ?)'
-    if resp.json()['conclusion']:
-        c.execute(sql_add, (name, 1))
-    else:
-        c.execute(sql_add, (name, 0))
     conn.commit()
     conn.close()
-    return resp.json()['conclusion']
+    return result
 
 def chafang(targetid=None, targetrank=None, private=False):
     event = currentevent('jp')
@@ -225,7 +233,8 @@ def chafang(targetid=None, targetrank=None, private=False):
                                        pytz.timezone('Asia/Shanghai')).strftime('%m/%d %H:%M')
             text += f"仅记录在200名以内时的数据，数据更新于{updatetime}"
         return text
-
+    else:
+        return '当前没有正在进行的活动'
 
 def drawscoreline(targetid=None, targetrank=None, targetrank2=None, starttime=0):
     x = []
