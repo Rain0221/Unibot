@@ -117,13 +117,31 @@ def recordname(qqnum, userid, name):
     conn = sqlite3.connect('data/names.db')
     c = conn.cursor()
     cursor = c.execute(f'SELECT * from names where qqnum=? and userid=? and name=?', (str(qqnum), str(userid), name))
+    found = False
     for raw in cursor:
+        found = True
+    if not found:
+        sql_add = f'insert into names (userid, name, qqnum, time) values(?, ?, ?, ?)'
+        c.execute(sql_add, (str(userid), name, str(qqnum), int(time.time())))
+
+    cursor = c.execute(f'SELECT * from examresult where name=?', (name,))
+    for raw in cursor:
+        conn.commit()
         conn.close()
-        return
-    sql_add = f'insert into names (userid, name, qqnum, time) values(?, ?, ?, ?)'
-    c.execute(sql_add, (str(userid), name, str(qqnum), int(time.time())))
+        if raw[1]:
+            return True
+        else:
+            return False
+
+    resp = requests.get(f'http://127.0.0.1:5000/exam/{name}')
+    sql_add = f'insert into examresult (name, result) values(?, ?)'
+    if resp.json()['conclusion']:
+        c.execute(sql_add, (name, 1))
+    else:
+        c.execute(sql_add, (name, 0))
     conn.commit()
     conn.close()
+    return resp.json()['conclusion']
 
 def chafang(targetid=None, targetrank=None, private=False):
     event = currentevent('jp')
@@ -546,7 +564,8 @@ def oldsk(targetid=None, targetrank=None, secret=False, server='jp', simple=Fals
         rank = ranking['rankings'][0]['rank']
         score = ranking['rankings'][0]['score']
         userId = str(ranking['rankings'][0]['userId'])
-        recordname(qqnum, userId, name)
+        if not recordname(qqnum, userId, name):
+            name = ''
     except IndexError:
         return '查不到数据捏，可能这期活动没打'
     try:
@@ -653,7 +672,8 @@ def sk(targetid=None, targetrank=None, secret=False, server='jp', simple=False, 
         score = ranking['rankings'][0]['score']
         userId = str(ranking['rankings'][0]['userId'])
         targetid = userId
-        recordname(qqnum, userId, name)
+        if not recordname(qqnum, userId, name):
+            name = ''
     except IndexError:
         return '查不到数据捏，可能这期活动没打'
     try:

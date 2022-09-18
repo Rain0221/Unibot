@@ -61,7 +61,8 @@ class userprofile(object):
         resp = requests.get(f'{url}/user/{userid}/profile')
         data = json.loads(resp.content)
         self.name = data['user']['userGamedata']['name']
-        recordname(qqnum, userid, self.name)
+        if not recordname(qqnum, userid, self.name):
+            self.name = ''
         try:
             self.twitterId = data['userProfile']['twitterId']
         except:
@@ -217,7 +218,8 @@ def r30(userid, private=False, server='jp', qqnum='未知'):
     resp = requests.get(f'{url}/user/{userid}/profile')
     data = json.loads(resp.content)
     name = data['user']['userGamedata']['name']
-    recordname(qqnum, userid, name)
+    if not recordname(qqnum, userid, name):
+        name = ''
     userMusicResults = data['userMusicResults']
     userMusicResults.sort(key=lambda x: x["updatedAt"], reverse=True)
     text = f'{name} - {userid}\n'
@@ -286,7 +288,8 @@ def rk(targetid=None, targetrank=None, secret=False, isdaibu=False, qqnum="未�
         data = json.loads(resp.content)
         ranking = data['rankings'][0]['userRankMatchSeason']
         grade = int((ranking['rankMatchTierId'] - 1) / 4) + 1
-        recordname(qqnum, data['rankings'][0]['userId'], data['rankings'][0]['name'])
+        if not recordname(qqnum, data['rankings'][0]['userId'], data['rankings'][0]['name']):
+            data['rankings'][0]['name'] = ''
     except IndexError:
         return '未参加当期排位赛'
     if grade > 7:
@@ -944,7 +947,8 @@ def pjskb30(userid, private=False, returnpic=False, server='jp', qqnum='未知')
     resp = requests.get(f'{url}/user/{userid}/profile')
     data = json.loads(resp.content)
     name = data['user']['userGamedata']['name']
-    recordname(qqnum, userid, name)
+    if not recordname(qqnum, userid, name):
+        name = ''
     if server == 'en':
         userProfileHonors = [{}, {}, {}]
         for i in range(0, 3):
