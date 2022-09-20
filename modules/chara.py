@@ -28,14 +28,14 @@ def cardidtopic(cardid):
     path = path + "/" + assetbundleName
     files = os.listdir(path)
     files_file = [f for f in files if os.path.isfile(os.path.join(path, f))]
-    if not os.path.exists(path + '/card_normal.png'):  # 频道bot最多发送4MB 这里转jpg缩小大小
-        im = Image.open(path)
+    if not os.path.exists(path + '/card_normal.jpg'):  # 频道bot最多发送4MB 这里转jpg缩小大小
+        im = Image.open(path + '/card_normal.png')
         im = im.convert('RGB')
         im.save(path + '/card_normal.jpg', quality=95)
 
     if 'card_after_training.png' in files_file:
-        if not os.path.exists(path + '/card_after_training.png'):  # 频道bot最多发送4MB 这里转jpg缩小大小
-            im = Image.open(path)
+        if not os.path.exists(path + '/card_after_training.jpg'):  # 频道bot最多发送4MB 这里转jpg缩小大小
+            im = Image.open(path + '/card_after_training.png')
             im = im.convert('RGB')
             im.save(path + '/card_after_training.jpg', quality=95)
         return [path + '/card_normal.jpg', path + '/card_after_training.jpg']
@@ -100,13 +100,13 @@ def findcardsingle(card, allcards, cardCostume3ds, costume3ds):
         pic.paste(thumnail, (132, 15), mask)
 
     draw = ImageDraw.Draw(pic)
-    font = ImageFont.truetype('fonts/SourceHanSansCN-Medium.otf', 28)
+    font = ImageFont.truetype(r'fonts\SourceHanSansCN-Medium.otf', 28)
     text_width = font.getsize(f'{card["id"]}. {card["prefix"]}')
     text_coordinate = ((210 - text_width[0] / 2), int(195 - text_width[1] / 2))
     draw.text(text_coordinate, f'{card["id"]}. {card["prefix"]}', '#000000', font)
 
     name = getcharaname(card['characterId'])
-    font = ImageFont.truetype('fonts/SourceHanSansCN-Medium.otf', 18)
+    font = ImageFont.truetype(r'fonts\SourceHanSansCN-Medium.otf', 18)
     text_width = font.getsize(name)
     text_coordinate = ((210 - text_width[0] / 2), int(230 - text_width[1] / 2))
     draw.text(text_coordinate, name, '#505050', font)

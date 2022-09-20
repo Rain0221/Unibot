@@ -129,9 +129,13 @@ def recordname(qqnum, userid, name):
         else:
             result = False
     if not found:
-        resp = requests.get(f'http://127.0.0.1:5000/exam/{quote(name.replace("/", ""), "utf-8")}')
-        sql_add = f'insert into examresult (name, result) values(?, ?)'
-        result = resp.json()['conclusion']
+        try:
+            resp = requests.get(f'http://127.0.0.1:5000/exam/{quote(name.replace("/", " "), "utf-8")}')
+            sql_add = f'insert into examresult (name, result) values(?, ?)'
+            result = resp.json()['conclusion']
+        except:
+            traceback.print_exc()
+            result = True
         if result:
             c.execute(sql_add, (name, 1))
         else:
