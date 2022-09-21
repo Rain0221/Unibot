@@ -1,12 +1,15 @@
+import datetime
 import io
 import json
 import os
 import re
 import sqlite3
 import time
+import traceback
 
 import requests
 from PIL import Image, ImageDraw, ImageFont
+from dateutil.tz import tzlocal
 
 from modules.config import proxies
 from modules.pjskinfo import aliastomusicid
@@ -202,6 +205,7 @@ def gensvg():
     for music in musics:
         for diff in ['master', 'expert', 'hard', 'normal', 'easy']:
             if not os.path.exists(f'charts/moe/svg/{music["id"]}/{diff}.svg'):
+                print('生成谱面', music['id'], diff)
                 parse(music['id'], diff, 'svg', False, 'https://assets.unipjsk.com/startapp/music/jacket/%s/%s.png')
 
 
@@ -432,6 +436,68 @@ def findbpm(targetbpm):
     if text == '':
         return '没有找到'
     return text
+
+
+def updaterebase():
+    print('\nupdate rebase')
+    offset = 0
+    timeformat = "%Y-%m-%dT%H:%M:%S.%f%z"
+    deletelist = []
+    failcount = 0
+    while True:
+        try:
+            resp = requests.get(f'https://gitlab.com/pjsekai/musics/-/refs/main/logs_tree/rebases?format=json&offset={offset}', proxies=proxies)
+            offset += 25
+            data = resp.json()
+            if not data:
+                break
+            for file in data:
+                musicid = int(file['file_name'][:file['file_name'].find('.')])
+                if os.path.exists('moesus/rebases/' + file['file_name']):
+                    commit_time = datetime.datetime.strptime(file['commit']['committed_date'], timeformat)
+                    filetime = datetime.datetime.fromtimestamp(os.path.getmtime('moesus/rebases/' + file['file_name'])).replace(tzinfo=tzlocal())
+                    if commit_time > filetime:
+                        download_rebase(file['file_name'])
+                        if musicid not in deletelist:
+                            deletelist.append(musicid)
+                else:
+                    download_rebase(file['file_name'])
+                    if musicid not in deletelist:
+                        deletelist.append(musicid)
+            failcount = 0
+        except:
+            failcount += 1
+            traceback.print_exc()
+            print('下载失败')
+            if failcount > 4:
+                break
+    updatecharts(deletelist)
+
+
+def download_rebase(file_name):
+    print('更新' + file_name)
+    for i in range(0, 4):
+        try:
+            resp = requests.get(f'https://gitlab.com/pjsekai/musics/-/raw/main/rebases/{file_name}?inline=false', proxies=proxies)
+            with open('moesus/rebases/' + file_name, 'wb') as f:
+                f.write(resp.content)
+            return
+        except:
+            traceback.print_exc()
+
+def updatecharts(deletelist):
+    for musicid in deletelist:
+        for theme in ['black', 'white', 'color', 'svg']:
+            for diff in ['easy', 'normal', 'hard', 'expert', 'master']:
+                for fileformat in ['png', 'svg']:
+                    path = f'charts/moe/{theme}/{musicid}/{diff}.{fileformat}'
+                    if os.path.exists(path):
+                        os.remove(path)
+                        if theme != 'svg' and diff == 'master' and fileformat == 'svg':
+                            print('更新' + path)
+                            parse(musicid, diff, theme)
+    gensvg()
+
 
 if __name__ == '__main__':
     path = '../charts/sdvxInCharts'
