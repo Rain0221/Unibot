@@ -148,7 +148,7 @@ async def handle_msg(event: Event):
     if event.raw_message == '关闭debug' and event.user_id in admin:
         botdebug = False
         await bot.send(event, '关闭成功')
-    if event.raw_message[:6] == 'verify' and event.group_id == 467602419:
+    if event.raw_message[:6] == 'verify' and event.group_id == 467602419 and event.self_id in mainbot:
         verify = event.message[event.message.find("verify") + len("verify"):].strip()
         resp = await geturl(f'{verifyurl}verify?qq={event.user_id}&verify={verify}')
         if resp == 'token验证成功':
@@ -804,11 +804,12 @@ def sync_handle_msg(event):
                 sendmsg(event, charainfo(event.message, event.group_id))
             return
         if event.message == '看33':
-            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\pics/33{random.randint(0, 1)}.gif,cache=0]")
+            return
+            sendmsg(event, f"[CQ:image,file=file:///{botdir}/pics/33{random.randint(0, 1)}.gif,cache=0]")
             return
         if event.message == '推车':
             ycmimg()
-            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\ycm.png,cache=0]")
+            sendmsg(event, f"[CQ:image,file=file:///{botdir}/piccache/ycm.png,cache=0]")
             return
         if event.message[:4] == 'homo':
             if event.self_id not in mainbot and event.self_id != guildbot:
