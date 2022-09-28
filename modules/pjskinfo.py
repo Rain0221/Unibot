@@ -6,7 +6,7 @@ import difflib
 import time
 from mutagen.mp3 import MP3
 import pytz
-from PIL import Image, ImageFont, ImageDraw
+from PIL import Image, ImageFont, ImageDraw, ImageEnhance
 import yaml
 
 from modules.config import loghtml
@@ -132,6 +132,7 @@ def pjskinfo(musicid):
         playdatatime = get_filectime('masterdata/realtime/musics.json')
         with open('masterdata/musics.json', 'r', encoding='utf-8') as f:
             musics = json.load(f)
+        publishedAt = 0
         for i in musics:
             if i['id'] == musicid:
                 publishedAt = i['publishedAt'] / 1000
@@ -213,14 +214,33 @@ def drawpjskinfo(musicid, olddir=True):
             break
     now = int(time.time() * 1000)
     leak = False
-    if now < info.publishedAt:
-        img = Image.open('pics/leak.png')
-        leak = True
-    else:
-        if info.playLevelAdjust[0] == 0:
-            img = Image.open('pics/pjskinfonew.png')
+
+
+    if os.path.exists(f'pics/pjskinfo/{musicid}.png'):
+        color = (255, 255, 255)
+        alpha = True
+        img = Image.open(f'pics/pjskinfo/{musicid}.png')
+        if now < info.publishedAt:
+            img2 = Image.open('pics/leak_alpha.png')
+            leak = True
         else:
-            img = Image.open('pics/pjskinfo.png')
+            if info.playLevelAdjust[0] == 0:
+                img2 = Image.open('pics/pjskinfonew_alpha.png')
+            else:
+                img2 = Image.open('pics/pjskinfo_alpha.png')
+        r, g, b, mask = img2.split()
+        img.paste(img2, (0, 0), mask)
+    else:
+        alpha = False
+        color = (67, 70, 101)
+        if now < info.publishedAt:
+            img = Image.open('pics/leak.png')
+            leak = True
+        else:
+            if info.playLevelAdjust[0] == 0:
+                img = Image.open('pics/pjskinfonew.png')
+            else:
+                img = Image.open('pics/pjskinfo.png')
     try:
         jacket = Image.open('data/assets/sekai/assetbundle/resources'
                             f'/startapp/music/jacket/jacket_s_{str(musicid).zfill(3)}/jacket_s_{str(musicid).zfill(3)}.png')
@@ -242,7 +262,10 @@ def drawpjskinfo(musicid, olddir=True):
             highplus = 0
     draw = ImageDraw.Draw(img)
     # 标题
-    draw.text((760, 100 + highplus), info.title, fill=(1, 255, 221), font=font_style)
+    if not alpha:
+        draw.text((760, 100 + highplus), info.title, fill=(1, 255, 221), font=font_style)
+    else:
+        draw.text((760, 100 + highplus), info.title, fill=(255, 255, 255), font=font_style)
     # 作词作曲编曲
     font_style = ImageFont.truetype("fonts/KOZGOPRO-BOLD.OTF", 40)
     draw.text((930, 268), info.lyricist, fill=(255, 255, 255), font=font_style)
@@ -272,7 +295,7 @@ def drawpjskinfo(musicid, olddir=True):
     for i in range(0, 5):
         text_width = font_style.getsize(str(info.noteCount[i]))
         text_coordinate = (int((132 + 138 * i) - text_width[0] / 2), int(960 - text_width[1] / 2))
-        draw.text(text_coordinate, str(info.noteCount[i]), fill=(67, 70, 101), font=font_style)
+        draw.text(text_coordinate, str(info.noteCount[i]), fill=color, font=font_style)
 
     if info.playLevelAdjust[0] != 0:
 
@@ -300,7 +323,7 @@ def drawpjskinfo(musicid, olddir=True):
         text_coordinate = (int(1760 - text_width[0]), int(805 - text_width[1] / 2))
         if hot == '最新最热':
             text_coordinate = (1680, 786)
-        draw.text(text_coordinate, hot, fill=(67, 70, 101), font=font_style)
+        draw.text(text_coordinate, hot, fill=color, font=font_style)
         if info.hotAdjust > 0.5:
             if info.hotAdjust > 2:
                 text_coordinate = (int(1720 + text_width[0] / 2), int(802 - text_width[1] / 2))
@@ -328,15 +351,15 @@ def drawpjskinfo(musicid, olddir=True):
 
             text_width = font_style.getsize(str(levelplus))
             text_coordinate = (int(1363 + 116 * i - text_width[0] / 2), int(864 - text_width[1] / 2))
-            draw.text(text_coordinate, levelplus, fill=(67, 70, 101), font=font_style)
+            draw.text(text_coordinate, levelplus, fill=color, font=font_style)
 
             text_width = font_style.getsize(str(fclevelplus))
             text_coordinate = (int(1363 + 116 * i - text_width[0] / 2), int(922 - text_width[1] / 2))
-            draw.text(text_coordinate, fclevelplus, fill=(67, 70, 101), font=font_style)
+            draw.text(text_coordinate, fclevelplus, fill=color, font=font_style)
 
             text_width = font_style.getsize(str(aplevelplus))
             text_coordinate = (int(1363 + 116 * i - text_width[0] / 2), int(980 - text_width[1] / 2))
-            draw.text(text_coordinate, aplevelplus, fill=(67, 70, 101), font=font_style)
+            draw.text(text_coordinate, aplevelplus, fill=color, font=font_style)
 
         font_style = ImageFont.truetype("fonts/SourceHanSansCN-Bold.otf", 20)
         for i in range(0, 5):
@@ -354,7 +377,7 @@ def drawpjskinfo(musicid, olddir=True):
                 text_width = font_style.getsize(str(adjust))
                 text_coordinate = (int((132 + 138 * i) - text_width[0] / 2), int(915 - text_width[1] / 2))
                 draw.text(text_coordinate, str(adjust), fill=(1, 255, 221), font=font_style)
-    vocals = vocalimg(musicid)
+    vocals = vocalimg(musicid, alpha)
     r, g, b, mask = vocals.split()
     if vocals.size[1] < 320:
         img.paste(vocals, (758, 710), mask)
@@ -366,7 +389,11 @@ def drawpjskinfo(musicid, olddir=True):
         img.save(f'piccache/pjskinfo/{musicid}.png')
     return leak
 
-def vocalimg(musicid):
+def vocalimg(musicid, alpha):
+    if alpha:
+        color = (255, 255, 255)
+    else:
+        color = (67, 70, 101)
     with open('masterdata/musicVocals.json', 'r', encoding='utf-8') as f:
         musicVocals = json.load(f)
     with open('masterdata/outsideCharacters.json', 'r', encoding='utf-8') as f:
@@ -389,6 +416,9 @@ def vocalimg(musicid):
                 vs += 1
             elif vocal['musicVocalType'] == "instrumental":
                 img = Image.open('pics/inst.png')
+                if alpha:
+                    bright_enhancer = ImageEnhance.Brightness(img)
+                    img = bright_enhancer.enhance(0.9)
                 return img
             else:
                 noan = False
@@ -399,6 +429,9 @@ def vocalimg(musicid):
     if noan:
         font_style = ImageFont.truetype("fonts/SourceHanSansCN-Bold.otf", 35)
         img = Image.open('pics/vocal.png')
+        if alpha:
+            bright_enhancer = ImageEnhance.Brightness(img)
+            img = bright_enhancer.enhance(0.9)
         if vs == 0:
             draw = ImageDraw.Draw(img)
             draw.text((220, 102), 'SEKAI Ver. ONLY', fill=(227, 246, 251), font=font_style)
@@ -455,7 +488,7 @@ def vocalimg(musicid):
                 else:
                     text = vocal['musicVocalType']
                 innerpos = 25 + font_style.getsize(str(text))[0]
-                draw.text((20, 20), text, fill=(67, 70, 101), font=font_style)
+                draw.text((20, 20), text, fill=color, font=font_style)
                 for chara in vocal['characters']:
                     if chara['characterType'] == 'game_character':
                         chara = Image.open(f'chara/chr_ts_{chara["characterId"]}.png').resize((60, 60))

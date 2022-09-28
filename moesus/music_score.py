@@ -16,7 +16,7 @@ note_sizes = {
 }
 
 
-def parse(music_id, difficulty, theme, savepng=True, jacketdir=None):
+def parse(music_id, difficulty, theme, savepng=True, jacketdir=None, title=None, artist=None):
     with open(f'data/assets/sekai/assetbundle/resources/startapp/music/music_score/{str(music_id).zfill(4)}_01/{difficulty}', 'r', encoding='utf-8') as f:
         sustext = f.read()
     lines = sustext.splitlines()
@@ -29,15 +29,20 @@ def parse(music_id, difficulty, theme, savepng=True, jacketdir=None):
     for i in data:
         if i['id'] == music_id:
             music = i
-    if music['composer'] == music['arranger']:
-        artist = music['composer']
-    elif music['composer'] in music['arranger'] or music['composer'] == '-':
-        artist = music['arranger']
-    elif music['arranger'] in music['composer'] or music['arranger'] == '-':
-        artist = music['composer']
-    else:
-        artist = '%s / %s' % (music['composer'], music['arranger'])
+            break
+    try:
+        if music['composer'] == music['arranger']:
+            artist = music['composer']
+        elif music['composer'] in music['arranger'] or music['composer'] == '-':
+            artist = music['arranger']
+        elif music['arranger'] in music['composer'] or music['arranger'] == '-':
+            artist = music['composer']
+        else:
+            artist = '%s / %s' % (music['composer'], music['arranger'])
+    except:
+        music = {'title': title, 'assetbundleName': 'jacket_s_%03d' % music_id}
 
+    playlevel = '?'
     with open ('masterdata/musicDifficulties.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
     for i in data:
