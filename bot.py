@@ -716,6 +716,7 @@ def sync_handle_msg(event):
                 if len(picdir) == 2:  # 有图片
                     sendmsg(event, picdir[0] + fr"[CQ:image,file=file:///{botdir}\{picdir[1]},cache=0]")
                 elif picdir == '':
+                    sendmsg(event, f'[CQ:poke,qq={event.user_id}]')
                     return
                 else:
                     sendmsg(event, picdir + "\n暂无谱面图片 请等待更新")
