@@ -82,18 +82,8 @@ class userprofile(object):
         except:
             pass
         self.characterRank = data['userCharacters']
-        if server == 'en':
-            self.userProfileHonors = [{}, {}, {}]
-            for i in range(0, 3):
-                try:
-                    honorid = data['userProfile'][f'honorId{i + 1}']
-                    for honor in data['userHonors']:
-                        if honor['honorId'] == honorid:
-                            self.userProfileHonors[i] = honor
-                except:
-                    pass
-        else:
-            self.userProfileHonors = data['userProfileHonors']
+
+        self.userProfileHonors = data['userProfileHonors']
         # print(self.userProfileHonors)
         with open(f'{masterdatadir}/musics.json', 'r', encoding='utf-8') as f:
             allmusic = json.load(f)
@@ -512,60 +502,37 @@ def pjskprofile(userid, private=False, server='jp', qqnum='未知'):
         draw.text((1032, 315), str(profile.highScore), fill=(0, 0, 0), font=font_style)
     except:
         pass
-    if server == 'en':
-        try:
-            honorpic = generatehonor(profile.userProfileHonors[0], True, server)
-            honorpic = honorpic.resize((266, 56))
-            r, g, b, mask = honorpic.split()
-            img.paste(honorpic, (104, 228), mask)
-        except:
-            pass
-        try:
-            honorpic = generatehonor(profile.userProfileHonors[1], False, server)
-            honorpic = honorpic.resize((126, 56))
-            r, g, b, mask = honorpic.split()
-            img.paste(honorpic, (375, 228), mask)
-        except:
-            pass
-        try:
-            honorpic = generatehonor(profile.userProfileHonors[2], False, server)
-            honorpic = honorpic.resize((126, 56))
-            r, g, b, mask = honorpic.split()
-            img.paste(honorpic, (508, 228), mask)
-        except:
-            pass
-    else:
-        for i in profile.userProfileHonors:
-            if i['seq'] == 1:
-                try:
-                    honorpic = generatehonor(i, True, server)
-                    honorpic = honorpic.resize((266, 56))
-                    r, g, b, mask = honorpic.split()
-                    img.paste(honorpic, (104, 228), mask)
-                except:
-                    pass
+    for i in profile.userProfileHonors:
+        if i['seq'] == 1:
+            try:
+                honorpic = generatehonor(i, True, server)
+                honorpic = honorpic.resize((266, 56))
+                r, g, b, mask = honorpic.split()
+                img.paste(honorpic, (104, 228), mask)
+            except:
+                pass
 
-        for i in profile.userProfileHonors:
-            if i['seq'] == 2:
-                try:
-                    honorpic = generatehonor(i, False, server)
-                    honorpic = honorpic.resize((126, 56))
-                    r, g, b, mask = honorpic.split()
-                    img.paste(honorpic, (375, 228), mask)
-                except:
-                    pass
+    for i in profile.userProfileHonors:
+        if i['seq'] == 2:
+            try:
+                honorpic = generatehonor(i, False, server)
+                honorpic = honorpic.resize((126, 56))
+                r, g, b, mask = honorpic.split()
+                img.paste(honorpic, (375, 228), mask)
+            except:
+                pass
 
-        for i in profile.userProfileHonors:
-            if i['seq'] == 3:
-                try:
-                    honorpic = generatehonor(i, False, server)
-                    honorpic = honorpic.resize((126, 56))
-                    r, g, b, mask = honorpic.split()
-                    img.paste(honorpic, (508, 228), mask)
-                except:
-                    pass
-
-    img.save(f'piccache/{userid}profile.png')
+    for i in profile.userProfileHonors:
+        if i['seq'] == 3:
+            try:
+                honorpic = generatehonor(i, False, server)
+                honorpic = honorpic.resize((126, 56))
+                r, g, b, mask = honorpic.split()
+                img.paste(honorpic, (508, 228), mask)
+            except:
+                pass
+    img = img.convert('RGB')
+    img.save(f'piccache/{userid}profile.jpg', quality=80)
     return
 
 
@@ -651,15 +618,24 @@ def generatehonor(honor, ismain=True, server='jp'):
                 r, g, b, mask = rankpic.split()
                 pic.paste(rankpic, (190, 0), mask)
             if honorType == 'character' or honorType == 'achievement':
-                if server == 'en':
-                    honorlevel = honor['level']
-                else:
-                    honorlevel = honor['honorLevel']
+                honorlevel = honor['honorLevel']
                 if star is True:
-                    for i in range(0, honorlevel):
-                        lv = Image.open('pics/icon_degreeLv.png')
-                        r, g, b, mask = lv.split()
-                        pic.paste(lv, (54 + 16 * i, 63), mask)
+                    if honorlevel > 10:
+                        honorlevel = honorlevel - 10
+                    if honorlevel < 5:
+                        for i in range(0, honorlevel):
+                            lv = Image.open('pics/icon_degreeLv.png')
+                            r, g, b, mask = lv.split()
+                            pic.paste(lv, (54 + 16 * i, 63), mask)
+                    else:
+                        for i in range(0, 5):
+                            lv = Image.open('pics/icon_degreeLv.png')
+                            r, g, b, mask = lv.split()
+                            pic.paste(lv, (54 + 16 * i, 63), mask)
+                        for i in range(0, honorlevel - 5):
+                            lv = Image.open('pics/icon_degreeLv6.png')
+                            r, g, b, mask = lv.split()
+                            pic.paste(lv, (54 + 16 * i, 63), mask)
         else:
             # 小图
             if honorRarity == 'low':
@@ -701,10 +677,9 @@ def generatehonor(honor, ismain=True, server='jp'):
                 pic.paste(rankpic, (34, 42), mask)
             if honorType == 'character' or honorType == 'achievement':
                 if star is True:
-                    if server == 'en':
-                        honorlevel = honor['level']
-                    else:
-                        honorlevel = honor['honorLevel']
+                    honorlevel = honor['honorLevel']
+                    if honorlevel > 10:
+                        honorlevel = honorlevel - 10
                     if honorlevel < 5:
                         for i in range(0, honorlevel):
                             lv = Image.open('pics/icon_degreeLv.png')
@@ -767,10 +742,20 @@ def generatehonor(honor, ismain=True, server='jp'):
                                  f'/bonds_honor/word/{wordbundlename}.png')
             r, g, b, mask = word.split()
             pic.paste(word, (int(190-(word.size[0]/2)), int(40-(word.size[1]/2))), mask)
-            for i in range(0, honor['honorLevel']):
-                lv = Image.open('pics/icon_degreeLv.png')
-                r, g, b, mask = lv.split()
-                pic.paste(lv, (54 + 16 * i, 63), mask)
+            if honor['honorLevel'] < 5:
+                for i in range(0, honor['honorLevel']):
+                    lv = Image.open('pics/icon_degreeLv.png')
+                    r, g, b, mask = lv.split()
+                    pic.paste(lv, (54 + 16 * i, 63), mask)
+            else:
+                for i in range(0, 5):
+                    lv = Image.open('pics/icon_degreeLv.png')
+                    r, g, b, mask = lv.split()
+                    pic.paste(lv, (54 + 16 * i, 63), mask)
+                for i in range(0, honor['honorLevel'] - 5):
+                    lv = Image.open('pics/icon_degreeLv6.png')
+                    r, g, b, mask = lv.split()
+                    pic.paste(lv, (54 + 16 * i, 63), mask)
         else:
             # 小图
             if honor['bondsHonorViewType'] == 'reverse':
@@ -949,18 +934,7 @@ def pjskb30(userid, private=False, returnpic=False, server='jp', qqnum='未知')
     name = data['user']['userGamedata']['name']
     if not recordname(qqnum, userid, name):
         name = ''
-    if server == 'en':
-        userProfileHonors = [{}, {}, {}]
-        for i in range(0, 3):
-            try:
-                honorid = data['userProfile'][f'honorId{i + 1}']
-                for honor in data['userHonors']:
-                    if honor['honorId'] == honorid:
-                        userProfileHonors[i] = honor
-            except:
-                pass
-    else:
-        userProfileHonors = data['userProfileHonors']
+    userProfileHonors = data['userProfileHonors']
     rank = data['user']['userGamedata']['rank']
     userDecks = [0, 0, 0, 0, 0]
     special_training = [False, False, False, False, False]
@@ -1006,58 +980,36 @@ def pjskb30(userid, private=False, returnpic=False, server='jp', qqnum='未知')
     font_style = ImageFont.truetype("fonts/FOT-RodinNTLGPro-DB.ttf", 28)
     draw.text((314, 150), str(rank), fill=(255, 255, 255), font=font_style)
 
-    if server == 'en':
-        try:
-            honorpic = generatehonor(userProfileHonors[0], True, server)
-            honorpic = honorpic.resize((226, 48))
-            r, g, b, mask = honorpic.split()
-            pic.paste(honorpic, (59, 226), mask)
-        except:
-            pass
-        try:
-            honorpic = generatehonor(userProfileHonors[1], False, server)
-            honorpic = honorpic.resize((107, 48))
-            r, g, b, mask = honorpic.split()
-            pic.paste(honorpic, (290, 226), mask)
-        except:
-            pass
-        try:
-            honorpic = generatehonor(userProfileHonors[2], False, server)
-            honorpic = honorpic.resize((107, 48))
-            r, g, b, mask = honorpic.split()
-            pic.paste(honorpic, (403, 226), mask)
-        except:
-            pass
-    else:
-        for i in userProfileHonors:
-            if i['seq'] == 1:
-                try:
-                    honorpic = generatehonor(i, True, server)
-                    honorpic = honorpic.resize((226, 48))
-                    r, g, b, mask = honorpic.split()
-                    pic.paste(honorpic, (59, 226), mask)
-                except:
-                    pass
 
-        for i in userProfileHonors:
-            if i['seq'] == 2:
-                try:
-                    honorpic = generatehonor(i, False, server)
-                    honorpic = honorpic.resize((107, 48))
-                    r, g, b, mask = honorpic.split()
-                    pic.paste(honorpic, (290, 226), mask)
-                except:
-                    pass
+    for i in userProfileHonors:
+        if i['seq'] == 1:
+            try:
+                honorpic = generatehonor(i, True, server)
+                honorpic = honorpic.resize((226, 48))
+                r, g, b, mask = honorpic.split()
+                pic.paste(honorpic, (59, 226), mask)
+            except:
+                pass
 
-        for i in userProfileHonors:
-            if i['seq'] == 3:
-                try:
-                    honorpic = generatehonor(i, False, server)
-                    honorpic = honorpic.resize((107, 48))
-                    r, g, b, mask = honorpic.split()
-                    pic.paste(honorpic, (403, 226), mask)
-                except:
-                    pass
+    for i in userProfileHonors:
+        if i['seq'] == 2:
+            try:
+                honorpic = generatehonor(i, False, server)
+                honorpic = honorpic.resize((107, 48))
+                r, g, b, mask = honorpic.split()
+                pic.paste(honorpic, (290, 226), mask)
+            except:
+                pass
+
+    for i in userProfileHonors:
+        if i['seq'] == 3:
+            try:
+                honorpic = generatehonor(i, False, server)
+                honorpic = honorpic.resize((107, 48))
+                r, g, b, mask = honorpic.split()
+                pic.paste(honorpic, (403, 226), mask)
+            except:
+                pass
 
     with open('masterdata/realtime/musicDifficulties.json', 'r', encoding='utf-8') as f:
         diff = json.load(f)
