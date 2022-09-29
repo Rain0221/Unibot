@@ -183,11 +183,15 @@ def parse_bpm(music_id):
 
 
 def getchart(musicid, difficulty, theme='white'):
-    path = f'charts/moe/{theme}/{musicid}/{difficulty}.png'
+    path = f'charts/moe/{theme}/{musicid}/{difficulty}.jpg'
     if os.path.exists(path):  # 本地有缓存
         return path
     else:  # 本地无缓存
-        parse(musicid, difficulty, theme)  # 生成moe
+        if not os.path.exists(path[:-3] + 'png'):
+            parse(musicid, difficulty, theme)  # 生成moe
+        im = Image.open(path[:-3] + 'png')
+        # im = im.convert('RGB')
+        im.save(path, quality=60)
         return path
 
 def getcharttheme(qqnum):

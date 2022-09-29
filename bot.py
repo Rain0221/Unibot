@@ -509,7 +509,7 @@ def sync_handle_msg(event):
                 sendmsg(event, '查不到捏，可能是没绑定')
                 return
             pjskprofile(bind[1], bind[2], server, event.user_id)
-            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{bind[1]}profile.png,cache=0]")
+            sendmsg(event, f"[CQ:image,file=file:///{botdir}/piccache/{bind[1]}profile.jpg,cache=0]")
             return
 
         # ----------------------- 恢复原命令 ---------------------------
