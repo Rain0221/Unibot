@@ -198,7 +198,7 @@ def sync_handle_msg(event):
             print(Time, botname[event.self_id] + '收到消息', event.group_id, event.user_id, event.message.replace('\n', ''))
         except KeyError:
             print(Time, '测试bot收到消息', event.group_id, event.user_id, event.message.replace('\n', ''))
-    if event.group_id in groupban and event.self_id in mainbot:
+    if event.group_id in groupban:
         # print('黑名单群已拦截')
         return
     if event.user_id in block:
