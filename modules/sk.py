@@ -64,6 +64,8 @@ def currentevent(server):
 
 
 def eventtrack():
+    twurl = 'http://127.0.0.1:5004/tw/api'
+
     time_printer('开始抓取冲榜查询id')
     event = currentevent('jp')
     if event['status'] == 'going':
@@ -83,7 +85,7 @@ def eventtrack():
                 try:
                     c.execute(f'insert into "{eventid}" (time, score, userid) values(?, ?, ?)', (now, score, str(targetid)))
                 except sqlite3.OperationalError:
-                    c.execute('''CREATE TABLE "{eventid}"
+                    c.execute(f'''CREATE TABLE "{eventid}"
                                ("time"   INTEGER,
                                 "score"  INTEGER,
                                 "userid" TEXT);''')
@@ -114,6 +116,58 @@ def eventtrack():
             traceback.print_exc()
     else:
         time_printer('无正在进行的活动')
+
+
+    time_printer('开始抓取台服冲榜查询id')
+    event = currentevent('tw')
+    if event['status'] == 'going':
+        eventid = event['id']
+        if not os.path.exists(f'yamls/event/tw{eventid}'):
+            os.makedirs(f'yamls/event/tw{eventid}')
+        try:
+            conn = sqlite3.connect('data/events.db')
+            c = conn.cursor()
+            resp = requests.get(f'{twurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank=1&lowerLimit=99')
+            ranking = json.loads(resp.content)
+            for rank in ranking['rankings']:
+                targetid = rank['userId']
+                score = rank['score']
+                name= rank['name']
+                try:
+                    c.execute(f'insert into "tw{eventid}" (time, score, userid) values(?, ?, ?)', (now, score, str(targetid)))
+                except sqlite3.OperationalError:
+                    c.execute(f'''CREATE TABLE "tw{eventid}"
+                               ("time"   INTEGER,
+                                "score"  INTEGER,
+                                "userid" TEXT);''')
+                    c.execute(f'insert into "tw{eventid}" (time, score, userid) values(?, ?, ?)',
+                              (now, score, str(targetid)))
+
+                try:
+                    c.execute(f'insert into names (userid, name) values(?, ?)', (str(targetid), name))
+                except sqlite3.IntegrityError:
+                    c.execute(f'update names set name=? where userid=?', (name, str(targetid)))
+
+            resp = requests.get(f'{twurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank=101&lowerLimit=99')
+            ranking = json.loads(resp.content)
+            for rank in ranking['rankings']:
+                targetid = rank['userId']
+                score = rank['score']
+                name = rank['name']
+                c.execute(f'insert into "tw{eventid}" (time, score, userid) values(?, ?, ?)', (now, score, str(targetid)))
+                try:
+                    c.execute(f'insert into names (userid, name) values(?, ?)', (str(targetid), name))
+                except sqlite3.IntegrityError:
+                    c.execute(f'update names set name=? where userid=?', (name, str(targetid)))
+
+            conn.commit()
+            conn.close()
+            time_printer('抓取完成')
+        except:
+            traceback.print_exc()
+    else:
+        time_printer('台服无正在进行的活动')
+
 
 def recordname(qqnum, userid, name):
     conn = sqlite3.connect('data/names.db')
@@ -155,18 +209,27 @@ def recordname(qqnum, userid, name):
     conn.close()
     return result
 
-def chafang(targetid=None, targetrank=None, private=False):
-    event = currentevent('jp')
+def chafang(targetid=None, targetrank=None, private=False, server='jp'):
+    if server == 'jp':
+        url = apiurl
+        prefix = ''
+    elif server == 'en':
+        url = enapiurl
+        prefix = 'en'
+    elif server == 'tw':
+        url = twapiurl
+        prefix = 'tw'
+    event = currentevent(server)
     eventid = event['id']
     if targetid is None:
-        resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={targetrank}')
+        resp = requests.get(f'{url}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={targetrank}')
         ranking = json.loads(resp.content)
         targetid = ranking['rankings'][0]['userId']
         private = True
     if event['status'] == 'going':
         conn = sqlite3.connect('data/events.db')
         c = conn.cursor()
-        cursor = c.execute(f'SELECT * from "{eventid}" where userid=?', (targetid,))
+        cursor = c.execute(f'SELECT * from "{prefix}{eventid}" where userid=?', (targetid,))
         userscores = {}
         for raw in cursor:
             userscores[raw[0]] = raw[1]
@@ -217,7 +280,7 @@ def chafang(targetid=None, targetrank=None, private=False):
             text += f'20min*3时速: {((userscores[lasttime] - userscores[twentybefore])*3)/10000}W\n'
         if hourcount != 0:
             text += f'本小时周回数: {hourcount}\n'
-        stop = getstoptime(targetid, None, True)
+        stop = getstoptime(targetid, None, True, server=server)
         if len(stop) != 0:
             if stop[len(stop)]['end'] != 0:
                 text += '周回中\n'
@@ -240,21 +303,30 @@ def chafang(targetid=None, targetrank=None, private=False):
     else:
         return '当前没有正在进行的活动'
 
-def drawscoreline(targetid=None, targetrank=None, targetrank2=None, starttime=0):
+def drawscoreline(targetid=None, targetrank=None, targetrank2=None, starttime=0, server='jp'):
     x = []
     x2 = []
     k = []
     k2 = []
-    event = currentevent('jp')
+    if server == 'jp':
+        url = apiurl
+        prefix = ''
+    elif server == 'en':
+        url = enapiurl
+        prefix = 'en'
+    elif server == 'tw':
+        url = twapiurl
+        prefix = 'tw'
+    event = currentevent(server)
     eventid = event['id']
     if targetid is None:
-        resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={targetrank}')
+        resp = requests.get(f'{url}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={targetrank}')
         ranking = json.loads(resp.content)
         targetid = ranking['rankings'][0]['userId']
 
     conn = sqlite3.connect('data/events.db')
     c = conn.cursor()
-    cursor = c.execute(f'SELECT * from "{eventid}" where userid=?', (targetid,))
+    cursor = c.execute(f'SELECT * from "{prefix}{eventid}" where userid=?', (targetid,))
     userscores = {}
     for raw in cursor:
         userscores[raw[0]] = raw[1]
@@ -265,10 +337,10 @@ def drawscoreline(targetid=None, targetrank=None, targetrank2=None, starttime=0)
     for raw in cursor:
         name = raw[1]
     if targetrank2 is not None:
-        resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={targetrank2}')
+        resp = requests.get(f'{url}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={targetrank2}')
         ranking = json.loads(resp.content)
         targetid2 = ranking['rankings'][0]['userId']
-        cursor = c.execute(f'SELECT * from "{eventid}" where userid=?', (targetid2,))
+        cursor = c.execute(f'SELECT * from "{prefix}{eventid}" where userid=?', (targetid2,))
         userscores2 = {}
         for raw in cursor:
             userscores2[raw[0]] = raw[1]
@@ -317,18 +389,27 @@ def time_printer(str):
     Time = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
     print(Time, str)
 
-def getstoptime(targetid=None, targetrank=None, returnjson=False, private=False):
-    event = currentevent('jp')
+def getstoptime(targetid=None, targetrank=None, returnjson=False, private=False, server='jp'):
+    event = currentevent(server)
     eventid = event['id']
+    if server == 'jp':
+        url = apiurl
+        prefix = ''
+    elif server == 'en':
+        url = enapiurl
+        prefix = 'en'
+    elif server == 'tw':
+        url = twapiurl
+        prefix = 'tw'
     if not returnjson:
         if targetid is None:
-            resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={targetrank}')
+            resp = requests.get(f'{url}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={targetrank}')
             ranking = json.loads(resp.content)
             targetid = ranking['rankings'][0]['userId']
             private = True
     conn = sqlite3.connect('data/events.db')
     c = conn.cursor()
-    cursor = c.execute(f'SELECT * from "{eventid}" where userid=?', (targetid,))
+    cursor = c.execute(f'SELECT * from "{prefix}{eventid}" where userid=?', (targetid,))
     userscores = {}
     for raw in cursor:
         userscores[raw[0]] = raw[1]

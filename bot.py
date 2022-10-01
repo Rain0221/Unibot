@@ -512,10 +512,6 @@ def sync_handle_msg(event):
             sendmsg(event, f"[CQ:image,file=file:///{botdir}/piccache/{bind[1]}profile.jpg,cache=0]")
             return
 
-        # ----------------------- 恢复原命令 ---------------------------
-        if server == 'tw' or server == 'en':
-            event.message = server + event.message
-        # -------------------- 结束多服共用功能区 -----------------------
         if event.message[:2] == "查房" or event.message[:2] == "cf":
             if event.group_id in blacklist['sk'] and event.message[:2] == "查房":
                 return
@@ -523,7 +519,7 @@ def sync_handle_msg(event):
                 event.message = '查房' + event.message[2:]
             private = False
             if event.message == "查房":
-                bind = getqqbind(event.user_id, 'jp')
+                bind = getqqbind(event.user_id, server)
                 if bind is None:
                     sendmsg(event, '你没有绑定id！')
                     return
@@ -536,9 +532,9 @@ def sync_handle_msg(event):
                 sendmsg(event, '你这id有问题啊')
                 return
             if int(userid) > 10000000:
-                result = chafang(userid, None, private)
+                result = chafang(userid, None, private, server=server)
             else:
-                result = chafang(None, userid)
+                result = chafang(None, userid, server=server)
             sendmsg(event, result)
             return
         graphstart = 0
@@ -547,7 +543,7 @@ def sync_handle_msg(event):
             event.message = event.message[4:]
         if event.message[:3] == "分数线":
             if event.message == "分数线":
-                bind = getqqbind(event.user_id, 'jp')
+                bind = getqqbind(event.user_id, server)
                 if bind is None:
                     sendmsg(event, '你没有绑定id！')
                     return
@@ -561,16 +557,16 @@ def sync_handle_msg(event):
             if len(userids) == 1:
                 userid = re.sub(r'\D', "", userid)
                 if int(userid) > 10000000:
-                    result = drawscoreline(userid, None, None, graphstart)
+                    result = drawscoreline(userid, starttime=graphstart, server=server)
                 else:
-                    result = drawscoreline(None, userid, None, graphstart)
+                    result = drawscoreline(targetrank=userid, starttime=graphstart, server=server)
                 if result:
                     sendmsg(event, fr"[CQ:image,file=file:///{botdir}\{result},cache=0]")
                 else:
                     sendmsg(event, "你要查询的玩家未进入前200，暂无数据")
                 return
             else:
-                result = drawscoreline(None, userids[0], userids[1], graphstart)
+                result = drawscoreline(targetrank=userids[0], targetrank2=userids[1], starttime=graphstart, server=server)
                 if result:
                     sendmsg(event, fr"[CQ:image,file=file:///{botdir}\{result},cache=0]")
                 else:
@@ -583,7 +579,7 @@ def sync_handle_msg(event):
                 event.message = '查水表' + event.message[3:]
             private = False
             if event.message == "查水表":
-                bind = getqqbind(event.user_id, 'jp')
+                bind = getqqbind(event.user_id, server)
                 if bind is None:
                     sendmsg(event, '你没有绑定id！')
                     return
@@ -596,15 +592,19 @@ def sync_handle_msg(event):
                 sendmsg(event, '你这id有问题啊')
                 return
             if int(userid) > 10000000:
-                result = getstoptime(userid, None, False, private)
+                result = getstoptime(userid, private=private, server=server)
             else:
-                result = getstoptime(None, userid)
+                result = getstoptime(targetrank=userid, server=server)
             if result:
                 texttoimg(result, 500, f'csb{userid}')
                 sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\csb{userid}.png,cache=0]")
             else:
                 sendmsg(event, "你要查询的玩家未进入前200，暂无数据")
             return
+        # ----------------------- 恢复原命令 ---------------------------
+        if server == 'tw' or server == 'en':
+            event.message = server + event.message
+        # -------------------- 结束多服共用功能区 -----------------------
         if event.message == '5v5人数':
             sendmsg(event, teamcount())
         if event.message[:5] == 'event':
