@@ -500,6 +500,11 @@ def updatecharts(deletelist):
                         if theme != 'svg' and diff == 'master' and fileformat == 'svg':
                             print('更新' + path)
                             parse(musicid, diff, theme)
+                            im = Image.open(path[:-3] + 'png')
+                            # im = im.convert('RGB')
+                            im.save(path[:-3] + 'jpg', quality=60)
+                            return path
+
     gensvg()
 
 
