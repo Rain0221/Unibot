@@ -503,7 +503,6 @@ def updatecharts(deletelist):
                             im = Image.open(path[:-3] + 'png')
                             # im = im.convert('RGB')
                             im.save(path[:-3] + 'jpg', quality=60)
-                            return path
 
     gensvg()
 
