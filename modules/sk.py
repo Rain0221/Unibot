@@ -65,7 +65,7 @@ def currentevent(server):
 
 def eventtrack():
     twurl = 'http://127.0.0.1:5004/tw/api'
-
+    now = int(time.time())
     time_printer('开始抓取冲榜查询id')
     event = currentevent('jp')
     if event['status'] == 'going':
@@ -77,7 +77,6 @@ def eventtrack():
             c = conn.cursor()
             resp = requests.get(f'{apiurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank=1&lowerLimit=99')
             ranking = json.loads(resp.content)
-            now = int(time.time())
             for rank in ranking['rankings']:
                 targetid = rank['userId']
                 score = rank['score']
