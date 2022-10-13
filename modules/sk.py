@@ -126,7 +126,7 @@ def eventtrack():
         try:
             conn = sqlite3.connect('data/events.db')
             c = conn.cursor()
-            resp = requests.get(f'{twurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank=1&lowerLimit=99')
+            resp = requests.get(f'{twurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank=1&lowerLimit=99', timeout=10)
             ranking = json.loads(resp.content)
             for rank in ranking['rankings']:
                 targetid = rank['userId']
@@ -147,7 +147,7 @@ def eventtrack():
                 except sqlite3.IntegrityError:
                     c.execute(f'update names set name=? where userid=?', (name, str(targetid)))
 
-            resp = requests.get(f'{twurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank=101&lowerLimit=99')
+            resp = requests.get(f'{twurl}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank=101&lowerLimit=99', timeout=10)
             ranking = json.loads(resp.content)
             for rank in ranking['rankings']:
                 targetid = rank['userId']
