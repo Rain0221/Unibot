@@ -1,5 +1,5 @@
 <div align="center">
-  <img width="256" src="./docs/.vuepress/public/logo.png" alt="logo">
+  <img width="256" src="./docs/.vuepress/public/kndlogo.png" alt="logo">
 
 # Unibot
 一款基于 [go-cqhttp](https://github.com/Mrs4s/go-cqhttp) 与 [aiocqhttp](https://github.com/nonebot/aiocqhttp) 的多功能 QQ 群 PJSK 机器人
