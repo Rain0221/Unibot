@@ -4,6 +4,8 @@
 # Unibot
 一款基于 [go-cqhttp](https://github.com/Mrs4s/go-cqhttp) 与 [aiocqhttp](https://github.com/nonebot/aiocqhttp) 的多功能 QQ 群 PJSK 机器人
 
+头像由可爱的[幻影宝](https://space.bilibili.com/13789449/)绘制
+
 [使用文档](https://docs.unipjsk.com/) · [交流群](https://qm.qq.com/cgi-bin/qm/qr?k=Osy7KwWvvLWYTjBFJH3MQwkAqgAIV7rT&jump_from=webapi) · [交流频道](https://qun.qq.com/qqweb/qunpro/share?_wv=3&_wwv=128&appChannel=share&inviteCode=7Pe26&appChannel=share&businessType=9&from=181074&biz=ka&shareSource=5)
 </div>
 
