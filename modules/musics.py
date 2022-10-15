@@ -13,7 +13,7 @@ from dateutil.tz import tzlocal
 
 from modules.config import proxies
 from modules.pjskinfo import aliastomusicid
-from moesus.music_score import parse
+from moesus.music_score import parse, genGuessChart
 
 
 def hotrank():
@@ -207,10 +207,13 @@ def gensvg():
     with open('masterdata/musics.json', 'r', encoding='utf-8') as f:
         musics = json.load(f)
     for music in musics:
+        if not os.path.exists(f'charts/moe/guess/{music["id"]}/master.svg'):
+            genGuessChart(music['id'])
         for diff in ['master', 'expert', 'hard', 'normal', 'easy']:
             if not os.path.exists(f'charts/moe/svg/{music["id"]}/{diff}.svg'):
                 print('生成谱面', music['id'], diff)
                 parse(music['id'], diff, 'svg', False, 'https://assets.unipjsk.com/startapp/music/jacket/%s/%s.png')
+
 
 
 def setcharttheme(qqnum, theme):
