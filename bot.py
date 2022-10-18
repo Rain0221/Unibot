@@ -649,31 +649,34 @@ def sync_handle_msg(event):
                 hotrank()
                 sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\hotrank.png,cache=0]")
                 return
-            if event.message[:4] == "难度排行" or event.message[2:6] == "难度排行":
-                if event.message[:2].lower() == 'fc':
+            if event.message[:4] == "难度排行" or event.message[2:6] == "难度排行" or event.message[-4:] == "难度排行":
+                if 'fc' in event.message:
                     fcap = 1
-                elif event.message[:2].lower() == 'ap':
+                elif 'ap' in event.message:
                     fcap = 2
                 else:
                     fcap = 0
-                event.message = event.message[event.message.find("难度排行") + len("难度排行"):].strip()
-                para = event.message.split(" ")
-                if len(para) == 1:
-                    success = levelrank(int(event.message), 'master', fcap)
-                else:
-                    success = levelrank(int(para[0]), para[1], fcap)
+                level = int(re.sub(r'\D', "", event.message))
+                diff = 'master'
+                if 'expert' in event.message or 'ex' in event.message:
+                    diff = 'expert'
+                elif 'hard' in event.message or 'hd' in event.message:
+                    diff = 'hard'
+                elif 'normal' in event.message or 'nm' in event.message:
+                    diff = 'normal'
+                elif 'easy' in event.message or 'ez' in event.message:
+                    diff = 'easy'
+                success = levelrank(level, diff, fcap)
                 if success:
-                    if len(para) == 1:
-                        sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{para[0]}master{fcap}.png,cache=0]")
-                    else:
-                        sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{para[0]}{para[1]}{fcap}.png,cache=0]")
+                    sendmsg(event, f"[CQ:image,file=file:///{botdir}/piccache/{level}{diff}{fcap}.png,cache=0]")
                 else:
                     sendmsg(event, '参数错误，指令：/难度排行 定数 难度，'
-                                   '难度支持的输入: easy, normal, hard, expert, master，如/难度排行 28 expert')
+                                   '难度支持的输入: easy, normal, hard, expert, master，如/难度排行 28 expert /ap难度排行 28 expert')
                 return
         except:
+            traceback.print_exc()
             sendmsg(event, '参数错误，指令：/难度排行 定数 难度，'
-                           '难度支持的输入: easy, normal, hard, expert, master，如/难度排行 28 expert')
+                           '难度支持的输入: easy, normal, hard, expert, master，如/难度排行 28 expert /ap难度排行 28 expert')
 
         if event.message[:7] == 'pjskbpm' or (event.message[:3] == 'bpm' and event.self_id == guildbot):
             parm = event.message[event.message.find("bpm") + len("bpm"):].strip()
