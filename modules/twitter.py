@@ -159,7 +159,6 @@ def gentwiimg(twitterdata, translate=False):
     draw.text((220, 40), author, fill=(0, 0, 0), font=font_style)
 
     high = 245 + textimg.size[1]
-    print()
     if '<video src=' in twitterdata['description']:
         url = twitterdata['description'][
               twitterdata['description'].find('poster="') + len('poster="'):twitterdata['description'].find(

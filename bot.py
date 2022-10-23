@@ -27,7 +27,7 @@ from modules.homo import generate_homo
 from modules.musics import hotrank, levelrank, parse_bpm, aliastochart, idtoname, notecount, tasseiritsu, findbpm, \
     getcharttheme, setcharttheme, getPlayLevel
 from modules.pjskguess import getrandomjacket, cutjacket, getrandomchart, cutchartimg, getrandomcard, cutcard, \
-    getrandommusic, cutmusic, getrandomchartold, cutchartimgold
+    getrandommusic, cutmusic, getrandomchartold, cutchartimgold, recordGuessRank, guessRank
 from modules.pjskinfo import aliastomusicid, pjskset, pjskdel, pjskalias, pjskinfo, writelog
 from modules.profileanalysis import daibu, rk, pjskjindu, pjskprofile, pjskb30, r30
 from modules.sendmail import sendemail
@@ -807,10 +807,9 @@ def sync_handle_msg(event):
             else:
                 sendmsg(event, charainfo(event.message, event.group_id))
             return
-        if event.message == '看33':
-            return
-            sendmsg(event, f"[CQ:image,file=file:///{botdir}/pics/33{random.randint(0, 1)}.gif,cache=0]")
-            return
+        # if event.message == '看33':
+        #     sendmsg(event, f"[CQ:image,file=file:///{botdir}/pics/33{random.randint(0, 1)}.gif,cache=0]")
+        #     return
         if event.message == '推车':
             ycmimg()
             sendmsg(event, f"[CQ:image,file=file:///{botdir}/piccache/ycm.png,cache=0]")
@@ -934,6 +933,25 @@ def sync_handle_msg(event):
                     filename = f'{event.user_id}_{int(time.time()*100)}.jpg'
                     uploadkk(url, filename, foldername)
                     sendmsg(event, "上传成功")
+        if event.message[-3:] == '排行榜':
+            if event.message.startswith('pjsk猜曲'):
+                sendmsg(event, fr"[CQ:image,file=file:///{botdir}/{guessRank(1, 'pjsk猜曲')},cache=0]")
+                return
+            if event.message.startswith('pjsk阴间猜曲'):
+                sendmsg(event, fr"[CQ:image,file=file:///{botdir}/{guessRank(2, 'pjsk阴间猜曲')},cache=0]")
+                return
+            if event.message.startswith('pjsk猜谱面'):
+                sendmsg(event, fr"[CQ:image,file=file:///{botdir}/{guessRank(3, 'pjsk猜谱面')},cache=0]")
+                return
+            if event.message.startswith('pjsk猜卡面'):
+                sendmsg(event, fr"[CQ:image,file=file:///{botdir}/{guessRank(4, 'pjsk猜卡面')},cache=0]")
+                return
+            if event.message.startswith('pjsk听歌猜曲'):
+                sendmsg(event, fr"[CQ:image,file=file:///{botdir}/{guessRank(5, 'pjsk听歌猜曲')},cache=0]")
+                return
+            if event.message.startswith('pjsk倒放猜曲'):
+                sendmsg(event, fr"[CQ:image,file=file:///{botdir}/{guessRank(6, 'pjsk倒放猜曲')},cache=0]")
+                return
         if event.message[:1] == '看' or event.message[:2] == '来点':
             if event.user_id not in whitelist and event.group_id not in whitelist and event.self_id != guildbot:
                 return
@@ -1009,16 +1027,17 @@ def sync_handle_msg(event):
                     return
                 else:
                     musicid = getrandomchart()
-                    pjskguess[event.group_id] = {'isgoing': True, 'musicid': musicid,
+                    pjskguess[event.group_id] = {'isgoing': True, 'musicid': musicid, 'type': 3,
                                                  'starttime': int(time.time()), 'selfid': event.self_id}
             except KeyError:
                 musicid = getrandomchart()
-                pjskguess[event.group_id] = {'isgoing': True, 'musicid': musicid, 'starttime': int(time.time()), 'selfid': event.self_id}
+                pjskguess[event.group_id] = {'isgoing': True, 'musicid': musicid, 'type': 3,
+                                             'starttime': int(time.time()), 'selfid': event.self_id}
             cutchartimg(musicid, event.group_id)
             sendmsg(event, 'PJSK谱面竞猜（随机裁切）\n艾特我+你的答案以参加猜曲（不要使用回复）\n\n你有50秒的时间回答\n可手动发送“结束猜曲”来结束猜曲'
                     + fr"[CQ:image,file=file:///{botdir}\piccache/{event.group_id}.png,cache=0]")
             return
-        if event.message == '给点提示':
+        if event.message == '给点提示' or event.message == '来点提示':
             if event.user_id not in whitelist and event.group_id not in whitelist and event.self_id != guildbot:
                 return
             try:
@@ -1049,11 +1068,12 @@ def sync_handle_msg(event):
                     return
                 else:
                     musicid = getrandomchartold()
-                    pjskguess[event.group_id] = {'isgoing': True, 'musicid': musicid,
+                    pjskguess[event.group_id] = {'isgoing': True, 'musicid': musicid, 'type': 3,
                                                  'starttime': int(time.time()), 'selfid': event.self_id}
             except KeyError:
                 musicid = getrandomchartold()
-                pjskguess[event.group_id] = {'isgoing': True, 'musicid': musicid, 'starttime': int(time.time()), 'selfid': event.self_id}
+                pjskguess[event.group_id] = {'isgoing': True, 'musicid': musicid, 'type': 3,
+                                             'starttime': int(time.time()), 'selfid': event.self_id}
             cutchartimgold(musicid, event.group_id)
             sendmsg(event, 'PJSK谱面竞猜（随机裁切）\n艾特我+你的答案以参加猜曲（不要使用回复）\n\n你有50秒的时间回答\n可手动发送“结束猜曲”来结束猜曲'
                     + fr"[CQ:image,file=file:///{botdir}\piccache/{event.group_id}.png,cache=0]")
@@ -1125,22 +1145,31 @@ def sync_handle_msg(event):
 
             if event.message == 'pjsk猜曲':
                 cutjacket(musicid, event.group_id, size=140, isbw=False)
+                guessType = 1
             elif event.message == 'pjsk阴间猜曲' or event.message == 'pjsk猜曲 2':
                 cutjacket(musicid, event.group_id, size=140, isbw=True)
+                guessType = 2
             elif event.message == 'pjsk非人类猜曲':
                 cutjacket(musicid, event.group_id, size=30, isbw=False)
+                guessType = 2
             elif event.message == 'pjsk听歌猜曲':
                 cutmusic(assetbundleName, event.group_id)
                 sendmsg(event, 'PJSK听歌识曲竞猜 （随机裁切）\n艾特我+你的答案以参加猜曲（不要使用回复）\n\n你有50秒的时间回答\n可手动发送“结束猜曲”来结束猜曲')
                 sendmsg(event, fr"[CQ:record,file=file:///{botdir}/piccache/{event.group_id}.mp3,cache=0]")
+                guessType = 5
+                pjskguess[event.group_id]['type'] = guessType
                 return
             elif event.message == 'pjsk倒放猜曲':
                 cutmusic(assetbundleName, event.group_id, True)
                 sendmsg(event, 'PJSK倒放识曲竞猜 （随机裁切）\n艾特我+你的答案以参加猜曲（不要使用回复）\n\n你有50秒的时间回答\n可手动发送“结束猜曲”来结束猜曲')
                 sendmsg(event, fr"[CQ:record,file=file:///{botdir}/piccache/{event.group_id}.mp3,cache=0]")
+                guessType = 6
+                pjskguess[event.group_id]['type'] = guessType
                 return
             else:
                 cutjacket(musicid, event.group_id, size=140, isbw=False)
+                guessType = 1
+            pjskguess[event.group_id]['type'] = guessType
             sendmsg(event, 'PJSK曲绘竞猜 （随机裁切）\n艾特我+你的答案以参加猜曲（不要使用回复）\n\n你有50秒的时间回答\n可手动发送“结束猜曲”来结束猜曲'
                     + fr"[CQ:image,file=file:///{botdir}/piccache/{event.group_id}.png,cache=0]")
             return
@@ -1189,8 +1218,14 @@ def sync_handle_msg(event):
                     else:
                         if resp['musicid'] == pjskguess[event.group_id]['musicid']:
                             text = f'[CQ:at,qq={event.user_id}] 您猜对了'
-                            if int(time.time()) > pjskguess[event.group_id]['starttime'] + 45:
+                            if int(time.time()) > pjskguess[event.group_id]['starttime'] + 50:
                                 text = text + '，回答已超时'
+                            else:
+                                if event.sender['card'] == '':
+                                    username = event.sender['nickname']
+                                else:
+                                    username = event.sender['card']
+                                recordGuessRank(event.user_id, username, pjskguess[event.group_id]['type'])
                             picdir = f"data/assets/sekai/assetbundle/resources/startapp/music/jacket/" \
                                      f"jacket_s_{str(pjskguess[event.group_id]['musicid']).zfill(3)}/" \
                                      f"jacket_s_{str(pjskguess[event.group_id]['musicid']).zfill(3)}.png"
@@ -1228,6 +1263,12 @@ def sync_handle_msg(event):
                             text = f'[CQ:at,qq={event.user_id}] 您猜对了'
                             if int(time.time()) > charaguess[event.group_id]['starttime'] + 45:
                                 text = text + '，回答已超时'
+                            else:
+                                if event.sender['card'] == '':
+                                    username = event.sender['nickname']
+                                else:
+                                    username = event.sender['card']
+                                recordGuessRank(event.user_id, username, 4)
                             if charaguess[event.group_id]['istrained']:
                                 picdir = 'data/assets/sekai/assetbundle/resources/startapp/' \
                                          f"character/member/{charaguess[event.group_id]['assetbundleName']}/card_after_training.jpg"

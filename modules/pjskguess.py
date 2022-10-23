@@ -1,12 +1,16 @@
 import json
 import os
 import random
+import sqlite3
 import time
 
 from PIL import Image
 from mutagen.mp3 import MP3
 from pydub import AudioSegment
+
+from emoji2pic import Emoji2Pic
 from modules.musics import isleak
+from modules.texttoimg import texttoimg
 
 
 def getrandomchartold():
@@ -26,6 +30,51 @@ def getrandomchartold():
         return getrandomchart()
     else:
         return musicid
+
+
+def guessRank(guessType, typeText):
+    conn = sqlite3.connect('data/pjskguess.db')
+    c = conn.cursor()
+
+    cursor = c.execute(f'SELECT * from "{guessType}" order by count desc')
+    count = 0
+    text = typeText + ' TOP20\n'
+    for raw in cursor:
+        count += 1
+        name = raw[1]
+        if len(name) > 10:
+            name = name[:3] + '...' + name[-3:]
+        if len(raw[0]) >= 15:
+            text += f'{name}(频道用户): {raw[2]}次\n'
+        else:
+            text += f'{name}({raw[0]}): {raw[2]}次\n'
+        if count == 20:
+            break
+    instance = Emoji2Pic(text=text + '\n', font='fonts/SourceHanSansCN-Medium.otf', emoji_folder='AppleEmoji')
+    textimg = instance.make_img()
+    textimg.save(f'piccache/guess{guessType}.jpg')
+    return f'piccache/guess{guessType}.jpg'
+    # texttoimg(text, 550, f'guess{guessType}')
+
+
+def recordGuessRank(qqnum, name, guessType):
+    conn = sqlite3.connect('data/pjskguess.db')
+    c = conn.cursor()
+
+    cursor = c.execute(f'SELECT * from "{guessType}" where qqnum=?', (qqnum,))
+    alreadyin = False
+    count = 0
+    for raw in cursor:
+        alreadyin = True
+        count = raw[2]
+    if alreadyin:
+        c.execute(f'UPDATE "{guessType}" SET name=?, count=? WHERE qqnum=?', (name, count + 1, str(qqnum)))
+    else:
+        sql_add = f'insert into "{guessType}"(qqnum,name,count) values(?, ?, ?)'
+        c.execute(sql_add, (str(qqnum), name, count + 1))
+
+    conn.commit()
+    conn.close()
 
 
 def cutchartimgold(musicid, qunnum):
