@@ -9,6 +9,38 @@ from pydub import AudioSegment
 from modules.musics import isleak
 
 
+def getrandomchartold():
+    path = 'charts/SekaiViewer'
+    target = []
+    files = os.listdir(path)
+    files_dir = [f for f in files if os.path.isdir(os.path.join(path, f))]
+    for i in files_dir:
+        chartfiles = os.listdir(path + "/" + i)
+        files_file = [f for f in chartfiles if os.path.isfile(os.path.join(path + "/" + i, f))]
+        if 'master.png' in files_file:
+            target.append(i)
+    # return f"{path}/{target[random.randint(0, len(target))]}/master.png"
+    musicid = int(target[random.randint(0, len(target) - 1)])
+    if isleak(musicid):
+        print('leak重抽')
+        return getrandomchart()
+    else:
+        return musicid
+
+
+def cutchartimgold(musicid, qunnum):
+    img = Image.open(f'charts/SekaiViewer/{musicid}/master.png')
+    # pic = pic.resize((160 * row + 32, 1300))
+    row = int((img.size[0] - 32) / 160)
+    rannum = random.randint(2, row - 1)
+    img = img.crop((32 + 160 * (rannum - 1), 0, 32 + 160 * (rannum - 1) + 110, img.size[1]))
+    img1 = img.crop((0, 0, 110, 650))
+    img2 = img.crop((0, 650, 110, 1300))
+    final = Image.new('RGB', (220, 640), (255, 255, 255))
+    final.paste(img2, (0, 0))
+    final.paste(img1, (110, -10))
+    final.save(f'piccache/{qunnum}.png')
+
 def getrandomchart():
     path = 'charts/moe/guess'
     target = []

@@ -7,6 +7,7 @@ import sqlite3
 import time
 import traceback
 
+import aiofiles
 import requests
 from PIL import Image, ImageDraw, ImageFont
 from dateutil.tz import tzlocal
@@ -181,6 +182,75 @@ def parse_bpm(music_id):
 
     return mean_bpm, bpm_sequence, max_time
 
+
+def getPlayLevel(musicid, difficulty):
+    with open('masterdata/musicDifficulties.json', 'r', encoding='utf-8') as f:
+        musicDifficulties = json.load(f)
+    for diff in musicDifficulties:
+        if musicid == diff['musicId'] and diff['musicDifficulty'] == difficulty:
+            return diff['playLevel']
+
+def getchartold(musicid, difficulty):
+    try:
+        if difficulty == 'master' or difficulty == 'expert':
+            if os.path.exists(f'charts/SekaiViewer/{musicid}/{difficulty}.png'):  # 本地有缓存
+                return f'charts/SekaiViewer/{musicid}/{difficulty}.png'
+            else:  # 本地无缓存
+                if downloadviewerchart(musicid, difficulty):  # sekai viewer下载成功
+                    return f'charts/SekaiViewer/{musicid}/{difficulty}.png'
+                else:  # sekai viewer下载失败 尝试sdvx.in
+                    if os.path.exists(f'charts/sdvxInCharts/{musicid}/{difficulty}.png'):  # sdvx.in本地有缓存
+                        return f'charts/sdvxInCharts/{musicid}/{difficulty}.png'
+                    else:  # 无缓存，尝试下载
+                        timeid = idtotime(musicid)
+                        if difficulty == 'master':
+                            data = requests.get(f'https://sdvx.in/prsk/obj/data{str(timeid).zfill(3)}mst.png',
+                                                proxies=proxies)
+                        else:
+                            data = requests.get(f'https://sdvx.in/prsk/obj/data{str(timeid).zfill(3)}exp.png',
+                                                proxies=proxies)
+                        if data.status_code == 200:  # 下载到了
+                            bg = requests.get(f"https://sdvx.in/prsk/bg/{str(timeid).zfill(3)}bg.png",
+                                              proxies=proxies)
+                            bar = requests.get(f"https://sdvx.in/prsk/bg/{str(timeid).zfill(3)}bar.png",
+                                               proxies=proxies)
+                            bgpic = Image.open(io.BytesIO(bg.content))
+                            datapic = Image.open(io.BytesIO(data.content))
+                            barpic = Image.open(io.BytesIO(bar.content))
+                            r, g, b, mask = datapic.split()
+                            bgpic.paste(datapic, (0, 0), mask)
+                            r, g, b, mask = barpic.split()
+                            bgpic.paste(barpic, (0, 0), mask)
+                            dirs = f'charts/sdvxInCharts/{musicid}'
+                            if not os.path.exists(dirs):
+                                os.makedirs(dirs)
+
+                            r, g, b, mask = bgpic.split()
+                            final = Image.new('RGB', bgpic.size, (0, 0, 0))
+                            final.paste(bgpic, (0, 0), mask)
+                            final.save(f'charts/sdvxInCharts/{musicid}/{difficulty}.png')
+                            return f'charts/sdvxInCharts/{musicid}/{difficulty}.png'
+                        else:  # 没下载到
+                            if os.path.exists(f'charts/sus/{musicid}/{difficulty}.png'):
+                                return f'charts/sus/{musicid}/{difficulty}.png'
+                            else:
+                                sus2img(musicid, difficulty)
+                                return f'charts/sus/{musicid}/{difficulty}.png'
+
+        else:  # 其他难度
+            if os.path.exists(f'charts/SekaiViewer/{musicid}/{difficulty}.png'):  # 本地有缓存
+                return f'charts/SekaiViewer/{musicid}/{difficulty}.png'
+            else:  # 本地无缓存
+                if downloadviewerchart(musicid, difficulty):  # sekai viewer下载成功
+                    return f'charts/SekaiViewer/{musicid}/{difficulty}.png'
+                else:  # sekai viewer下载失败
+                    if os.path.exists(f'charts/sus/{musicid}/{difficulty}.png'):
+                        return f'charts/sus/{musicid}/{difficulty}.png'
+                    else:
+                        sus2img(musicid, difficulty)
+                        return f'charts/sus/{musicid}/{difficulty}.png'
+    except:
+        return None
 
 def getchart(musicid, difficulty, theme='white'):
     path = f'charts/moe/{theme}/{musicid}/{difficulty}.jpg'

@@ -25,9 +25,9 @@ from modules.otherpics import geteventpic
 from modules.gacha import getcharaname, getallcurrentgacha, getcurrentgacha, fakegacha
 from modules.homo import generate_homo
 from modules.musics import hotrank, levelrank, parse_bpm, aliastochart, idtoname, notecount, tasseiritsu, findbpm, \
-    getcharttheme, setcharttheme
+    getcharttheme, setcharttheme, getPlayLevel
 from modules.pjskguess import getrandomjacket, cutjacket, getrandomchart, cutchartimg, getrandomcard, cutcard, \
-    getrandommusic, cutmusic
+    getrandommusic, cutmusic, getrandomchartold, cutchartimgold
 from modules.pjskinfo import aliastomusicid, pjskset, pjskdel, pjskalias, pjskinfo, writelog
 from modules.profileanalysis import daibu, rk, pjskjindu, pjskprofile, pjskb30, r30
 from modules.sendmail import sendemail
@@ -896,7 +896,7 @@ def sync_handle_msg(event):
             if not opencvmatch:
                 try:
                     opencvmatch = True
-                    sendmsg(event, f'[CQ:reply,id={event.message_id}]了解，查询中（输出只对有效输入负责）')
+                    sendmsg(event, f'[CQ:reply,id={event.message_id}]了解，查询中（局部封面图匹配歌曲，输出只对有效输入负责，多次有意输入无效图片核实后将会拉黑）')
                     url = event.message[event.message.find('url=') + 4:event.message.find(']')]
                     title, picdir = matchjacket(url=url)
                     if title:
@@ -1015,6 +1015,46 @@ def sync_handle_msg(event):
                 musicid = getrandomchart()
                 pjskguess[event.group_id] = {'isgoing': True, 'musicid': musicid, 'starttime': int(time.time()), 'selfid': event.self_id}
             cutchartimg(musicid, event.group_id)
+            sendmsg(event, 'PJSK谱面竞猜（随机裁切）\n艾特我+你的答案以参加猜曲（不要使用回复）\n\n你有50秒的时间回答\n可手动发送“结束猜曲”来结束猜曲'
+                    + fr"[CQ:image,file=file:///{botdir}\piccache/{event.group_id}.png,cache=0]")
+            return
+        if event.message == '给点提示':
+            if event.user_id not in whitelist and event.group_id not in whitelist and event.self_id != guildbot:
+                return
+            try:
+                isgoing = pjskguess[event.group_id]['isgoing']
+                if isgoing:
+                    playLevel = getPlayLevel(pjskguess[event.group_id]['musicid'], 'master')
+                    sendmsg(event, f'难度是{playLevel}哦')
+                    return
+            except:
+                pass
+            sendmsg(event, '当前没有猜曲哦')
+            return
+        if event.message == 'pjsk阴间猜谱面':
+            if event.user_id not in whitelist and event.group_id not in whitelist and event.self_id != guildbot:
+                return
+            try:
+                isgoing = charaguess[event.group_id]['isgoing']
+                if isgoing:
+                    sendmsg(event, '已经开启猜卡面！')
+                    return
+            except KeyError:
+                pass
+
+            try:
+                isgoing = pjskguess[event.group_id]['isgoing']
+                if isgoing:
+                    sendmsg(event, '已经开启猜曲！')
+                    return
+                else:
+                    musicid = getrandomchartold()
+                    pjskguess[event.group_id] = {'isgoing': True, 'musicid': musicid,
+                                                 'starttime': int(time.time()), 'selfid': event.self_id}
+            except KeyError:
+                musicid = getrandomchartold()
+                pjskguess[event.group_id] = {'isgoing': True, 'musicid': musicid, 'starttime': int(time.time()), 'selfid': event.self_id}
+            cutchartimgold(musicid, event.group_id)
             sendmsg(event, 'PJSK谱面竞猜（随机裁切）\n艾特我+你的答案以参加猜曲（不要使用回复）\n\n你有50秒的时间回答\n可手动发送“结束猜曲”来结束猜曲'
                     + fr"[CQ:image,file=file:///{botdir}\piccache/{event.group_id}.png,cache=0]")
             return
