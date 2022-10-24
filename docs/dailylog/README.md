@@ -4,6 +4,15 @@ sidebar: false
 # 实时日志
 
 歌曲昵称/角色昵称的设置日志
+
+<!-- ### 2022年11月
+
+[昵称设置日志](https://assets.unipjsk.com/logs/202211.html) -->
+
+### 2022年10月
+
+[昵称设置日志](https://assets.unipjsk.com/logs/202210.html)
+
 ### 2022年9月
 
 [昵称设置日志](https://assets.unipjsk.com/logs/202209.html)
