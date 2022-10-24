@@ -20,19 +20,19 @@ rankline = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 100, 200, 300, 400, 5
             10000, 20000, 30000, 40000, 50000, 100000, 100000000]
 predictline = [100, 200, 300, 400, 500, 1000, 2000, 3000, 4000, 5000, 10000, 20000, 30000, 40000, 50000, 100000, 100000000]
 
-def timeremain(time):
+def timeremain(time, second=True):
     if time < 60:
-        return f'{int(time)}秒'
+        return f'{int(time)}秒' if second else '0分'
     elif time < 60*60:
-        return f'{int(time / 60)}分{int(time % 60)}秒'
+        return f'{int(time / 60)}分{int(time % 60)}秒' if second else f'{int(time / 60)}分'
     elif time < 60*60*24:
         hours = int(time / 60 / 60)
         remain = time - 3600 * hours
-        return f'{int(time / 60 / 60)}小时{int(remain / 60)}分{int(remain % 60)}秒'
+        return f'{int(time / 60 / 60)}小时{int(remain / 60)}分{int(remain % 60)}秒' if second else f'{int(time / 60 / 60)}小时{int(remain / 60)}分'
     else:
         days = int(time / 3600 / 24)
         remain = time - 3600 * 24 * days
-        return f'{int(days)}天{timeremain(remain)}'
+        return f'{int(days)}天{timeremain(remain)}' if second else f'{int(days)}天{timeremain(remain, False)}'
 
 
 def currentevent(server):
@@ -465,8 +465,8 @@ def getstoptime(targetid=None, targetrank=None, returnjson=False, private=False,
                 endtime = ''
                 end = int(time.time())
             stoplength += end - start
-            text += f'{count}. {starttime} ~ {endtime} ({timeremain(end - start)})\n'
-        text += f'总停车时间：{timeremain(stoplength)}\n'
+            text += f'{count}. {starttime} ~ {endtime} ({timeremain(end - start, False)})\n'
+        text += f'总停车时间：{timeremain(stoplength, False)}\n'
         text += f"仅记录在200名以内时的数据"
         return text
     else:
