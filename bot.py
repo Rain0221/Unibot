@@ -596,7 +596,7 @@ def sync_handle_msg(event):
             else:
                 result = getstoptime(targetrank=userid, server=server)
             if result:
-                texttoimg(result, 500, f'csb{userid}')
+                texttoimg(result, 600, f'csb{userid}')
                 sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\csb{userid}.png,cache=0]")
             else:
                 sendmsg(event, "你要查询的玩家未进入前200，暂无数据")

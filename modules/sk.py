@@ -249,10 +249,10 @@ def chafang(targetid=None, targetrank=None, private=False, server='jp'):
         for times in userscores:
             lasttime = times
         for times in userscores:
-            if -60 < times - (lasttime - 20 * 60) < 60:
+            if -10 < times - (lasttime - 20 * 60) < 10:
                 twentybefore = times
         for times in userscores:
-            if -60 < times - (lasttime - 60 * 60) < 60:
+            if -10 < times - (lasttime - 60 * 60) < 10:
                 hourbefore = times
         lastupdate = 0
         count = 0
@@ -264,8 +264,10 @@ def chafang(targetid=None, targetrank=None, private=False, server='jp'):
                 lastupdate = userscores[times]
             else:
                 if userscores[times] != lastupdate:
-                    if hourbefore != 0 and times >= hourbefore:
+                    if hourbefore != 0 and times > hourbefore:
                         hourcount += 1
+                        # print(hourcount, datetime.datetime.fromtimestamp(times,
+                        #                                       pytz.timezone('Asia/Shanghai')).strftime('%H:%M'))
                     pts.append(userscores[times]-lastupdate)
                     lastupdate = userscores[times]
         if len(pts) >= 10:
@@ -455,15 +457,15 @@ def getstoptime(targetid=None, targetrank=None, returnjson=False, private=False,
         for count in stop:
             start = stop[count]['start']
             starttime = datetime.datetime.fromtimestamp(start,
-                                       pytz.timezone('Asia/Shanghai')).strftime('%m/%d %H:%M:%S')
+                                       pytz.timezone('Asia/Shanghai')).strftime('%m/%d %H:%M')
             end = stop[count]['end']
             endtime = datetime.datetime.fromtimestamp(end,
-                                       pytz.timezone('Asia/Shanghai')).strftime('%m/%d %H:%M:%S')
+                                       pytz.timezone('Asia/Shanghai')).strftime('%m/%d %H:%M')
             if end == 0:
                 endtime = ''
                 end = int(time.time())
             stoplength += end - start
-            text += f'{count}. {starttime} ~ {endtime}\n'
+            text += f'{count}. {starttime} ~ {endtime} ({timeremain(end - start)})\n'
         text += f'总停车时间：{timeremain(stoplength)}\n'
         text += f"仅记录在200名以内时的数据"
         return text
