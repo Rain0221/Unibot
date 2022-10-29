@@ -889,11 +889,11 @@ def gethonorasset(server, path):
                 if server == 'tw':
                     print(f'download from https://storage.sekai.best/sekai-tc-assets/honor/{foldername}_rip/{filename}')
                     resp = requests.get(f"https://storage.sekai.best/sekai-tc-assets/honor/{foldername}_rip/{filename}",
-                                       proxies=proxies)
+                                       proxies=proxies, timeout=3)
                 elif server == 'en':
                     print(f'download from https://storage.sekai.best/sekai-en-assets/honor/{foldername}_rip/{filename}')
                     resp = requests.get(f"https://storage.sekai.best/sekai-en-assets/honor/{foldername}_rip/{filename}",
-                                        proxies=proxies)
+                                        proxies=proxies, timeout=3)
             except:
                 return Image.open(path.replace('{server}honor', 'honor'))
             if resp.status_code == 200:  # 下载到了
