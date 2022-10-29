@@ -8,6 +8,7 @@ from mutagen.mp3 import MP3
 import pytz
 from PIL import Image, ImageFont, ImageDraw, ImageEnhance
 import yaml
+from emoji2pic.main import Emoji2Pic
 
 from modules.config import loghtml
 
@@ -601,7 +602,10 @@ def pjskalias(alias, musicid=None):
     for raw in cursor:
         returnstr = returnstr + raw[0] + "，"
     conn.close()
-    return returnstr[:-1]
+    instance = Emoji2Pic(text=returnstr[:-1] + '\n昵称均为用户添加，与bot和bot主无关\n\n', font='fonts/SourceHanSansCN-Medium.otf', emoji_folder='AppleEmoji')
+    textimg = instance.make_img()
+    textimg.save(f'piccache/{musicid}alias.jpg')
+    return f"[CQ:image,file=file:///{os.getcwd()}/piccache/{musicid}alias.jpg,cache=0]"
 
 def pjskalias2(alias, musicid=None):
     if musicid is None:
