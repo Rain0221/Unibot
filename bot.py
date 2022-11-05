@@ -1299,6 +1299,8 @@ def sync_handle_msg(event):
             return
     except (requests.exceptions.ConnectionError, JSONDecodeError):
         sendmsg(event, '查不到数据捏，好像是bot网不好')
+    except aiocqhttp.exceptions.NetworkError:
+        pass
     except Exception as a:
         traceback.print_exc()
         if repr(a) == "KeyError('status')":

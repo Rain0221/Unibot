@@ -31,15 +31,16 @@ def img_to_url(img_path: str):
     # 装饰器作用为: 解析cq码中图片的路径(网络图片则下载到本地), 将绝对路径传给本函数, 自行操作后, 返回图片url, sdk将使用此url发送图片
     # 若不注册此方法, 则无法发送图片。
     # [CQ:image,file=file:///E:\工程文件夹2\bot\unibot\piccache\pjskinfo73.png]
-    if 'cache' in img_path:
-        file = img_path[img_path.find("cache")+6:]
-        return piccacheurl + file
-    elif 'charts' in img_path:
-        file = img_path[img_path.find("charts")+7:]
-        return charturl + file
-    elif 'resources' in img_path:
-        file = img_path[img_path.find("resources")+10:]
-        return asseturl + file
+    # if 'cache' in img_path:
+    #     file = img_path[img_path.find("cache")+6:]
+    #     return piccacheurl + file
+    # elif 'charts' in img_path:
+    #     file = img_path[img_path.find("charts")+7:]
+    #     return charturl + file
+    # elif 'resources' in img_path:
+    #     file = img_path[img_path.find("resources")+10:]
+    #     return asseturl + file
+    return img_path
 
 # 注册事件结束
 
