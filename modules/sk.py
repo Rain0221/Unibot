@@ -897,7 +897,7 @@ def teamcount():
             if i['id'] == TeamId:
                 text += i['teamName'] + translate + " " + str(memberCount)+ '人\n'
                 break
-    return text
+    return text if text != '' else '没有5v5捏'
 
 def getqqbind(qqnum, server):
     conn = sqlite3.connect('pjsk.db')
