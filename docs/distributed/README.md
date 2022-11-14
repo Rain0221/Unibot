@@ -13,7 +13,8 @@
 ### 获取一台服务器
 你需要一台24h不关机的电脑，否则关机这段时间bot将无法工作
 
-电脑需要运行 Windows 8 或 Windows server 2012 以上版本的系统（更低版本实测无法运行）
+Windows 电脑需要运行 Windows 8 或 Windows server 2012 以上版本的系统（更低版本实测无法运行）
+Linux 有 Ubuntu 20.04 (Python 3.8) 和 Ubuntu 22.04 (Python 3.10) 打包的两个版本，建议使用 Ubuntu 18 或以上系统，在较低版本 Ubuntu 和其他较低版本 linux 中可能提示缺少 GLIBC 对应版本，安装非常麻烦，不推荐使用。
 
 
 ### 下载客户端和申请token
@@ -48,6 +49,11 @@ charaguesstime: 30
 
 :::
 
+::: warning 注意
+
+不要关闭客户端，必须启动客户端才能使用 bot
+
+:::
 
 ## 配置 GO-CQHTTP
 
@@ -84,15 +90,11 @@ servers:
         <<: *default # 引用默认中间件
 ```
 
-之后，打开cqhttp，按提示登录qq后，客户端应该会出现一行这样的日志
+之后，在确保客户端已打开的情况下，打开cqhttp，按提示登录qq后，客户端应该会出现一行这样的日志
 ```text
 [xxxx-xx-xx xx:xx:xx,xxx] 127.0.0.1:xxxxx GET /ws/ 1.1 101 - 515
 ```
-::: warning 注意
 
-如果出现`ClientOSError(22, '指定的网络名不再可用。', None, 64, None)`，则为服务端程序错误，请立即通知群主处理
-
-:::
 ## 测试对话
 
 在有机器人的群里发送命令，比如`sk`，如果一切正常，ta 应该会回复你。

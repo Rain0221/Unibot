@@ -20,6 +20,7 @@ from modules.chara import charaset, grcharaset, charadel, charainfo, grcharadel,
 from modules.config import whitelist, block, msggroup, aliasblock, groupban, asseturl, verifyurl, distributedurl, apiurl
 from modules.cyo5000 import cyo5000
 from modules.kk import kkwhitelist, kankan, uploadkk
+from modules.lighthouse import add_RDP_port, delete_RDP_port
 from modules.opencv import matchjacket
 from modules.otherpics import geteventpic
 from modules.gacha import getcharaname, getallcurrentgacha, getcurrentgacha, fakegacha
@@ -388,7 +389,6 @@ def sync_handle_msg(event):
                 if len(userids) == 1:
                     userid = re.sub(r'\D', "", event.message)
                     if userid == '':
-                        sendmsg(event, '你这id有问题啊')
                         return
                     if int(userid) > 10000000:
                         result = sk(userid, None, False, server, False, event.user_id, True)
@@ -416,6 +416,8 @@ def sync_handle_msg(event):
         if event.message[:2] == "绑定":
             userid = event.message.replace("绑定", "")
             userid = re.sub(r'\D', "", userid)
+            if userid == '':
+                return
             sendmsg(event, bindid(event.user_id, userid, server))
             return
         if event.message == "不给看":
@@ -442,6 +444,8 @@ def sync_handle_msg(event):
                 sendmsg(event, result)
             else:
                 userid = event.message.replace("逮捕", "")
+                if userid == '':
+                    return
                 if '[CQ:at' in userid:
                     qq = re.sub(r'\D', "", userid)
                     bind = getqqbind(qq, server)
@@ -528,49 +532,53 @@ def sync_handle_msg(event):
             else:
                 userid = event.message.replace("查房", "")
                 userid = re.sub(r'\D', "", userid)
-            if userid == '':
-                sendmsg(event, '你这id有问题啊')
+            try:
+                if userid == '':
+                    return
+                if int(userid) > 10000000:
+                    result = chafang(userid, None, private, server=server)
+                else:
+                    result = chafang(None, userid, server=server)
+                sendmsg(event, result)
                 return
-            if int(userid) > 10000000:
-                result = chafang(userid, None, private, server=server)
-            else:
-                result = chafang(None, userid, server=server)
-            sendmsg(event, result)
-            return
+            except:
+                return
         graphstart = 0
         if event.message[:4] == '24小时':
             graphstart = time.time() - 60 * 60 * 24
             event.message = event.message[4:]
         if event.message[:3] == "分数线":
-            if event.message == "分数线":
-                bind = getqqbind(event.user_id, server)
-                if bind is None:
-                    sendmsg(event, '你没有绑定id！')
+            try:
+                if event.message == "分数线":
+                    bind = getqqbind(event.user_id, server)
+                    if bind is None:
+                        sendmsg(event, '你没有绑定id！')
+                        return
+                    userid = bind[1]
+                else:
+                    userid = event.message.replace("分数线", "")
+                if userid == '':
                     return
-                userid = bind[1]
-            else:
-                userid = event.message.replace("分数线", "")
-            if userid == '':
-                sendmsg(event, '你这id有问题啊')
-                return
-            userids = userid.split(' ')
-            if len(userids) == 1:
-                userid = re.sub(r'\D', "", userid)
-                if int(userid) > 10000000:
-                    result = drawscoreline(userid, starttime=graphstart, server=server)
+                userids = userid.split(' ')
+                if len(userids) == 1:
+                    userid = re.sub(r'\D', "", userid)
+                    if int(userid) > 10000000:
+                        result = drawscoreline(userid, starttime=graphstart, server=server)
+                    else:
+                        result = drawscoreline(targetrank=userid, starttime=graphstart, server=server)
+                    if result:
+                        sendmsg(event, fr"[CQ:image,file=file:///{botdir}\{result},cache=0]")
+                    else:
+                        sendmsg(event, "你要查询的玩家未进入前200，暂无数据")
+                    return
                 else:
-                    result = drawscoreline(targetrank=userid, starttime=graphstart, server=server)
-                if result:
-                    sendmsg(event, fr"[CQ:image,file=file:///{botdir}\{result},cache=0]")
-                else:
-                    sendmsg(event, "你要查询的玩家未进入前200，暂无数据")
-                return
-            else:
-                result = drawscoreline(targetrank=userids[0], targetrank2=userids[1], starttime=graphstart, server=server)
-                if result:
-                    sendmsg(event, fr"[CQ:image,file=file:///{botdir}\{result},cache=0]")
-                else:
-                    sendmsg(event, "你要查询的玩家未进入前200，暂无数据")
+                    result = drawscoreline(targetrank=userids[0], targetrank2=userids[1], starttime=graphstart, server=server)
+                    if result:
+                        sendmsg(event, fr"[CQ:image,file=file:///{botdir}\{result},cache=0]")
+                    else:
+                        sendmsg(event, "你要查询的玩家未进入前200，暂无数据")
+                    return
+            except:
                 return
         if event.message[:3] == "查水表" or event.message[:3] == "csb":
             if event.group_id in blacklist['sk'] and event.message[:3] == "查水表":
@@ -589,7 +597,6 @@ def sync_handle_msg(event):
                 userid = event.message.replace("查水表", "")
                 userid = re.sub(r'\D', "", userid)
             if userid == '':
-                sendmsg(event, '你这id有问题啊')
                 return
             if int(userid) > 10000000:
                 result = getstoptime(userid, private=private, server=server)
@@ -840,22 +847,9 @@ def sync_handle_msg(event):
             if len(para) < 2:
                 para = event.message.split("/")
                 if len(para) < 2:
-                    sendmsg(event, '请求不对哦，/生成 这是红字 这是白字')
                     return
             cyo5000(para[0], para[1], f"piccache/{now}.png", rainbow)
             sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\{now}.png,cache=0]")
-            return
-        if event.message[:3] == "ccf":
-            if event.self_id not in mainbot and event.self_id != guildbot:
-                return
-            if event.group_id in blacklist['ettm']:
-                return
-            event.message = event.message[event.message.find("ccf") + len("ccf"):].strip()
-            dd = dd_query.DDImageGenerate(event.message)
-            image_path, vtb_following_count, total_following_count = dd.image_generate()
-            sendmsg(event, f"{dd.username} 总共关注了 {total_following_count} 位up主, 其中 {vtb_following_count} 位是vtb。\n"
-                           f"注意: 由于b站限制, bot最多只能拉取到最近250个关注。因此可能存在数据统计不全的问题。"
-                    + fr"[CQ:image,file=file:///{image_path},cache=0]")
             return
         if event.message[:5] == "白名单添加" and event.user_id in whitelist:
             event.message = event.message[event.message.find("白名单添加") + len("白名单添加"):].strip()
@@ -918,13 +912,13 @@ def sync_handle_msg(event):
         if event.message[:4] == '查bpm':
             sendmsg(event, findbpm(int(event.message[4:])))
             return
-        if event.message[:2] == '看看':
+        if event.message[:2] == '看看':  # 自用功能
             if event.group_id in kkwhitelist:
                 url = kankan(event.message[event.message.find('看看') + len('看看'):].strip())
                 if url is not None:
                     sendmsg(event, f"[CQ:image,file={url},cache=1]")
             return
-        if event.message[:2] == '上传':
+        if event.message[:2] == '上传':  # 自用功能
             if event.group_id in kkwhitelist:
                 if '[CQ:image' in event.message:
                     foldername = event.message[event.message.find('上传') + len('上传'):].strip()
@@ -933,6 +927,12 @@ def sync_handle_msg(event):
                     filename = f'{event.user_id}_{int(time.time()*100)}.jpg'
                     uploadkk(url, filename, foldername)
                     sendmsg(event, "上传成功")
+        if event.message == '放行端口' and event.user_id == 1103479519:  # 自用功能
+            sendmsg(event, add_RDP_port())
+            return
+        if event.message == '关闭端口' and event.user_id == 1103479519:  # 自用功能
+            sendmsg(event, delete_RDP_port())
+            return
         if event.message[-3:] == '排行榜':
             if event.message.startswith('pjsk猜曲'):
                 sendmsg(event, fr"[CQ:image,file=file:///{botdir}/{guessRank(1, 'pjsk猜曲')},cache=0]")
