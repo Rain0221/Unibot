@@ -51,6 +51,8 @@ pjskguess = {}
 charaguess = {}
 ciyunlimit = {}
 groupaudit = {}
+wife = {}
+menberLists = {}
 gachalimit = {'lasttime': '', 'count': 0}
 pokelimit = {'lasttime': '', 'count': 0}
 vitslimit = {'lasttime': '', 'count': 0}
@@ -81,6 +83,8 @@ async def handle_msg(event: Event):
         return
     global blacklist
     global botdebug
+    global wife
+    global menberLists
     if event.user_id in block:
         # print('黑名单成员已拦截')
         return
@@ -155,6 +159,85 @@ async def handle_msg(event: Event):
         if resp == 'token验证成功':
             await geturl(f'{distributedurl}refresh')
         await bot.send(event, resp)
+    if event.message == '随机老婆':
+        if event.user_id not in whitelist and event.group_id not in whitelist and event.self_id != guildbot:
+            return
+        try:
+            # 这里面有两种个情况 一种是之前随机过 一种是今天已经随机过了
+            # 今天已经随机过的就返回 剩下的都是今天需要重新随机的
+            today = f"{str(datetime.now().month).zfill(2)}{str(datetime.now().day).zfill(2)}"
+            if today == wife[event.group_id][event.user_id]['date']:
+                yourWife = wife[event.group_id][event.user_id]['QQ']
+                wifeName = wife[event.group_id][event.user_id]['name']
+                await bot.send(event, f"[CQ:at,qq={event.user_id}] 你今天已经有老婆啦!\n"
+                                      f"[CQ:image,file=http://q1.qlogo.cn/g?b=qq&nk={yourWife}&s=640,cache=0]\n"
+                                      f"{wifeName}({yourWife})")
+                return
+        except KeyError:
+            pass
+        try:
+            if menberLists[event.group_id]['date'] == f"{str(datetime.now().month).zfill(2)}{str(datetime.now().day).zfill(2)}":
+                memberList = menberLists[event.group_id]['list']
+                print('从内存读取')
+            else:
+                memberList = await bot.get_group_member_list(self_id=event.self_id, group_id=event.group_id)
+                menberLists[event.group_id]['list'] = memberList
+                menberLists[event.group_id]['date'] = f"{str(datetime.now().month).zfill(2)}{str(datetime.now().day).zfill(2)}"
+        except KeyError:
+            memberList = await bot.get_group_member_list(self_id=event.self_id, group_id=event.group_id)
+            menberLists[event.group_id] = {}
+            menberLists[event.group_id]['list'] = memberList
+            menberLists[event.group_id]['date'] = f"{str(datetime.now().month).zfill(2)}{str(datetime.now().day).zfill(2)}"
+
+        randomMenber = random.choice(memberList)
+        try:
+            wife[event.group_id]
+        except KeyError:
+            wife[event.group_id] = {}
+        try:
+            wife[event.group_id][event.user_id]
+        except KeyError:
+            wife[event.group_id][event.user_id] = {}
+        wife[event.group_id][event.user_id]['QQ'] = randomMenber['user_id']
+        wife[event.group_id][event.user_id]['name'] = randomMenber['nickname'] if randomMenber['card'] == '' else randomMenber['card']
+        today = f"{str(datetime.now().month).zfill(2)}{str(datetime.now().day).zfill(2)}"
+        wife[event.group_id][event.user_id]['date'] = today
+        await bot.send(event, f"[CQ:at,qq={event.user_id}] 你今天的老婆是\n"
+                              f"[CQ:image,file=http://q1.qlogo.cn/g?b=qq&nk={randomMenber['user_id']}&s=640,cache=0]\n"
+                              f"{wife[event.group_id][event.user_id]['name']}({randomMenber['user_id']})")
+    if event.message == '换个老婆':
+        if event.user_id not in whitelist and event.group_id not in whitelist and event.self_id != guildbot:
+            return
+        try:
+            if menberLists[event.group_id]['date'] == f"{str(datetime.now().month).zfill(2)}{str(datetime.now().day).zfill(2)}":
+                memberList = menberLists[event.group_id]['list']
+                print('从内存读取')
+            else:
+                memberList = await bot.get_group_member_list(self_id=event.self_id, group_id=event.group_id)
+                menberLists[event.group_id]['list'] = memberList
+                menberLists[event.group_id]['date'] = f"{str(datetime.now().month).zfill(2)}{str(datetime.now().day).zfill(2)}"
+        except KeyError:
+            memberList = await bot.get_group_member_list(self_id=event.self_id, group_id=event.group_id)
+            menberLists[event.group_id] = {}
+            menberLists[event.group_id]['list'] = memberList
+            menberLists[event.group_id]['date'] = f"{str(datetime.now().month).zfill(2)}{str(datetime.now().day).zfill(2)}"
+        randomMenber = random.choice(memberList)
+        try:
+            wife[event.group_id]
+        except KeyError:
+            wife[event.group_id] = {}
+        try:
+            wife[event.group_id][event.user_id]
+        except KeyError:
+            wife[event.group_id][event.user_id] = {}
+        wife[event.group_id][event.user_id]['QQ'] = randomMenber['user_id']
+        wife[event.group_id][event.user_id]['name'] = randomMenber['nickname'] if randomMenber['card'] == '' else \
+        randomMenber['card']
+        today = f"{str(datetime.now().month).zfill(2)}{str(datetime.now().day).zfill(2)}"
+        wife[event.group_id][event.user_id]['date'] = today
+        await bot.send(event, f"[CQ:at,qq={event.user_id}] 你今天的新老婆是\n"
+                              f"[CQ:image,file=http://q1.qlogo.cn/g?b=qq&nk={randomMenber['user_id']}&s=640,cache=0]\n"
+                              f"{wife[event.group_id][event.user_id]['name']}({randomMenber['user_id']})")
     if event.message[:5] == '/vits':
         if event.self_id not in mainbot:
             return
