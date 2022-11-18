@@ -188,7 +188,6 @@ async def handle_msg(event: Event):
             menberLists[event.group_id] = {}
             menberLists[event.group_id]['list'] = memberList
             menberLists[event.group_id]['date'] = f"{str(datetime.now().month).zfill(2)}{str(datetime.now().day).zfill(2)}"
-
         randomMenber = random.choice(memberList)
         try:
             wife[event.group_id]
@@ -202,6 +201,7 @@ async def handle_msg(event: Event):
         wife[event.group_id][event.user_id]['name'] = randomMenber['nickname'] if randomMenber['card'] == '' else randomMenber['card']
         today = f"{str(datetime.now().month).zfill(2)}{str(datetime.now().day).zfill(2)}"
         wife[event.group_id][event.user_id]['date'] = today
+        wife[event.group_id][event.user_id]['count'] = 1
         await bot.send(event, f"[CQ:at,qq={event.user_id}] 你今天的老婆是\n"
                               f"[CQ:image,file=http://q1.qlogo.cn/g?b=qq&nk={randomMenber['user_id']}&s=640,cache=0]\n"
                               f"{wife[event.group_id][event.user_id]['name']}({randomMenber['user_id']})")
@@ -221,15 +221,28 @@ async def handle_msg(event: Event):
             menberLists[event.group_id] = {}
             menberLists[event.group_id]['list'] = memberList
             menberLists[event.group_id]['date'] = f"{str(datetime.now().month).zfill(2)}{str(datetime.now().day).zfill(2)}"
+        try:
+            # 如果今天没有随机过 先让随机 防止更麻烦的重新计数
+            if menberLists[event.group_id]['date'] != f"{str(datetime.now().month).zfill(2)}{str(datetime.now().day).zfill(2)}":
+                await bot.send(event, f"[CQ:at,qq={event.user_id}] 你今天还没有随机老婆哦")
+                return
+            # 今天随机过不用管他
+        except KeyError:
+            # KeyError 肯定是没数据了 先让随机
+            await bot.send(event, f"[CQ:at,qq={event.user_id}] 你今天还没有随机老婆哦")
+            return
+        
+        try:
+            wife[event.group_id][event.user_id]['count'] += 1
+        except:
+            await bot.send(event, f"[CQ:at,qq={event.user_id}] 你今天还没有随机老婆哦")
+            return
+        
+        if wife[event.group_id][event.user_id]['count'] > 7:
+            await bot.send(event, f"[CQ:at,qq={event.user_id}] 你今天换老婆次数满了！不要花心！")
+            return
+
         randomMenber = random.choice(memberList)
-        try:
-            wife[event.group_id]
-        except KeyError:
-            wife[event.group_id] = {}
-        try:
-            wife[event.group_id][event.user_id]
-        except KeyError:
-            wife[event.group_id][event.user_id] = {}
         wife[event.group_id][event.user_id]['QQ'] = randomMenber['user_id']
         wife[event.group_id][event.user_id]['name'] = randomMenber['nickname'] if randomMenber['card'] == '' else \
         randomMenber['card']
@@ -237,7 +250,8 @@ async def handle_msg(event: Event):
         wife[event.group_id][event.user_id]['date'] = today
         await bot.send(event, f"[CQ:at,qq={event.user_id}] 你今天的新老婆是\n"
                               f"[CQ:image,file=http://q1.qlogo.cn/g?b=qq&nk={randomMenber['user_id']}&s=640,cache=0]\n"
-                              f"{wife[event.group_id][event.user_id]['name']}({randomMenber['user_id']})")
+                              f"{wife[event.group_id][event.user_id]['name']}({randomMenber['user_id']})\n"
+                              f"你还有{7-wife[event.group_id][event.user_id]['count']}次机会")
     if event.message[:5] == '/vits':
         if event.self_id not in mainbot:
             return
