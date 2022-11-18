@@ -47,7 +47,7 @@ def guessRank(guessType, typeText):
         if len(raw[0]) >= 15:
             text += f'{name}(频道用户): {raw[2]}次\n'
         else:
-            text += f'{name}({raw[0]}): {raw[2]}次\n'
+            text += f'{name}({raw[0][:3]}***{raw[0][-3:]}): {raw[2]}次\n'
         if count == 20:
             break
     instance = Emoji2Pic(text=text + '\n', font='fonts/SourceHanSansCN-Medium.otf', emoji_folder='AppleEmoji')
