@@ -760,6 +760,8 @@ def sk(targetid=None, targetrank=None, secret=False, server='jp', simple=False, 
         resp = requests.get(f'{url}/user/%7Buser_id%7D/event/{eventid}/ranking?targetUserId={targetid}')
     else:
         resp = requests.get(f'{url}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={targetrank}')
+    if resp == {'status': 'maintenance_in'}:
+        return '维护中'
     ranking = json.loads(resp.content)
     try:
         name = ranking['rankings'][0]['name']
