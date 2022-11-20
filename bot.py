@@ -1556,8 +1556,13 @@ async def handle_poke(event: Event):
             pokelimit['lasttime'] = nowtime
             pokelimit['count'] = count + 1
             print(pokelimit)
+            voiceDir = 'data/assets/sekai/assetbundle/resources/additionalvoice/sound/system_live2d/voice/voicepack_17'
+            voiceList = os.listdir(voiceDir)
+            voiceList.remove('soundbundlebuilddata.json')
+            voiceList.remove('voicepack_17.acb')
+            print(f'{voiceDir}/{random.choice(voiceList)}')
             await bot.send_group_msg(self_id=event.self_id, group_id=event.group_id,
-                                 message=fr"[CQ:record,file=file:///{botdir}/chara/kndvoice/{random.choice(os.listdir('chara/kndvoice/'))},cache=0]")
+                                 message=fr"[CQ:record,file=file:///{botdir}/{voiceDir}/{random.choice(voiceList)},cache=0]")
 
 async def autopjskguess():
     global pjskguess
