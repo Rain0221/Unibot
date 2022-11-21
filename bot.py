@@ -484,18 +484,19 @@ def sync_handle_msg(event):
                     sendmsg(event, '少查一点吧')
                     return
                 if len(userids) == 1:
-                    userid = re.sub(r'\D', "", event.message)
-                    if userid == '':
+                    userid = event.message.strip()
+                    try:
+                        if int(userid) > 10000000:
+                            result = sk(userid, None, False, server, False, event.user_id, True)
+                        else:
+                            result = sk(None, userid, True, server, False, event.user_id, True)
+                        if 'piccache' in result:
+                            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\{result},cache=0]")
+                        else:
+                            sendmsg(event, result)
                         return
-                    if int(userid) > 10000000:
-                        result = sk(userid, None, False, server, False, event.user_id, True)
-                    else:
-                        result = sk(None, userid, True, server, False, event.user_id, True)
-                    if 'piccache' in result:
-                        sendmsg(event, fr"[CQ:image,file=file:///{botdir}\{result},cache=0]")
-                    else:
-                        sendmsg(event, result)
-                    return
+                    except ValueError:
+                        return
                 else:
                     result = ''
                     for userid in userids:
@@ -511,12 +512,13 @@ def sync_handle_msg(event):
                     sendmsg(event, result[:-2])
                     return
         if event.message[:2] == "绑定":
-            userid = event.message.replace("绑定", "")
-            userid = re.sub(r'\D', "", userid)
-            if userid == '':
+            userid = event.message.replace("绑定", "").strip()
+            try:
+                int(userid)
+                sendmsg(event, bindid(event.user_id, userid, server))
                 return
-            sendmsg(event, bindid(event.user_id, userid, server))
-            return
+            except ValueError:
+                return
         if event.message == "不给看":
             if setprivate(event.user_id, 1, server):
                 sendmsg(event, '不给看！')
@@ -540,7 +542,7 @@ def sync_handle_msg(event):
                 result = daibu(bind[1], bind[2], server, event.user_id)
                 sendmsg(event, result)
             else:
-                userid = event.message.replace("逮捕", "")
+                userid = event.message.replace("逮捕", "").strip()
                 if userid == '':
                     return
                 if '[CQ:at' in userid:
@@ -556,15 +558,14 @@ def sync_handle_msg(event):
                         result = daibu(bind[1], bind[2], server, event.user_id)
                         sendmsg(event, result)
                         return
-                userid = re.sub(r'\D', "", userid)
-                if userid == '':
-                    sendmsg(event, '你这id有问题啊')
+                try:
+                    if int(userid) > 10000000:
+                        result = daibu(userid, False, server, event.user_id)
+                    else:
+                        result = daibu(userid, False, server, event.user_id)
+                    sendmsg(event, result)
+                except ValueError:
                     return
-                if int(userid) > 10000000:
-                    result = daibu(userid, False, server, event.user_id)
-                else:
-                    result = daibu(userid, False, server, event.user_id)
-                sendmsg(event, result)
             return
         if event.message == "pjsk进度":
             bind = getqqbind(event.user_id, server)
@@ -627,18 +628,15 @@ def sync_handle_msg(event):
                 userid = bind[1]
                 private = bind[2]
             else:
-                userid = event.message.replace("查房", "")
-                userid = re.sub(r'\D', "", userid)
+                userid = event.message.replace("查房", "").strip()
             try:
-                if userid == '':
-                    return
                 if int(userid) > 10000000:
                     result = chafang(userid, None, private, server=server)
                 else:
                     result = chafang(None, userid, server=server)
                 sendmsg(event, result)
                 return
-            except:
+            except ValueError:
                 return
         graphstart = 0
         if event.message[:4] == '24小时':
@@ -658,16 +656,19 @@ def sync_handle_msg(event):
                     return
                 userids = userid.split(' ')
                 if len(userids) == 1:
-                    userid = re.sub(r'\D', "", userid)
-                    if int(userid) > 10000000:
-                        result = drawscoreline(userid, starttime=graphstart, server=server)
-                    else:
-                        result = drawscoreline(targetrank=userid, starttime=graphstart, server=server)
-                    if result:
-                        sendmsg(event, fr"[CQ:image,file=file:///{botdir}\{result},cache=0]")
-                    else:
-                        sendmsg(event, "你要查询的玩家未进入前200，暂无数据")
-                    return
+                    userid = userid.strip()
+                    try:
+                        if int(userid) > 10000000:
+                            result = drawscoreline(userid, starttime=graphstart, server=server)
+                        else:
+                            result = drawscoreline(targetrank=userid, starttime=graphstart, server=server)
+                        if result:
+                            sendmsg(event, fr"[CQ:image,file=file:///{botdir}\{result},cache=0]")
+                        else:
+                            sendmsg(event, "你要查询的玩家未进入前200，暂无数据")
+                        return
+                    except ValueError:
+                        return
                 else:
                     result = drawscoreline(targetrank=userids[0], targetrank2=userids[1], starttime=graphstart, server=server)
                     if result:
@@ -691,20 +692,20 @@ def sync_handle_msg(event):
                 userid = bind[1]
                 private = bind[2]
             else:
-                userid = event.message.replace("查水表", "")
-                userid = re.sub(r'\D', "", userid)
-            if userid == '':
+                userid = event.message.replace("查水表", "").strip()
+            try:
+                if int(userid) > 10000000:
+                    result = getstoptime(userid, private=private, server=server)
+                else:
+                    result = getstoptime(targetrank=userid, server=server)
+                if result:
+                    texttoimg(result, 600, f'csb{userid}')
+                    sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\csb{userid}.png,cache=0]")
+                else:
+                    sendmsg(event, "你要查询的玩家未进入前200，暂无数据")
                 return
-            if int(userid) > 10000000:
-                result = getstoptime(userid, private=private, server=server)
-            else:
-                result = getstoptime(targetrank=userid, server=server)
-            if result:
-                texttoimg(result, 600, f'csb{userid}')
-                sendmsg(event, fr"[CQ:image,file=file:///{botdir}\piccache\csb{userid}.png,cache=0]")
-            else:
-                sendmsg(event, "你要查询的玩家未进入前200，暂无数据")
-            return
+            except ValueError:
+                return
         # ----------------------- 恢复原命令 ---------------------------
         if server == 'tw' or server == 'en':
             event.message = server + event.message
@@ -713,12 +714,14 @@ def sync_handle_msg(event):
             sendmsg(event, teamcount())
         if event.message[:5] == 'event':
             eventid = event.message[event.message.find("event") + len("event"):].strip()
-            eventid = re.sub(r'\D', "", eventid)
             try:
                 if eventid == '':
                     picdir = geteventpic(None)
                 else:
-                    picdir = geteventpic(int(eventid))
+                    try:
+                        picdir = geteventpic(int(eventid))
+                    except ValueError:
+                        return
             except FileNotFoundError:
                 traceback.print_exc()
                 sendmsg(event, f"未找到活动资源图片，请等待更新")
@@ -737,16 +740,15 @@ def sync_handle_msg(event):
                 result = rk(bind[1], None, bind[2])
                 sendmsg(event, result)
             else:
-                userid = event.message.replace("rk", "")
-                userid = re.sub(r'\D', "", userid)
-                if userid == '':
-                    sendmsg(event, '你这id有问题啊')
+                userid = event.message.replace("rk", "").strip()
+                try:
+                    if int(userid) > 10000000:
+                        result = rk(userid)
+                    else:
+                        result = rk(None, userid)
+                    sendmsg(event, result)
+                except ValueError:
                     return
-                if int(userid) > 10000000:
-                    result = rk(userid)
-                else:
-                    result = rk(None, userid)
-                sendmsg(event, result)
             return
         try:
             if event.message == "热度排行":
