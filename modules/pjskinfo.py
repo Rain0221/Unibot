@@ -600,10 +600,14 @@ def pjskalias(alias, musicid=None):
     for raw in cursor:
         returnstr = returnstr + raw[0] + "，"
     conn.close()
-    instance = Emoji2Pic(text=returnstr[:-1] + '\n昵称均为用户添加，与bot和bot主无关\n\n', font='fonts/SourceHanSansCN-Medium.otf', emoji_folder='AppleEmoji')
-    textimg = instance.make_img()
-    textimg.save(f'piccache/{musicid}alias.jpg')
-    return f"[CQ:image,file=file:///{os.getcwd()}/piccache/{musicid}alias.jpg,cache=0]"
+    if len(returnstr[:-1]) > 170:
+        instance = Emoji2Pic(text=returnstr[:-1] + '\n昵称均为用户添加，与bot和bot主无关\n\n', font='fonts/SourceHanSansCN-Medium.otf', emoji_folder='AppleEmoji')
+        textimg = instance.make_img()
+        textimg.save(f'piccache/{musicid}alias.jpg')
+        return f"[CQ:image,file=file:///{os.getcwd()}/piccache/{musicid}alias.jpg,cache=0]"
+    else:
+        return returnstr[:-1] + '\n昵称均为用户添加，与bot和bot主无关'
+
 
 def pjskalias2(alias, musicid=None):
     if musicid is None:
