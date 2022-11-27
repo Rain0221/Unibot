@@ -40,14 +40,10 @@ charaguesstime: 30
 猜曲时间，猜卡面时间可自定义，如无需要可不配置。
 
 准备就绪后可尝试启动客户端，如果没有问题会显示如下日志
+
 ```text
 [xxxx-xx-xx xx:xx:xx,xxx] Running on http://127.0.0.1:2525 (CTRL + C to quit)
 ```
-::: tip
-
-如果出现闪退，建议检查yaml文件是否包括了中文字符，缩进空格是否和上面一样，如果都没问题，可能是你用的编辑器换行问题，建议使用[Sublime Text](https://www.sublimetext.com/)进行编辑
-
-:::
 
 ::: warning 注意
 
