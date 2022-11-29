@@ -485,6 +485,8 @@ def sync_handle_msg(event):
                     return
                 if len(userids) == 1:
                     userid = event.message.strip()
+                    if '[CQ:at' in userid:
+                        userid = re.sub(r'\D', "", userid)
                     try:
                         if int(userid) > 10000000:
                             result = sk(userid, None, False, server, False, event.user_id, True)
