@@ -132,13 +132,14 @@ def pjskinfo(musicid):
     if os.path.exists(f'piccache/pjskinfo/{musicid}.png'):
         pjskinfotime = get_filectime(f'piccache/pjskinfo/{musicid}.png')
         playdatatime = get_filectime('masterdata/realtime/musics.json')
+        masterdatatime = get_filectime('masterdata/musics.json')
         with open('masterdata/musics.json', 'r', encoding='utf-8') as f:
             musics = json.load(f)
         publishedAt = 0
         for i in musics:
             if i['id'] == musicid:
                 publishedAt = i['publishedAt'] / 1000
-        if pjskinfotime > playdatatime:  # 缓存后数据未变化
+        if pjskinfotime > playdatatime and pjskinfotime > masterdatatime:  # 缓存后数据未变化
             if time.time() < publishedAt:  # 捷豹
                 return True
             else:  # 已上线
