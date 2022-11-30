@@ -826,9 +826,12 @@ def sk(targetid=None, targetrank=None, secret=False, server='jp', simple=False, 
             upper = rankline[i - 2]
         else:
             upper = rankline[i - 1]
-        resp = requests.get(f'{url}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={upper}')
-        ranking = json.loads(resp.content)
-        linescore = ranking['rankings'][0]['score']
+        try:
+            resp = requests.get(f'{url}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={upper}')
+            ranking = json.loads(resp.content)
+            linescore = ranking['rankings'][0]['score']
+        except IndexError:
+            linescore = 0
         deviation = (linescore - score) / 10000
         draw.text((20, pos), f'{upper}名分数 {linescore/10000}W  ↑{deviation}W', '#000000', font)
         pos += 38
@@ -837,9 +840,12 @@ def sk(targetid=None, targetrank=None, secret=False, server='jp', simple=False, 
             lower = rankline[i + 1]
         else:
             lower = rankline[i]
-        resp = requests.get(f'{url}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={lower}')
-        ranking = json.loads(resp.content)
-        linescore = ranking['rankings'][0]['score']
+        try:
+            resp = requests.get(f'{url}/user/%7Buser_id%7D/event/{eventid}/ranking?targetRank={lower}')
+            ranking = json.loads(resp.content)
+            linescore = ranking['rankings'][0]['score']
+        except IndexError:
+            linescore = 0
         deviation = (score - linescore) / 10000
         draw.text((20, pos), f'{lower}名分数 {linescore / 10000}W  ↓{deviation}W', '#000000', font)
         pos += 38
