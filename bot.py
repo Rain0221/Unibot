@@ -21,6 +21,7 @@ from modules.config import whitelist, block, msggroup, aliasblock, groupban, ass
 from modules.cyo5000 import cyo5000
 from modules.kk import kkwhitelist, kankan, uploadkk
 from modules.lighthouse import add_RDP_port, delete_RDP_port
+from modules.novelai import novelAI_img2img
 from modules.opencv import matchjacket
 from modules.otherpics import geteventpic
 from modules.gacha import getcharaname, getallcurrentgacha, getcurrentgacha, fakegacha
@@ -1179,6 +1180,37 @@ def sync_handle_msg(event):
             sendmsg(event, 'PJSK谱面竞猜（随机裁切）\n艾特我+你的答案以参加猜曲（不要使用回复）\n\n你有50秒的时间回答\n可手动发送“结束猜曲”来结束猜曲'
                     + fr"[CQ:image,file=file:///{botdir}\piccache/{event.group_id}.png,cache=0]")
             return
+
+        if event.message == 'ai猜曲' or event.message == 'AI猜曲':
+            if event.user_id not in admin:
+                return
+            try:
+                isgoing = charaguess[event.group_id]['isgoing']
+                if isgoing:
+                    sendmsg(event, '已经开启猜卡面！')
+                    return
+            except KeyError:
+                pass
+
+            try:
+                isgoing = pjskguess[event.group_id]['isgoing']
+                if isgoing:
+                    sendmsg(event, '已经开启猜曲！')
+                    return
+                else:
+                    musicid = getrandomjacket()
+                    pjskguess[event.group_id] = {'isgoing': True, 'musicid': musicid, 'type': 7,
+                                                 'starttime': int(time.time()), 'selfid': event.self_id}
+            except KeyError:
+                musicid = getrandomjacket()
+                pjskguess[event.group_id] = {'isgoing': True, 'musicid': musicid, 'type': 7,
+                                             'starttime': int(time.time()), 'selfid': event.self_id}
+            sendmsg(event, '生成中请稍后')
+            novelAI_img2img(r'data\assets\sekai\assetbundle\resources\startapp\music\jacket\jacket_s_%03d\jacket_s_%03d.png' % (musicid, musicid), f'piccache/{event.group_id}.png')
+            sendmsg(event, 'PJSK AI画图封面竞猜（随机裁切）\n艾特我+你的答案以参加猜曲（不要使用回复）\n\n你有50秒的时间回答\n可手动发送“结束猜曲”来结束猜曲'
+                    + fr"[CQ:image,file=file:///{botdir}\piccache/{event.group_id}.png,cache=0]")
+            return
+
         if event.message == 'pjsk猜卡面' or event.message == 'pjsk猜曲 4':
             if event.user_id not in whitelist and event.group_id not in whitelist and event.self_id != guildbot:
                 return
