@@ -21,7 +21,7 @@ from modules.config import whitelist, block, msggroup, aliasblock, groupban, ass
 from modules.cyo5000 import cyo5000
 from modules.kk import kkwhitelist, kankan, uploadkk
 from modules.lighthouse import add_RDP_port, delete_RDP_port
-from modules.novelai import novelAI_img2img, tencent_novelAI
+from modules.novelai import novelAI_img2img, tencent_novelAI, AIcutcard
 from modules.opencv import matchjacket
 from modules.otherpics import geteventpic
 from modules.gacha import getcharaname, getallcurrentgacha, getcurrentgacha, fakegacha
@@ -1272,6 +1272,40 @@ def sync_handle_msg(event):
             sendmsg(event, 'PJSK猜卡面\n你有30秒的时间回答\n艾特我+你的答案（只猜角色）以参加猜曲（不要使用回复）\n发送「结束猜卡面」可退出猜卡面模式'
                     + fr"[CQ:image,file=file:///{botdir}\piccache/{event.group_id}.png,cache=0]")
             return
+
+        if event.message == 'ai猜卡面' or event.message == 'AI猜卡面':
+            if event.user_id not in whitelist and event.group_id not in whitelist and event.self_id != guildbot:
+                return
+            try:
+                isgoing = pjskguess[event.group_id]['isgoing']
+                if isgoing:
+                    sendmsg(event, '已经开启猜曲！')
+                    return
+            except KeyError:
+                pass
+            # getrandomcard() return characterId, assetbundleName, prefix, cardRarityType
+            try:
+                isgoing = charaguess[event.group_id]['isgoing']
+                if isgoing:
+                    sendmsg(event, '已经开启猜曲！')
+                    return
+                else:
+                    cardinfo = getrandomcard()
+                    charaguess[event.group_id] = {'isgoing': True, 'charaid': cardinfo[0],
+                                                  'assetbundleName': cardinfo[1], 'prefix': cardinfo[2],
+                                                  'starttime': int(time.time()), 'selfid': event.self_id}
+            except KeyError:
+                cardinfo = getrandomcard()
+                charaguess[event.group_id] = {'isgoing': True, 'charaid': cardinfo[0],
+                                              'assetbundleName': cardinfo[1],
+                                              'prefix': cardinfo[2], 'starttime': int(time.time()), 'selfid': event.self_id}
+            sendmsg(event, '生成中请稍后')
+            charaguess[event.group_id]['istrained'] = AIcutcard(cardinfo[1], cardinfo[3], event.group_id)
+            charaguess[event.group_id]['starttime'] = int(time.time())
+            sendmsg(event, 'PJSK猜卡面\n你有30秒的时间回答\n艾特我+你的答案（只猜角色）以参加猜曲（不要使用回复）\n发送「结束猜卡面」可退出猜卡面模式'
+                    + fr"[CQ:image,file=file:///{botdir}\piccache/{event.group_id}.png,cache=0]")
+            return
+
         if (event.message[-2:] == '猜曲' or event.message[-4:-2] == '猜曲') and event.message[:4] == 'pjsk':
             if event.user_id not in whitelist and event.group_id not in whitelist and event.self_id != guildbot:
                 return
@@ -1354,16 +1388,20 @@ def sync_handle_msg(event):
             try:
                 isgoing = charaguess[event.group_id]['isgoing']
                 if isgoing:
-                    if charaguess[event.group_id]['istrained']:
-                        picdir = 'data/assets/sekai/assetbundle/resources/startapp/' \
-                                 f"character/member/{charaguess[event.group_id]['assetbundleName']}/card_after_training.jpg"
-                    else:
-                        picdir = 'data/assets/sekai/assetbundle/resources/startapp/' \
-                                 f"character/member/{charaguess[event.group_id]['assetbundleName']}/card_normal.jpg"
-                    text = f"正确答案：{charaguess[event.group_id]['prefix']} - {getcharaname(charaguess[event.group_id]['charaid'])}"
-                    charaguess[event.group_id]['isgoing'] = False
+                    try:
+                        if charaguess[event.group_id]['istrained']:
+                            picdir = 'data/assets/sekai/assetbundle/resources/startapp/' \
+                                     f"character/member/{charaguess[event.group_id]['assetbundleName']}/card_after_training.jpg"
+                        else:
+                            picdir = 'data/assets/sekai/assetbundle/resources/startapp/' \
+                                     f"character/member/{charaguess[event.group_id]['assetbundleName']}/card_normal.jpg"
+                        text = f"正确答案：{charaguess[event.group_id]['prefix']} - {getcharaname(charaguess[event.group_id]['charaid'])}"
+                        charaguess[event.group_id]['isgoing'] = False
 
-                    sendmsg(event, text + fr"[CQ:image,file=file:///{botdir}\{picdir},cache=0]")
+                        sendmsg(event, text + fr"[CQ:image,file=file:///{botdir}\{picdir},cache=0]")
+                    except:
+                        charaguess[event.group_id]['isgoing'] = False
+                        sendmsg(event, "猜卡面出现问题已结束")
             except KeyError:
                 pass
             return
@@ -1651,19 +1689,26 @@ async def autopjskguess():
 
     for group in charaguess:
         if charaguess[group]['isgoing'] and charaguess[group]['starttime'] + 30 < now:
-            if charaguess[group]['istrained']:
-                picdir = f'{asseturl}/startapp/' \
-                         f"character/member/{charaguess[group]['assetbundleName']}/card_after_training.jpg"
-            else:
-                picdir = f'{asseturl}/startapp/' \
-                         f"character/member/{charaguess[group]['assetbundleName']}/card_normal.jpg"
-            text = f"时间到，正确答案：{charaguess[group]['prefix']} - " + \
-                   getcharaname(charaguess[group]['charaid'])
-            charaguess[group]['isgoing'] = False
             try:
-                await bot.send_group_msg(self_id=charaguess[group]['selfid'], group_id=group, message=text + fr"[CQ:image,file={picdir},cache=0]")
+                if charaguess[group]['istrained']:
+                    picdir = f'{asseturl}/startapp/' \
+                             f"character/member/{charaguess[group]['assetbundleName']}/card_after_training.jpg"
+                else:
+                    picdir = f'{asseturl}/startapp/' \
+                             f"character/member/{charaguess[group]['assetbundleName']}/card_normal.jpg"
+                text = f"时间到，正确答案：{charaguess[group]['prefix']} - " + \
+                       getcharaname(charaguess[group]['charaid'])
+                charaguess[group]['isgoing'] = False
+                try:
+                    await bot.send_group_msg(self_id=charaguess[group]['selfid'], group_id=group, message=text + fr"[CQ:image,file={picdir},cache=0]")
+                except:
+                    pass
             except:
-                pass
+                charaguess[group]['isgoing'] = False
+                try:
+                    await bot.send_group_msg(self_id=charaguess[group]['selfid'], group_id=group, message="猜卡面出现问题已结束")
+                except:
+                    pass
 
 
 with open('yamls/blacklist.yaml', "r") as f:
