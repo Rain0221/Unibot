@@ -220,8 +220,8 @@ def drawpjskinfo(musicid, olddir=True):
                 info.noteCount = [data[i]['noteCount'], data[i + 1]['noteCount'],
                                 data[i + 2]['noteCount'], data[i + 3]['noteCount'], data[i + 4]['noteCount']]
             except KeyError:
-                info.noteCount = [data[i]['totalNoteCoun'], data[i + 1]['totalNoteCoun'],
-                                data[i + 2]['totalNoteCoun'], data[i + 3]['totalNoteCoun'], data[i + 4]['totalNoteCoun']]
+                info.noteCount = [data[i]['totalNoteCount'], data[i + 1]['totalNoteCount'],
+                                data[i + 2]['totalNoteCount'], data[i + 3]['totalNoteCount'], data[i + 4]['totalNoteCount']]
             break
     now = int(time.time() * 1000)
     leak = False
