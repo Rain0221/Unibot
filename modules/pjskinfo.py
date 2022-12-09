@@ -189,8 +189,12 @@ def drawpjskinfo(musicid, olddir=True):
         if data[i]['musicId'] == musicid:
             info.playLevel = [data[i]['playLevel'], data[i + 1]['playLevel'],
                               data[i + 2]['playLevel'], data[i + 3]['playLevel'], data[i + 4]['playLevel']]
-            info.noteCount = [data[i]['noteCount'], data[i + 1]['noteCount'],
-                              data[i + 2]['noteCount'], data[i + 3]['noteCount'], data[i + 4]['noteCount']]
+            try:
+                info.noteCount = [data[i]['noteCount'], data[i + 1]['noteCount'],
+                                data[i + 2]['noteCount'], data[i + 3]['noteCount'], data[i + 4]['noteCount']]
+            except KeyError:
+                info.noteCount = [data[i]['totalNoteCount'], data[i + 1]['totalNoteCount'],
+                                data[i + 2]['totalNoteCount'], data[i + 3]['totalNoteCount'], data[i + 4]['totalNoteCount']]
             try:
                 info.playLevelAdjust = [data[i]['playLevelAdjust'], data[i + 1]['playLevelAdjust'],
                                         data[i + 2]['playLevelAdjust'], data[i + 3]['playLevelAdjust'],
@@ -212,8 +216,12 @@ def drawpjskinfo(musicid, olddir=True):
                 continue
             info.playLevel = [data[i]['playLevel'], data[i + 1]['playLevel'],
                               data[i + 2]['playLevel'], data[i + 3]['playLevel'], data[i + 4]['playLevel']]
-            info.noteCount = [data[i]['noteCount'], data[i + 1]['noteCount'],
-                              data[i + 2]['noteCount'], data[i + 3]['noteCount'], data[i + 4]['noteCount']]
+            try:
+                info.noteCount = [data[i]['noteCount'], data[i + 1]['noteCount'],
+                                data[i + 2]['noteCount'], data[i + 3]['noteCount'], data[i + 4]['noteCount']]
+            except KeyError:
+                info.noteCount = [data[i]['totalNoteCoun'], data[i + 1]['totalNoteCoun'],
+                                data[i + 2]['totalNoteCoun'], data[i + 3]['totalNoteCoun'], data[i + 4]['totalNoteCoun']]
             break
     now = int(time.time() * 1000)
     leak = False

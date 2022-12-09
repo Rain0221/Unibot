@@ -45,7 +45,7 @@ def hotrank():
 
 
 def idtoname(musicid):
-    with open('masterdata/realtime/musics.json', 'r', encoding='utf-8') as f:
+    with open('masterdata/musics.json', 'r', encoding='utf-8') as f:
         musics = json.load(f)
     for i in musics:
         if i['id'] == musicid:
@@ -459,8 +459,12 @@ def notecount(count):
     with open('masterdata/musicDifficulties.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
     for i in data:
-        if i['noteCount'] == count:
-            text += f"{idtoname(i['musicId'])}[{(i['musicDifficulty'].upper())} {i['playLevel']}]\n"
+        try:
+            if i['noteCount'] == count:
+                text += f"{idtoname(i['musicId'])}[{(i['musicDifficulty'].upper())} {i['playLevel']}]\n"
+        except KeyError:
+            if i['totalNoteCount'] == count:
+                text += f"{idtoname(i['musicId'])}[{(i['musicDifficulty'].upper())} {i['playLevel']}]\n"
     if text == '':
         return '没有找到'
     else:
