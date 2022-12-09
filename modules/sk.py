@@ -14,7 +14,7 @@ import yaml
 from matplotlib import pyplot as plt, ticker
 from matplotlib.font_manager import FontProperties
 
-from modules.config import apiurl, predicturl, proxies, ispredict, enapiurl, twapiurl, piccacheurl
+from modules.config import apiurl, predicturl, proxies, ispredict, enapiurl, twapiurl, krapiurl, piccacheurl
 
 rankline = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 100, 200, 300, 400, 500, 1000, 2000, 3000, 4000, 5000,
             10000, 20000, 30000, 40000, 50000, 100000, 100000000]
@@ -44,6 +44,9 @@ def currentevent(server):
             data = json.load(f)
     elif server == 'en':
         with open('../enapi/masterdata/events.json', 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    elif server == 'kr':
+        with open('../krapi/masterdata/events.json', 'r', encoding='utf-8') as f:
             data = json.load(f)
     for i in range(0, len(data)):
         startAt = data[i]['startAt']
@@ -540,7 +543,7 @@ def gettime(userid, server='jp'):
         except ValueError:
             return 0
         return 1600218000 + int(passtime)
-    elif server == 'tw':
+    elif server == 'tw' or server == 'kr':
         try:
             passtime = int(userid) / 1024 / 1024 / 4096
         except ValueError:
@@ -748,6 +751,9 @@ def sk(targetid=None, targetrank=None, secret=False, server='jp', simple=False, 
     elif server == 'tw':
         url = twapiurl
         masterdatadir = '../twapi/masterdata'
+    elif server == 'kr':
+        url = krapiurl
+        masterdatadir = '../krapi/masterdata'
     if targetid is not None:
         if not verifyid(targetid, server):
             bind = getqqbind(targetid, server)
@@ -783,7 +789,7 @@ def sk(targetid=None, targetrank=None, secret=False, server='jp', simple=False, 
             translate = f"({trans['cheerfulCarnivalTeams'][TeamId]})"
         except KeyError:
             translate = ''
-        if server == 'tw':
+        if server == 'tw' or server == 'kr':
             translate = ''
         for i in Teams:
             if i['id'] == TeamId:
@@ -795,7 +801,10 @@ def sk(targetid=None, targetrank=None, secret=False, server='jp', simple=False, 
         assetbundleName = ''
     img = Image.new('RGB', (600, 600), (255, 255, 255))
     draw = ImageDraw.Draw(img)
-    font = ImageFont.truetype('fonts/SourceHanSansCN-Medium.otf', 25)
+    if server == 'kr':
+        font = ImageFont.truetype('fonts/SourceHanSansKR-Medium.otf', 25)
+    else:
+        font = ImageFont.truetype('fonts/SourceHanSansCN-Medium.otf', 25)
     if not secret:
         userId = ' - ' + userId
     else:
@@ -804,12 +813,16 @@ def sk(targetid=None, targetrank=None, secret=False, server='jp', simple=False, 
     draw.text((20, pos), name + userId, '#000000', font)
     pos += 35
     if teamname != '':
-        team = Image.open('data/assets/sekai/assetbundle/resources/ondemand/event/'
-                          f'{event["assetbundleName"]}/team_image/{assetbundleName}.png')
-        team = team.resize((45, 45))
-        r, g, b ,mask = team.split()
-        img.paste(team, (20, 63), mask)
-        draw.text((70, 65), teamname, '#000000', font)
+        if server != 'kr':
+            team = Image.open('data/assets/sekai/assetbundle/resources/ondemand/event/'
+                            f'{event["assetbundleName"]}/team_image/{assetbundleName}.png')
+            team = team.resize((45, 45))
+            r, g, b ,mask = team.split()
+            img.paste(team, (20, 63), mask)
+            draw.text((70, 65), teamname, '#000000', font)
+        else:  # 韩服添加了5v5队伍，使得编号与日服不一致
+            draw.text((20, 65), teamname, '#000000', font)
+            font = ImageFont.truetype('fonts/SourceHanSansCN-Medium.otf', 25)
         pos += 50
     msg = f'{name}{userId}\n{teamname}分数{score / 10000}W，排名{rank}'
     font2 = ImageFont.truetype('fonts/SourceHanSansCN-Medium.otf', 38)
@@ -916,6 +929,8 @@ def getqqbind(qqnum, server):
         cursor = c.execute(f'SELECT * from twbind where qqnum=?', (qqnum,))
     elif server == 'en':
         cursor = c.execute(f'SELECT * from enbind where qqnum=?', (qqnum,))
+    elif server == 'kr':
+        cursor = c.execute(f'SELECT * from krbind where qqnum=?', (qqnum,))
     for row in cursor:
         conn.close()
         return row

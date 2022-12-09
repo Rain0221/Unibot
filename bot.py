@@ -458,12 +458,15 @@ def sync_handle_msg(event):
         server = 'jp'
         if event.message[:2] == "jp":
             event.message = event.message[2:]
-        if event.message[:2] == "tw":
+        elif event.message[:2] == "tw":
             event.message = event.message[2:]
             server = 'tw'
         elif event.message[:2] == "en":
             event.message = event.message[2:]
             server = 'en'
+        elif event.message[:2] == "kr":
+            event.message = event.message[2:]
+            server = 'kr'
         # -------------------- 多服共用功能区 -----------------------
         if event.message[:2] == "sk":
             if event.group_id in blacklist['sk'] and server == 'jp':
@@ -710,7 +713,7 @@ def sync_handle_msg(event):
             except ValueError:
                 return
         # ----------------------- 恢复原命令 ---------------------------
-        if server == 'tw' or server == 'en':
+        if server != 'jp':
             event.message = server + event.message
         # -------------------- 结束多服共用功能区 -----------------------
         if event.message == '5v5人数':

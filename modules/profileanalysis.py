@@ -5,7 +5,7 @@ import time
 from PIL import Image, ImageFont, ImageDraw, ImageFilter
 import requests
 
-from modules.config import apiurl, enapiurl, twapiurl, proxies
+from modules.config import apiurl, enapiurl, twapiurl, krapiurl, proxies
 from modules.musics import idtoname
 from modules.sk import verifyid, recordname, currentevent
 from modules.texttoimg import texttoimg
@@ -58,6 +58,10 @@ class userprofile(object):
         elif server == 'tw':
             url = twapiurl
             masterdatadir = '../twapi/masterdata'
+        elif server == 'kr':
+            url = krapiurl
+            masterdatadir = '../krapi/masterdata'
+        
         resp = requests.get(f'{url}/user/{userid}/profile')
         data = json.loads(resp.content)
         self.name = data['user']['userGamedata']['name']
@@ -198,6 +202,9 @@ def r30(userid, private=False, server='jp', qqnum='未知'):
         url = enapiurl
     elif server == 'tw':
         url = twapiurl
+    elif server == 'kr':
+        url = krapiurl
+    
     if int(userid) < 10000000:
         event = currentevent('jp')
         eventid = event['id']
@@ -343,7 +350,11 @@ def pjskjindu(userid, private=False, diff='master', server='jp', qqnum='未知')
     except FileNotFoundError:
         pass
     draw = ImageDraw.Draw(img)
-    font_style = ImageFont.truetype("fonts/SourceHanSansCN-Bold.otf", 31)
+
+    if server == 'kr':
+        font_style = ImageFont.truetype("fonts/SourceHanSansKR-Bold.otf", 31)
+    else:
+        font_style = ImageFont.truetype("fonts/SourceHanSansCN-Bold.otf", 31)
     draw.text((216, 55), profile.name, fill=(0, 0, 0), font=font_style)
     font_style = ImageFont.truetype("fonts/FOT-RodinNTLGPro-DB.ttf", 15)
     draw.text((216, 105), 'id:' + id, fill=(0, 0, 0), font=font_style)
@@ -427,7 +438,10 @@ def pjskprofile(userid, private=False, server='jp', qqnum='未知'):
     font_style = ImageFont.truetype("fonts/FOT-RodinNTLGPro-DB.ttf", 22)
     draw.text((182, 318), str(profile.twitterId), fill=(0, 0, 0), font=font_style)
 
-    font_style = ImageFont.truetype("fonts/SourceHanSansCN-Medium.otf", 24)
+    if server == 'kr':
+        font_style = ImageFont.truetype("fonts/SourceHanSansKR-Medium.otf", 24)
+    else:
+        font_style = ImageFont.truetype("fonts/SourceHanSansCN-Medium.otf", 24)
     size = font_style.getsize(profile.word)
     if size[0] > 480:
         draw.text((132, 388), profile.word[:int(len(profile.word) * (460 / size[0]))], fill=(0, 0, 0), font=font_style)
@@ -936,6 +950,9 @@ def pjskb30(userid, private=False, returnpic=False, server='jp', qqnum='未知')
         url = enapiurl
     elif server == 'tw':
         url = twapiurl
+    elif server == 'kr':
+        url = krapiurl
+
     resp = requests.get(f'{url}/user/{userid}/profile')
     data = json.loads(resp.content)
     name = data['user']['userGamedata']['name']
@@ -980,7 +997,10 @@ def pjskb30(userid, private=False, returnpic=False, server='jp', qqnum='未知')
     except FileNotFoundError:
         pass
     draw = ImageDraw.Draw(pic)
-    font_style = ImageFont.truetype("fonts/SourceHanSansCN-Bold.otf", 35)
+    if server == 'kr':
+        font_style = ImageFont.truetype("fonts/SourceHanSansKR-Bold.otf", 35)
+    else:
+        font_style = ImageFont.truetype("fonts/SourceHanSansCN-Bold.otf", 35)
     draw.text((215, 65), name, fill=(0, 0, 0), font=font_style)
     font_style = ImageFont.truetype("fonts/FOT-RodinNTLGPro-DB.ttf", 15)
     draw.text((218, 118), 'id:' + id, fill=(0, 0, 0), font=font_style)
