@@ -206,7 +206,7 @@ def genGuessChart(music_id):
         else:
             artist = '%s / %s' % (music['composer'], music['arranger'])
     except:
-        music = {'title': title, 'assetbundleName': 'jacket_s_%03d' % music_id}
+        music = {'title': '', 'assetbundleName': 'jacket_s_%03d' % music_id}
 
     playlevel = '?'
     with open ('masterdata/musicDifficulties.json', 'r', encoding='utf-8') as f:
